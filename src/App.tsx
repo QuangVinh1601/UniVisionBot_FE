@@ -12,11 +12,12 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import ForgotPassword from './pages/ForgotPassword';
 import ConsultantChat from './pages/ConsultantChat';
+import AdminDashboard from './pages/AdminDashboardHeader';
 import { PrivateRoute } from './components/PrivateRoute';
 
 function App() {
   const location = useLocation();
-  const isAuthPage = location.pathname === '/login' || location.pathname === '/register' || location.pathname === '/forgot-password';
+  const isAuthPage = location.pathname === '/login' || location.pathname === '/register' || location.pathname === '/forgot-password' || location.pathname === '/consultant-chat' || location.pathname === '/admin-dashboard';
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -49,6 +50,7 @@ function App() {
                 </PrivateRoute>
               }
             />
+            <Route path="/admin-dashboard" element={<AdminDashboard />} />
           </Routes>
         </main>
         {!isAuthPage && (
