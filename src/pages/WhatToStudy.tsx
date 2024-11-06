@@ -7,7 +7,7 @@ const WhatToStudy = () => {
   return (
     <div className="container mx-auto p-8">
       {/* Banner section */}
-      <div className="relative h-[400px] w-[800px] mb-8 border-2 border-black border-solid">
+      <div className="relative h-[400px] w-[900px] mb-8 border-2 border-black border-solid">
         <img
           src="https://png.pngtree.com/thumb_back/fh260/background/20230715/pngtree-d-cartoon-illustration-of-diverse-professions-in-an-industrial-construction-team-image_3877024.jpg"
           alt="Banner Background"
