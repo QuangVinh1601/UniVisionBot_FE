@@ -1,62 +1,38 @@
-
-import React, { useState } from 'react';
+import React from 'react';
 
 const Careers: React.FC = () => {
-  const [selectedField, setSelectedField] = useState<string>('');
-  const [selectedMajor, setSelectedMajor] = useState<string>('');
-
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Tìm kiếm ngành học</h1>
       <div className="mb-4">
-        <label htmlFor="field" className="block mb-2">Nhóm ngành:</label>
-        <div className="relative">
-          <input
+        <h2 className="text-xl font-bold">Tra cứu điểm chuẩn theo trường</h2>
+        <div className="flex gap-2 mt-2">
+          <input 
             type="text"
-            id="field"
-            value={selectedField}
-            onChange={(e) => setSelectedField(e.target.value)}
-            placeholder="Nhập nhóm ngành"
-            className="block w-full bg-white border border-gray-300 hover:border-gray-400 px-4 py-2 pr-8 rounded shadow leading-tight focus:outline-none focus:shadow-outline"
+            placeholder="Tên trường"
+            className="border rounded px-3 py-1 flex-grow"
           />
-          {selectedField && (
-            <button
-              onClick={() => setSelectedField('')}
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
-            >
-              ✕
-            </button>
-          )}
+          <select className="border rounded px-3 py-1">
+            <option>Chọn năm</option>
+            <option>2023</option>
+            <option>2022</option>
+            <option>2021</option>
+          </select>
+          <button className="bg-orange-400 text-white px-4 py-1 rounded">
+            Tìm
+          </button>
         </div>
       </div>
-      <div className="mb-4">
-        <label htmlFor="major" className="block mb-2">Ngành:</label>
-        <div className="relative">
-          <input
-            type="text"
-            id="major"
-            value={selectedMajor}
-            onChange={(e) => setSelectedMajor(e.target.value)}
-            placeholder="Nhập ngành"
-            className="block w-full bg-white border border-gray-300 hover:border-gray-400 px-4 py-2 pr-8 rounded shadow leading-tight focus:outline-none focus:shadow-outline"
-          />
-          {selectedMajor && (
-            <button
-              onClick={() => setSelectedMajor('')}
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
-            >
-              ✕
-            </button>
-          )}
+
+      <div className="mt-8">
+        <h3 className="font-medium mb-2">Kết quả</h3>
+        <div className="space-y-2">
+          {[2023, 2022, 2021].map(year => (
+            <div key={year} className="text-blue-600 hover:underline cursor-pointer">
+              <span>Điểm chuẩn năm {year} - </span>
+              <span>Trường Đại học Y Hà Nội</span>
+            </div>
+          ))}
         </div>
-      </div>
-      <div className="flex justify-between">
-        <button className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded">
-          Tìm →
-        </button>
-        <button className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded">
-          Nhập lại
-        </button>
       </div>
     </div>
   );
