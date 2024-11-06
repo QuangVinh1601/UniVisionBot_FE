@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import logo from '../images/logo.jpg';
-// import { Link } from 'react-router-dom';
+
 const ForgotPassword: React.FC = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
   return (
     <div className="min-h-screen flex flex-col">
-      {/* ForgotPassword Content */}
       <div className="flex-1 flex">
-        {/* Left Side - Green Background with Logo */}
         <div className="w-1/2 bg-green-500 flex flex-col items-center justify-center text-white p-12">
           <div className="w-48 h-48 mb-5">
             <img src={logo} alt="UNI VISION BOT Logo" className="w-full h-full object-contain p-2"/>
@@ -20,7 +20,6 @@ const ForgotPassword: React.FC = () => {
           </p>
         </div>
 
-        {/* Right Side - Login Form */}
         <div className="w-1/2 bg-white p-8 mt-8">
           <h2 className="text-3xl font-bold mb-6">Đổi mật khẩu</h2>
           <form>
@@ -52,15 +51,21 @@ const ForgotPassword: React.FC = () => {
               </span>
             </div>
 
-            <div className="mb-4">
+            <div className="mb-4 relative">
               <label className="block text-gray-700 text-sm font-bold mb-2">
                 Nhập lại mật khẩu <span className="text-red-500">*</span>
               </label>
               <input 
-                type="password" 
+                type={showConfirmPassword ? 'text' : 'password'} 
                 placeholder="Nhập lại mật khẩu"
                 className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
               />
+              <span 
+                className="absolute right-3 top-10 text-sm text-blue-500 cursor-pointer"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+              >
+                {showConfirmPassword ? 'Ẩn mật khẩu' : 'Hiển thị mật khẩu'}
+              </span>
             </div>
 
             <div className="mb-4">

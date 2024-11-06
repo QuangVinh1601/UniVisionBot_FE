@@ -3,6 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "^6.6.0",
+    "@fortawesome/free-solid-svg-icons": "^6.6.0",
+    "@fortawesome/react-fontawesome": "^0.2.2",
     "@headlessui/react": "^2.1.10",
     "@heroicons/react": "^2.1.5",
     "@testing-library/jest-dom": "^5.17.0",
@@ -13,6 +16,7 @@
     "@types/react": "^18.3.11",
     "@types/react-dom": "^18.3.1",
     "axios": "^1.7.7",
+    "fortawesome": "^0.0.1-security",
     "jwt-decode": "^4.0.0",
     "lucide-react": "^0.453.0",
     "react": "^18.3.1",

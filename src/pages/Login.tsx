@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import logo from '../images/logo.jpg';
 import { Link, useNavigate } from 'react-router-dom';
 import { login } from '../api/authApi';
-import jwt_decode from 'jwt-decode';
 
 
 const Login: React.FC = () => {
@@ -19,16 +18,16 @@ const Login: React.FC = () => {
     try {
       const response = await login(email, password);
       const token = response.accessToken;
+      const role = response.roleUser; // Get role directly from response
 
-      // Lưu token vào localStorage
+      // Log the response for debugging (optional)
+      console.log(response);
+
+      // Save token and role to localStorage
       localStorage.setItem('token', token);
+      localStorage.setItem('role', role);
 
-      // Giải mã token để lấy quyền (role)
-      const jwttoken = require('jwt-decode');
-      const decodedToken: any = jwttoken(token); // Ensure type safety for decodedToken
-      const role = decodedToken.role;
-
-      // Chuyển hướng người dùng dựa trên quyền
+      // Redirect user based on role
       if (role === 'ADMIN') {
         navigate('/admin-dashboard');
       } else if (role === 'CONSULTANT') {
@@ -38,13 +37,43 @@ const Login: React.FC = () => {
       } else {
         // Handle unknown role more gracefully
         console.error('Unknown role:', role);
-        setError('An error occurred during login.'); 
+        setError('An error occurred during login.');
       }
     } catch (error: any) {
       // Provide a more user-friendly error message if possible
-      setError(error.message || "Đăng nhập không thành công. Vui lòng thử lại.");
+      setError(error.message || "Login unsuccessful. Please try again.");
     }
-  };
+    e.preventDefault();
+    setError(null); // Clear any previous errors
+
+    try {
+      const response = await login(email, password);
+      const token = response.accessToken;
+      const role = response.roleUser; // Get role directly from response
+
+      // Log the response for debugging (optional)
+      console.log(response);
+
+      // Save token to localStorage
+      localStorage.setItem('token', token);
+
+      // Redirect user based on role
+      if (role === 'ADMIN') {
+        navigate('/admin-dashboard');
+      } else if (role === 'CONSULTANT') {
+        navigate('/consultant-chat');
+      } else if (role === 'USER') {
+        navigate('/');
+      } else {
+        // Handle unknown role more gracefully
+        console.error('Unknown role:', role);
+        setError('An error occurred during login.');
+      }
+    } catch (error: any) {
+      // Provide a more user-friendly error message if possible
+      setError(error.message || "Login unsuccessful. Please try again.");
+    }
+};
 
   return (
     <div className="min-h-screen flex flex-col">
