@@ -1,23 +1,33 @@
-import React from 'react';
-import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
-import Header from './components/Header';
-import Footer from './components/Footer';
-import AdBanner from './components/AdBanner';
-import Chatbot from './components/Chatbot';
-import Home from './pages/Home';
-import Careers from './pages/Careers';
-import CareerGuidanceTest from './pages/CareerGuidanceTest';
-import WhatToStudy from './pages/WhatToStudy';
-import Login from './pages/Login';
-import Register from './pages/Register';
-import ForgotPassword from './pages/ForgotPassword';
-import ConsultantChat from './pages/ConsultantChat';
-import AdminDashboard from './pages/AdminDashboardHeader';
-import { PrivateRoute } from './components/PrivateRoute';
+import React from "react";
+import {
+  BrowserRouter as Router,
+  Route,
+  Routes,
+  useLocation,
+} from "react-router-dom";
+import Header from "./components/Header";
+import Footer from "./components/Footer";
+import AdBanner from "./components/AdBanner";
+import ChatBot from "./components/ChatBot";
+import Home from "./pages/Home";
+import Careers from "./pages/Careers";
+import CareerGuidanceTest from "./pages/CareerGuidanceTest";
+import WhatToStudy from "./pages/WhatToStudy";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import ForgotPassword from "./pages/ForgotPassword";
+import ConsultantChat from "./pages/ConsultantChat";
+import AdminDashboard from "./components/AdminDashboardHeader"; // Import the AdminDashboard component
+import { PrivateRoute } from "./components/PrivateRoute";
 
 function App() {
   const location = useLocation();
-  const isAuthPage = location.pathname === '/login' || location.pathname === '/register' || location.pathname === '/forgot-password' || location.pathname === '/consultant-chat' || location.pathname === '/admin-dashboard';
+  const isAuthPage =
+    location.pathname === "/login" ||
+    location.pathname === "/register" ||
+    location.pathname === "/forgot-password" ||
+    location.pathname === "/consultant-chat" ||
+    location.pathname === "/admin-dashboard";
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -25,7 +35,9 @@ function App() {
         <Header />
         <hr className="border-t border-gray-300" />
       </div>
-      <div className={`flex flex-1 mt-16 ${isAuthPage ? 'justify-center' : ''}`}>
+      <div
+        className={`flex flex-1 mt-16 ${isAuthPage ? "justify-center" : ""}`}
+      >
         {!isAuthPage && (
           <>
             <AdBanner position="left" />
@@ -36,7 +48,10 @@ function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/careers" element={<Careers />} />
-            <Route path="/career-guidance-test" element={<CareerGuidanceTest />} />
+            <Route
+              path="/career-guidance-test"
+              element={<CareerGuidanceTest />}
+            />
             <Route path="/what-to-study" element={<WhatToStudy />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
@@ -45,7 +60,9 @@ function App() {
             <Route
               path="/consultant-chat"
               element={
-                <PrivateRoute role="CONSULTANT">  {/* Add role prop here */}
+                <PrivateRoute role="CONSULTANT">
+                  {" "}
+                  {/* Add role prop here */}
                   <ConsultantChat />
                 </PrivateRoute>
               }
@@ -67,7 +84,7 @@ function App() {
           <Footer />
         </>
       )}
-      {!isAuthPage && <Chatbot />}
+      {!isAuthPage && <ChatBot /> }
     </div>
   );
 }
