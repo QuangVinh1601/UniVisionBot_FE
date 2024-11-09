@@ -12,7 +12,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import ForgotPassword from './pages/ForgotPassword';
 import ConsultantChat from './pages/ConsultantChat';
-import AdminDashboard from './pages/AdminDashboardHeader';
+import AdminDashboard from './components/AdminDashboardHeader';
 import { PrivateRoute } from './components/PrivateRoute';
 
 function App() {
