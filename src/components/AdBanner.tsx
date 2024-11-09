@@ -1,8 +1,9 @@
 import React from 'react';
 import duytan from '../images/duytan.png';
-import donga from '../images/donga.png';
-import danang from '../images/danang.png';
-import fptdanang from '../images/fptdanang.png';
+import kientruchanoi from '../images/kientruchanoi.jpeg';
+import kinhtehcm from '../images/kinhtehcm.jpeg';
+import vanlang from '../images/vanlang.jpg';
+
 interface AdBannerProps {
   position: 'left' | 'right';
 }
@@ -19,25 +20,25 @@ const AdBanner: React.FC<AdBannerProps> = ({ position }) => {
           />
         </a>
         <br />
-        <a href="https://donga.edu.vn/tuyensinh" target="_blank" rel="noopener noreferrer">
+        <a href="https://hau.edu.vn/thong-tin-tuyen-sinh-dai-hoc_c08/" target="_blank" rel="noopener noreferrer">
           <img
-            src={donga} 
+            src={kientruchanoi} 
             alt="Advertisement"
             className="cursor-pointer rounded-lg shadow-lg transition-transform transform hover:scale-105"
           />
         </a>
         <br />
-        <a href="https://dnuni.fpt.edu.vn/tuyen-sinh/quy-che-tuyen-sinh/" target="_blank" rel="noopener noreferrer">
+        <a href="https://tuyensinh.ueh.edu.vn/" target="_blank" rel="noopener noreferrer">
           <img
-            src={fptdanang} 
+            src={kinhtehcm} 
             alt="Advertisement"
             className="cursor-pointer rounded-lg shadow-lg transition-transform transform hover:scale-105"
           />
         </a>
         <br />
-        <a href="https://ts.udn.vn/DHCD/Chinhquy" target="_blank" rel="noopener noreferrer">
+        <a href="https://tuyensinh.vlu.edu.vn/" target="_blank" rel="noopener noreferrer">
           <img
-            src={danang} 
+            src={vanlang} 
             alt="Advertisement"
             className="cursor-pointer rounded-lg shadow-lg transition-transform transform hover:scale-105"
           />
