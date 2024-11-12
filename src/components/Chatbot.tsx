@@ -1,11 +1,16 @@
 import React from 'react';
-import gg_bot from '../images/gg_bot.png'; // Đảm bảo đường dẫn ảnh đúng
+import ChatWindow from './ChatWindow';
+import gg_bot from '../images/gg_bot.png'; 
 
-const Chatbot: React.FC = () => {
+const ChatBot: React.FC = () => {
   const [isChatOpen, setIsChatOpen] = React.useState(false);
 
   const toggleChat = () => {
     setIsChatOpen(!isChatOpen);
+  };
+
+  const handleBotClick = () => {
+    // Logic riêng cho chức năng của bot
   };
 
   return (
@@ -22,7 +27,7 @@ const Chatbot: React.FC = () => {
       </div>
 
       {/* Hình ảnh bot */}
-      <img src={gg_bot} alt="Chatbot" className={`w-10 h-10 cursor-pointer ${isChatOpen ? 'mb-2' : ''}`} onClick={toggleChat} />
+      <img src={gg_bot} alt="Chatbot" className={`w-10 h-10 cursor-pointer ${isChatOpen ? 'mb-2' : ''}`} onClick={handleBotClick} />
       
       {/* Dòng chữ dưới bot (chỉ hiển thị khi chat đóng) */}
       {!isChatOpen && (
@@ -35,23 +40,10 @@ const Chatbot: React.FC = () => {
       )}
 
       {/* Khung chat (chỉ hiển thị khi chat mở) */}
-      {isChatOpen && (
-        <div className="bg-white border border-green-500 rounded-lg shadow-lg mt-2 w-64 h-80 overflow-hidden flex flex-col">
-          <div className="bg-green-500 text-white p-2 font-bold flex justify-between items-center">
-            <span>UniVisionBot</span>
-            <button onClick={toggleChat} className="text-white">&times;</button>
-          </div>
-          <div className="flex-grow p-2 overflow-y-auto">
-            {/* Nội dung chat sẽ được hiển thị ở đây */}
-          </div>
-          <div className="border-t border-green-500 p-2 flex">
-            <input type="text" placeholder="Nhập tin nhắn..." className="flex-grow border rounded-l px-2 py-1" />
-            <button className="bg-green-500 text-white px-4 py-1 rounded-r">Gửi</button>
-          </div>
-        </div>
-      )}
+      {isChatOpen && <ChatWindow toggleChat={toggleChat} />}
     </div>
   );
 };
 
-export default Chatbot;
+
+export default ChatBot;

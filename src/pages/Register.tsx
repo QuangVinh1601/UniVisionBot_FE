@@ -1,14 +1,14 @@
-import React, { useState } from 'react';
-import logo from '../images/logo.jpg';
-import { useNavigate } from 'react-router-dom';
-import { register } from '../api/authApi';
+import React, { useState } from "react";
+import logo from "../images/logo.jpg";
+import { useNavigate } from "react-router-dom";
+import { register } from "../api/authApi";
 
 const Register: React.FC = () => {
-  const [fullName, setFullName] = useState('');
-  const [userName, setUserName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [fullName, setFullName] = useState("");
+  const [userName, setUserName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -18,14 +18,20 @@ const Register: React.FC = () => {
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     if (password !== confirmPassword) {
-      setError('Mật khẩu và xác nhận mật khẩu không khớp');
+      setError("Mật khẩu và xác nhận mật khẩu không khớp");
       return;
     }
     try {
-      const response = await register(fullName, userName, email, password, confirmPassword);
+      const response = await register(
+        fullName,
+        userName,
+        email,
+        password,
+        confirmPassword
+      );
       setSuccess("Đăng ký thành công! Bạn có thể đăng nhập.");
       setError(null);
-      navigate('/login');
+      navigate("/login");
     } catch (err) {
       setError("Đăng ký không thành công. Vui lòng thử lại.");
     }
@@ -38,9 +44,15 @@ const Register: React.FC = () => {
         {/* Left Side - Green Background with Logo */}
         <div className="w-1/2 bg-green-500 flex flex-col items-center justify-center text-white p-12">
           <div className="w-48 h-48 mb-5">
-            <img src={logo} alt="UNI VISION BOT Logo" className="w-full h-full object-contain p-2"/>
+            <img
+              src={logo}
+              alt="UNI VISION BOT Logo"
+              className="w-full h-full object-contain p-2"
+            />
           </div>
-          <h1 className="text-2xl font-semibold text-center text-black mb-4">UNI VISION BOT</h1>
+          <h1 className="text-2xl font-semibold text-center text-black mb-4">
+            UNI VISION BOT
+          </h1>
           <p className="text-center text-lg">
             "Chọn đúng trường, hướng đúng nghề – <br />
             Bước tới tương lai cùng hệ thống tư vấn <br />
@@ -98,7 +110,7 @@ const Register: React.FC = () => {
                 Mật khẩu <span className="text-red-500">*</span>
               </label>
               <input
-                type={showPassword ? 'text' : 'password'}
+                type={showPassword ? "text" : "password"}
                 placeholder="Nhập mật khẩu"
                 className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
                 value={password}
@@ -108,7 +120,7 @@ const Register: React.FC = () => {
                 className="absolute right-3 top-10 text-sm text-blue-500 cursor-pointer"
                 onClick={() => setShowPassword(!showPassword)}
               >
-                {showPassword ? 'Ẩn mật khẩu' : 'Hiển thị mật khẩu'}
+                {showPassword ? "Ẩn mật khẩu" : "Hiển thị mật khẩu"}
               </span>
             </div>
 
@@ -117,7 +129,7 @@ const Register: React.FC = () => {
                 Nhập lại mật khẩu <span className="text-red-500">*</span>
               </label>
               <input
-                type={showConfirmPassword ? 'text' : 'password'}
+                type={showConfirmPassword ? "text" : "password"}
                 placeholder="Nhập lại mật khẩu"
                 className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
                 value={confirmPassword}
@@ -127,16 +139,13 @@ const Register: React.FC = () => {
                 className="absolute right-3 top-10 text-sm text-blue-500 cursor-pointer"
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
               >
-                {showConfirmPassword ? 'Ẩn mật khẩu' : 'Hiển thị mật khẩu'}
+                {showConfirmPassword ? "Ẩn mật khẩu" : "Hiển thị mật khẩu"}
               </span>
             </div>
 
             <div className="mb-4">
               <label className="flex items-center">
-                <input
-                  type="checkbox"
-                  className="mr-2 leading-tight"
-                />
+                <input type="checkbox" className="mr-2 leading-tight" />
                 <span className="text-gray-700 text-sm">Nhớ mật khẩu</span>
               </label>
             </div>
@@ -149,7 +158,11 @@ const Register: React.FC = () => {
             </button>
 
             <p className="mt-4 text-center text-sm">
-              Bạn đã có tài khoản? <a href="/login" className="text-blue-500 font-bold">Đăng Nhập</a>.
+              Bạn đã có tài khoản?{" "}
+              <a href="/login" className="text-blue-500 font-bold">
+                Đăng Nhập
+              </a>
+              .
             </p>
           </form>
         </div>
