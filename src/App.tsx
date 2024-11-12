@@ -8,10 +8,10 @@ import {
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import AdBanner from "./components/AdBanner";
-import ChatBot from "./components/ChatBot";
+import ChatBot from "./components/Chatbot";
 import Home from "./pages/Home";
 import Careers from "./pages/Careers";
-import CareerGuidanceTest from "./pages/CareerGuidanceTest";
+import CareerGuidanceTest from "./pages/CareerGuidanceTest/CareerGuidanceTest";
 import WhatToStudy from "./pages/WhatToStudy";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -27,7 +27,7 @@ function App() {
     location.pathname === "/register" ||
     location.pathname === "/forgot-password" ||
     location.pathname === "/consultant-chat" ||
-    location.pathname === "/admin-dashboard";
+    location.pathname === "/admin-dashboard" ;
 
   return (
     <div className="flex flex-col min-h-screen">
