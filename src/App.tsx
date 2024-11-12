@@ -1,24 +1,20 @@
-import React from "react";
-import {
-  BrowserRouter as Router,
-  Route,
-  Routes,
-  useLocation,
-} from "react-router-dom";
-import Header from "./components/Header";
-import Footer from "./components/Footer";
-import AdBanner from "./components/AdBanner";
-import ChatBot from "./components/Chatbot";
-import Home from "./pages/Home";
-import Careers from "./pages/Careers";
-import CareerGuidanceTest from "./pages/CareerGuidanceTest/CareerGuidanceTest";
-import WhatToStudy from "./pages/WhatToStudy";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-import ForgotPassword from "./pages/ForgotPassword";
-import ConsultantChat from "./pages/ConsultantChat";
-import AdminDashboard from "./components/AdminDashboardHeader"; // Import the AdminDashboard component
-import { PrivateRoute } from "./components/PrivateRoute";
+
+import React from 'react';
+import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
+import Header from './components/Header';
+import Footer from './components/Footer';
+import AdBanner from './components/AdBanner';
+import Chatbot from './components/Chatbot';
+import Home from './pages/Home';
+import Careers from './pages/Careers';
+import CareerGuidanceTest from './pages/CareerGuidanceTest';
+import WhatToStudy from './pages/WhatToStudy';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import ForgotPassword from './pages/ForgotPassword';
+import ConsultantChat from './pages/ConsultantChat';
+import AdminDashboard from './components/AdminDashboardHeader';
+import { PrivateRoute } from './components/PrivateRoute';
 
 function App() {
   const location = useLocation();
