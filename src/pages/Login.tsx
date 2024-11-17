@@ -3,7 +3,6 @@ import logo from '../images/logo.jpg';
 import { Link, useNavigate } from 'react-router-dom';
 import { login } from '../api/authApi';
 
-
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -41,7 +40,7 @@ const Login: React.FC = () => {
       }
     } catch (error: any) {
       // Provide a more user-friendly error message if possible
-      setError(error.message || "Login unsuccessful. Please try again.");
+      setError(error.message || 'Login unsuccessful. Please try again.');
     }
     e.preventDefault();
     setError(null); // Clear any previous errors
@@ -54,7 +53,7 @@ const Login: React.FC = () => {
         {/* Left Side - Green Background with Logo */}
         <div className="w-1/2 bg-green-500 flex flex-col items-center justify-center text-white p-12">
           <div className="w-48 h-48 mb-5">
-            <img src={logo} alt="UNI VISION BOT Logo" className="w-full h-full object-contain p-2"/>
+            <img src={logo} alt="UNI VISION BOT Logo" className="w-full h-full object-contain p-2" />
           </div>
           <h1 className="text-2xl font-semibold text-center text-black mb-4">UNI VISION BOT</h1>
           <p className="text-center text-lg">
@@ -69,7 +68,7 @@ const Login: React.FC = () => {
           <div className="w-full max-w-md">
             <h2 className="text-3xl font-bold mb-8">Đăng Nhập</h2>
             {error && <p className="text-red-500 mb-4">{error}</p>}
-            
+
             <form className="space-y-6" onSubmit={handleLogin}>
               <div className="mb-4">
                 <label className="block text-gray-700 text-sm font-bold mb-2">
@@ -95,18 +94,12 @@ const Login: React.FC = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                 />
-                <span
-                  className="absolute right-3 top-10 text-sm text-blue-500 cursor-pointer"
-                  onClick={() => setShowPassword(!showPassword)}
-                >
+                <span className="absolute right-3 top-10 text-sm text-blue-500 cursor-pointer" onClick={() => setShowPassword(!showPassword)}>
                   {showPassword ? 'Ẩn mật khẩu' : 'Hiển thị mật khẩu'}
                 </span>
               </div>
 
-              <button
-                type="submit"
-                className="w-full bg-green-500 text-white py-3 rounded hover:bg-green-600 transition-colors"
-              >
+              <button type="submit" className="w-full bg-green-500 text-white py-3 rounded hover:bg-green-600 transition-colors">
                 Đăng nhập
               </button>
 

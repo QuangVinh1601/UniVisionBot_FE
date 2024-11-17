@@ -1,32 +1,20 @@
-import axios from "axios";
+import axios from 'axios';
 
-const API_BASE_URL = "https://localhost:7230/api/Login"; // Thay bằng URL API .NET của bạn
+const API_BASE_URL = 'https://localhost:7230/api/Login'; // Thay bằng URL API .NET của bạn
 
 // Hàm đăng ký
-export const register = async (
-  fullName,
-  userName,
-  email,
-  password,
-  confirmPassword
-) => {
+export const register = async (fullName, userName, email, password, confirmPassword) => {
   try {
-    const response = await axios.post(
-      "https://localhost:7230/api/Login/register/user",
-      {
-        fullName,
-        userName,
-        email,
-        password,
-        confirmPassword,
-      }
-    );
+    const response = await axios.post('https://localhost:7230/api/Login/register/user', {
+      fullName,
+      userName,
+      email,
+      password,
+      confirmPassword,
+    });
     return response.data; // Dữ liệu trả về từ API
   } catch (error) {
-    console.error(
-      "Error registering:",
-      error.response ? error.response.data : error.message
-    );
+    console.error('Error registering:', error.response ? error.response.data : error.message);
     throw error;
   }
 };
@@ -34,19 +22,13 @@ export const register = async (
 // Hàm đăng nhập
 export const login = async (email, password) => {
   try {
-    const response = await axios.post(
-      "https://localhost:7230/api/Login/login",
-      {
-        email,
-        password,
-      }
-    );
+    const response = await axios.post('https://localhost:7230/api/Login/login', {
+      email,
+      password,
+    });
     return response.data; // Dữ liệu trả về từ API
   } catch (error) {
-    console.error(
-      "Error logging in:",
-      error.response ? error.response.data : error.message
-    );
+    console.error('Error logging in:', error.response ? error.response.data : error.message);
     throw error;
   }
 };
