@@ -7,7 +7,6 @@ import ChatBot from './components/Chatbot';
 import Home from './pages/Home';
 import Careers from './pages/Careers';
 import CareerGuidanceTest from './pages/CareerGuidanceTest/CareerGuidanceTest';
-import CareerGuidanceTest from './pages/CareerGuidanceTest/CareerGuidanceTest';
 import WhatToStudy from './pages/WhatToStudy';
 import Login from './pages/Login';
 import Register from './pages/Register';

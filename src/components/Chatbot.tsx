@@ -2,8 +2,6 @@
 import React, { useEffect, useState } from 'react';
 import ChatWindow from './ChatWindow';
 import gg_bot from '../images/gg_bot.png';
-import gg_bot from '../images/gg_bot.png';
-
 const ChatBot: React.FC = () => {
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [isUserRole, setIsUserRole] = useState(false);
