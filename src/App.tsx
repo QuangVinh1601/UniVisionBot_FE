@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-route
 import Header from './components/Header';
 import Footer from './components/Footer';
 import AdBanner from './components/AdBanner';
-import Chatbot from './components/Chatbot';
+import ChatBot from './components/Chatbot';
 import Home from './pages/Home';
 import Careers from './pages/Careers';
 import CareerGuidanceTest from './pages/CareerGuidanceTest/CareerGuidanceTest';
@@ -57,7 +57,11 @@ function App() {
                 </PrivateRoute>
               }
             />
-            <Route path="/admin-dashboard" element={<AdminDashboard />} />
+            <Route path="/admin-dashboard" element={<PrivateRoute role="ADMIN">
+                  {" "}
+                  {/* Add role prop here */}
+                  <AdminDashboard />
+                </PrivateRoute>} />
           </Routes>
         </main>
         {!isAuthPage && (
@@ -74,7 +78,7 @@ function App() {
           <Footer />
         </>
       )}
-      {!isAuthPage && <Chatbot />}
+      {!isAuthPage && <ChatBot/> }
     </div>
   );
 }

@@ -1,9 +1,16 @@
-import React from 'react';
+
+import React, { useEffect, useState } from 'react';
 import ChatWindow from './ChatWindow';
 import gg_bot from '../images/gg_bot.png';
-
 const ChatBot: React.FC = () => {
-  const [isChatOpen, setIsChatOpen] = React.useState(false);
+  const [isChatOpen, setIsChatOpen] = useState(false);
+  const [isUserRole, setIsUserRole] = useState(false);
+
+  useEffect(() => {
+    // Check the role in localStorage when the component mounts
+    const role = localStorage.getItem('role');
+    setIsUserRole(role === 'USER'); // Set to true if the role is 'USER'
+  }, []);
 
   const toggleChat = () => {
     setIsChatOpen(!isChatOpen);
@@ -13,9 +20,14 @@ const ChatBot: React.FC = () => {
     // Logic riêng cho chức năng của bot
   };
 
+  if (!isUserRole) {
+    // Don't render the chatbot if the user role is not 'USER'
+    return null;
+  }
+
   return (
     <div className="fixed bottom-5 right-5 z-50 flex flex-col items-center">
-      {/* Bong bóng tin nhắn */}
+      {/* Chat bubble */}
       <div className="relative bg-white border border-green-500 p-3 rounded-lg shadow-lg mb-2">
         <p className="text-sm text-gray-800">
           Sử dụng UniVisionBot để
@@ -24,16 +36,19 @@ const ChatBot: React.FC = () => {
           <br />
           tuyển sinh ngành nghề
         </p>
-        {/* Mũi tên của bong bóng */}
+        {/* Arrow on the bubble */}
         <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-8 border-l-transparent border-r-8 border-r-transparent border-t-8 border-t-green-500"></div>
       </div>
 
-      {/* Hình ảnh bot */}
+      {/* Bot icon */}
       <img src={gg_bot} alt="Chatbot" className={`w-10 h-10 cursor-pointer ${isChatOpen ? 'mb-2' : ''}`} onClick={handleBotClick} />
-
-      {/* Dòng chữ dưới bot (chỉ hiển thị khi chat đóng) */}
+      
+      {/* Label under bot (only shows when chat is closed) */}
       {!isChatOpen && (
-        <div className="bg-green-500 text-white p-2 font-bold flex items-center cursor-pointer" onClick={toggleChat}>
+        <div
+          className="bg-green-500 text-white p-2 font-bold flex items-center cursor-pointer"
+          onClick={toggleChat}
+        >
           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
             <path
               fillRule="evenodd"
@@ -45,7 +60,7 @@ const ChatBot: React.FC = () => {
         </div>
       )}
 
-      {/* Khung chat (chỉ hiển thị khi chat mở) */}
+      {/* Chat window (only shows when chat is open) */}
       {isChatOpen && <ChatWindow toggleChat={toggleChat} />}
     </div>
   );
