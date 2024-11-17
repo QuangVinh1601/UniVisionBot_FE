@@ -51,13 +51,13 @@ const CareerGuidanceTest: React.FC = () => {
             <h1 className="text-3xl font-bold">Làm bài TRẮC NGHIỆM HƯỚNG NGHIỆP</h1>
             <p className="mb-4">Bài trắc nghiệm hướng nghiệp - John Holland</p>
           </div>
-          <div className="p-4">
+          {/* <div className="p-4">
             <button className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
               Đăng nhập nhanh với Google
             </button>
-          </div>
+          </div> */}
           <div className="p-4">
-            <p className="mb-2 text-red-500">* trường bắt buộc phải điền</p>
+            <p className="mb-2 text-red-500">* Trường bắt buộc phải điền</p>
             <div className="flex items-center mb-2">
               <label className="mr-2 whitespace-nowrap w-1/3">Nhập tên của bạn <span className="text-red-500">*</span></label>
               <input
