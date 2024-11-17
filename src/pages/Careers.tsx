@@ -56,7 +56,7 @@ const Careers: React.FC = () => {
   }, []);
 
   const removeDiacritics = (str: string) => {
-    return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
   };
 
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -70,10 +70,7 @@ const Careers: React.FC = () => {
       const filtered = examScores.filter((score) => {
         const normalizedUniversityName = removeDiacritics(score.universityName.toLowerCase());
         const normalizedUniversityCode = score.universityCode.toLowerCase();
-        return (
-          normalizedUniversityName.includes(normalizedQuery) ||
-          normalizedUniversityCode.includes(normalizedQuery)
-        );
+        return normalizedUniversityName.includes(normalizedQuery) || normalizedUniversityCode.includes(normalizedQuery);
       });
       setFilteredScores(filtered);
     }
@@ -84,11 +81,7 @@ const Careers: React.FC = () => {
     const filtered = examScores.filter((score) => {
       const normalizedUniversityName = removeDiacritics(score.universityName.toLowerCase());
       const normalizedUniversityCode = score.universityCode.toLowerCase();
-      return (
-        (normalizedUniversityName.includes(normalizedQuery) ||
-         normalizedUniversityCode.includes(normalizedQuery)) &&
-        (selectedYear === '' || score.year === selectedYear)
-      );
+      return (normalizedUniversityName.includes(normalizedQuery) || normalizedUniversityCode.includes(normalizedQuery)) && (selectedYear === '' || score.year === selectedYear);
     });
     setFilteredScores(filtered);
     setCurrentPage(1); // Reset to the first page after filtering
@@ -96,9 +89,7 @@ const Careers: React.FC = () => {
 
   const fetchExamDetail = async (universityCode: string, year: string) => {
     try {
-      const response = await fetch(
-        `https://localhost:7230/api/UniversityExamScore/getscore?universityCode=${encodeURIComponent(universityCode)}&year=${year}`
-      );
+      const response = await fetch(`https://localhost:7230/api/UniversityExamScore/getscore?universityCode=${encodeURIComponent(universityCode)}&year=${year}`);
       if (!response.ok) throw new Error('Failed to fetch exam detail');
       const detailData: ExamDetail = await response.json();
       setDetail(detailData);
@@ -119,18 +110,8 @@ const Careers: React.FC = () => {
       <div className="mb-4">
         <h2 className="text-xl font-bold">Tra cứu điểm chuẩn theo trường</h2>
         <div className="flex gap-2 mt-2">
-          <input 
-            type="text"
-            placeholder="Tên trường hoặc mã trường"
-            className="border rounded px-3 py-1 flex-grow"
-            value={searchQuery}
-            onChange={handleSearchChange}
-          />
-          <select 
-            className="border rounded px-3 py-1" 
-            value={selectedYear} 
-            onChange={(e) => setSelectedYear(e.target.value)}
-          >
+          <input type="text" placeholder="Tên trường hoặc mã trường" className="border rounded px-3 py-1 flex-grow" value={searchQuery} onChange={handleSearchChange} />
+          <select className="border rounded px-3 py-1" value={selectedYear} onChange={(e) => setSelectedYear(e.target.value)}>
             <option value="">Chọn năm</option>
             {years.map((year) => (
               <option key={year} value={year}>
@@ -148,11 +129,7 @@ const Careers: React.FC = () => {
         <h3 className="font-medium mb-2">Kết quả</h3>
         <div className="space-y-2">
           {filteredScores.map(({ title, universityName, universityCode, year }) => (
-            <div 
-              key={`${universityCode}-${year}`} 
-              className="text-blue-600 hover:underline cursor-pointer"
-              onClick={() => fetchExamDetail(universityCode, year)}
-            >
+            <div key={`${universityCode}-${year}`} className="text-blue-600 hover:underline cursor-pointer" onClick={() => fetchExamDetail(universityCode, year)}>
               {title}
             </div>
           ))}
@@ -162,9 +139,15 @@ const Careers: React.FC = () => {
       {detail && (
         <div className="mt-8 bg-gray-100 p-4 rounded">
           <h3 className="text-xl font-bold">{detail.title}</h3>
-          <p><strong>Trường:</strong> {detail.universityName}</p>
-          <p><strong>Mã trường:</strong> {detail.universityCode}</p>
-          <p><strong>Năm:</strong> {detail.year}</p>
+          <p>
+            <strong>Trường:</strong> {detail.universityName}
+          </p>
+          <p>
+            <strong>Mã trường:</strong> {detail.universityCode}
+          </p>
+          <p>
+            <strong>Năm:</strong> {detail.year}
+          </p>
 
           <h4 className="mt-4 font-semibold">Danh sách ngành:</h4>
           <table className="w-full border-collapse border border-gray-300 mt-2">
@@ -196,9 +179,7 @@ const Careers: React.FC = () => {
               <button
                 key={i}
                 onClick={() => handlePageChange(i + 1)}
-                className={`px-3 py-1 mx-1 rounded ${
-                  currentPage === i + 1 ? 'bg-blue-500 text-white' : 'bg-gray-300 text-black'
-                }`}
+                className={`px-3 py-1 mx-1 rounded ${currentPage === i + 1 ? 'bg-blue-500 text-white' : 'bg-gray-300 text-black'}`}
               >
                 {i + 1}
               </button>
