@@ -1,0 +1,27 @@
+{
+  "files": {
+    "main.css": "/static/css/main.70b4a863.css",
+    "main.js": "/static/js/main.0ea9dc65.js",
+    "static/js/453.4ae3ceea.chunk.js": "/static/js/453.4ae3ceea.chunk.js",
+    "static/media/image_careers.png": "/static/media/image_careers.12cd2a9b652f2c5994d3.png",
+    "static/media/image6.png": "/static/media/image6.752dbcda98d4b737faf9.png",
+    "static/media/fptdanang.png": "/static/media/fptdanang.35180b9c87327d771216.png",
+    "static/media/danang.png": "/static/media/danang.4ca6fe283833dbad33cd.png",
+    "static/media/image3.jpg": "/static/media/image3.ae526fe4110227805b90.jpg",
+    "static/media/logo.jpg": "/static/media/logo.e86736aa7160a8dd72b6.jpg",
+    "static/media/image5.jpg": "/static/media/image5.9db56a17ccb9aefa8416.jpg",
+    "static/media/duytan.png": "/static/media/duytan.4ac2ce47bf1901b32342.png",
+    "static/media/image1.jpg": "/static/media/image1.8ae21591f0e4f79fd5dc.jpg",
+    "static/media/image4.jpeg": "/static/media/image4.862319a93d47dbcc30e3.jpeg",
+    "static/media/donga.png": "/static/media/donga.ce88ff38e6a7d95ed6d5.png",
+    "static/media/image2.jpg": "/static/media/image2.a4bd14037ac00297e1a5.jpg",
+    "index.html": "/index.html",
+    "main.70b4a863.css.map": "/static/css/main.70b4a863.css.map",
+    "main.0ea9dc65.js.map": "/static/js/main.0ea9dc65.js.map",
+    "453.4ae3ceea.chunk.js.map": "/static/js/453.4ae3ceea.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.70b4a863.css",
+    "static/js/main.0ea9dc65.js"
+  ]
+}

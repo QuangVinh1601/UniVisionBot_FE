@@ -18,7 +18,7 @@ import { PrivateRoute } from './components/PrivateRoute';
 function App() {
   const location = useLocation();
   const isAuthPage = location.pathname === '/login' || location.pathname === '/register' || location.pathname === '/forgot-password' || location.pathname === '/consultant-chat' || location.pathname === '/admin-dashboard';
-
+  const userId = localStorage.getItem('UserId');
   return (
     <div className="flex flex-col min-h-screen">
       <div className="fixed top-0 left-0 right-0 z-50">
@@ -67,7 +67,7 @@ function App() {
           <Footer />
         </>
       )}
-      {!isAuthPage && <Chatbot />}
+      {!isAuthPage && <Chatbot userId={userId || undefined} />}
     </div>
   );
 }

@@ -1,5 +1,6 @@
 // AdminDashboardHeader.tsx
 import React, { useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTachometerAlt, faBriefcase, faClipboardList, faGraduationCap, faUser } from '@fortawesome/free-solid-svg-icons';
 import logo from '../images/logo.jpg';
@@ -8,6 +9,8 @@ import './AdminDashboardHeader.css'; // Import the CSS file
 
 const AdminDashboardHeader: React.FC = () => {
   const [activeItem, setActiveItem] = useState<string>('Dashboard');
+  const location = useLocation();
+  const { UserId } = location.state || {};
 
   const handleItemClick = (item: string) => {
     setActiveItem(item);
@@ -22,6 +25,7 @@ const AdminDashboardHeader: React.FC = () => {
             <h2>UNI VISION BOT</h2>
           </div>
           <p>Admin Dashboard</p>
+          <p>ID của Admin: {UserId}</p> 
         </div>
         <nav>
           <ul>

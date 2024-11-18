@@ -1,7 +1,4 @@
 import axios from 'axios';
-
-const API_BASE_URL = 'https://localhost:7230/api/Login'; // Thay bằng URL API .NET của bạn
-
 // Hàm đăng ký
 export const register = async (fullName, userName, email, password, confirmPassword) => {
   try {

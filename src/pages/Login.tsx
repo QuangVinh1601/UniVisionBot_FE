@@ -17,23 +17,40 @@ const Login: React.FC = () => {
 
     try {
       const response = await login(email, password);
-      const token = response.accessToken;
-      const role = response.roleUser; // Get role directly from response
+    
+    // Debug log to check response structure
+    console.log('Full response:', response);
+    
+    const token = response.accessToken;
+    const role = response.roleUser;
+    const UserId = response.userId;
 
-      // Log the response for debugging (optional)
-      console.log(response);
+    // Debug log before storing
+    console.log('Values to store:', {
+      token,
+      role,
+      UserId
+    });
 
-      // Save token and role to localStorage
-      localStorage.setItem('token', token);
-      localStorage.setItem('role', role);
+    localStorage.setItem('token', token);
+    localStorage.setItem('role', role);
+    localStorage.setItem('UserId', UserId);
+
+    // Verify storage immediately after setting
+    console.log('Stored values:', {
+      token: localStorage.getItem('token'),
+      role: localStorage.getItem('role'),
+      userId: localStorage.getItem('UserId')
+    });
+
 
       // Redirect user based on role
       if (role === 'ADMIN') {
-        navigate('/admin-dashboard');
+        navigate('/admin-dashboard', { state: { UserId } });
       } else if (role === 'CONSULTANT') {
-        navigate('/consultant-chat');
-      } else if (role === 'USER') {
-        navigate('/');
+        navigate('/consultant-chat',{ state: { UserId } });
+      } else if (role === 'USER' ) {
+        navigate('/',{ state: { UserId } });
       } else {
         // Handle unknown role more gracefully
         console.error('Unknown role:', role);
@@ -43,37 +60,7 @@ const Login: React.FC = () => {
       // Provide a more user-friendly error message if possible
       setError(error.message || "Login unsuccessful. Please try again.");
     }
-    e.preventDefault();
-    setError(null); // Clear any previous errors
-
-    try {
-      const response = await login(email, password);
-      const token = response.accessToken;
-      const role = response.roleUser; // Get role directly from response
-
-      // Log the response for debugging (optional)
-      console.log(response);
-
-      // Save token to localStorage
-      localStorage.setItem('token', token);
-
-      // Redirect user based on role
-      if (role === 'ADMIN') {
-        navigate('/admin-dashboard');
-      } else if (role === 'CONSULTANT') {
-        navigate('/consultant-chat');
-      } else if (role === 'USER') {
-        navigate('/');
-      } else {
-        // Handle unknown role more gracefully
-        console.error('Unknown role:', role);
-        setError('An error occurred during login.');
-      }
-    } catch (error: any) {
-      // Provide a more user-friendly error message if possible
-      setError(error.message || "Login unsuccessful. Please try again.");
-    }
-};
+  };
 
   return (
     <div className="min-h-screen flex flex-col">
