@@ -1,9 +1,8 @@
 import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import logo from '../images/logo.jpg';
 
 const Header: React.FC = () => {
-  const navigate = useNavigate();
   const token = localStorage.getItem('token');
   const role = localStorage.getItem('role');
 
@@ -12,8 +11,8 @@ const Header: React.FC = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('role');
 
-    // Redirect to homepage
-    navigate('/');
+    // Refresh the page and redirect to homepage
+    window.location.href = '/';
   };
 
   return (
