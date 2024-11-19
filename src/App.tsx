@@ -4,6 +4,7 @@ import Header from './components/Header';
 import Footer from './components/Footer';
 import AdBanner from './components/AdBanner';
 import ChatBot from './components/Chatbot';
+import ChatBotMess from './components/ChatBotMess';
 import Home from './pages/Home';
 import Careers from './pages/Careers';
 import CareerGuidanceTest from './pages/CareerGuidanceTest/CareerGuidanceTest';
@@ -22,7 +23,8 @@ function App() {
     location.pathname === '/register' ||
     location.pathname === '/forgot-password' ||
     location.pathname === '/consultant-chat' ||
-    location.pathname === '/admin-dashboard';
+    location.pathname === '/admin-dashboard' ||
+    location.pathname === '/chat-bot-mess';
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -61,7 +63,15 @@ function App() {
                   {" "}
                   {/* Add role prop here */}
                   <AdminDashboard />
-                </PrivateRoute>} />
+                </PrivateRoute>}
+            />
+
+            <Route path="/chat-bot-mess" element={<PrivateRoute role="USER">
+                  {" "}
+                  {/* Add role prop here */}
+                  <ChatBotMess />
+                </PrivateRoute>}
+            />
           </Routes>
         </main>
         {!isAuthPage && (
