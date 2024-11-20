@@ -12,8 +12,10 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import ForgotPassword from './pages/ForgotPassword';
 import ConsultantChat from './pages/ConsultantChat';
+import ChatWindow from './components/ChatWindow'; // Import ChatWindow component
 import AdminDashboard from './admin/components/AdminDashboardHeader';
 import { PrivateRoute } from './components/PrivateRoute';
+import UserChat from './pages/UserChat';
 
 function App() {
   const location = useLocation();
@@ -46,22 +48,9 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
-            {/* Protected route for ConsultantChat */}
-            <Route
-              path="/consultant-chat"
-              element={
-                <PrivateRoute role="CONSULTANT">
-                  {' '}
-                  {/* Add role prop here */}
-                  <ConsultantChat />
-                </PrivateRoute>
-              }
-            />
-            <Route path="/admin-dashboard" element={<PrivateRoute role="ADMIN">
-                  {" "}
-                  {/* Add role prop here */}
-                  <AdminDashboard />
-                </PrivateRoute>} />
+            <Route path="/consultant-chat" element={<PrivateRoute role="CONSULTANT"><ConsultantChat /></PrivateRoute>} />
+            <Route path="/admin-dashboard" element={<PrivateRoute role="ADMIN"><AdminDashboard /></PrivateRoute>} />
+            <Route path="/UserChat" element={<UserChat />} /> {/* Add this route */}
           </Routes>
         </main>
         {!isAuthPage && (
@@ -78,7 +67,7 @@ function App() {
           <Footer />
         </>
       )}
-      {!isAuthPage && <ChatBot/> }
+      {!isAuthPage && <ChatBot />}
     </div>
   );
 }

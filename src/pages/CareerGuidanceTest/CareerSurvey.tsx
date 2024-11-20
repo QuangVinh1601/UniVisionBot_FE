@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-
+import { useNavigate } from 'react-router-dom';
+import { sendMessage } from '../../api/authApi';
 interface CareerSurveyProps {
   isFormFilled: () => boolean;
 }
@@ -84,17 +85,18 @@ const CareerSurvey: React.FC<CareerSurveyProps> = ({ isFormFilled }) => {
     return scores;
   };
 
+  const navigate = useNavigate();
+
   const Result = (scores: number[]) => {
     const characters = ['R', 'I', 'A', 'S', 'E', 'C'];
     const scoreWithChar = scores.map((score, index) => ({ score, char: characters[index] }));
     scoreWithChar.sort((a, b) => b.score - a.score);
     const topTwoChars = scoreWithChar.slice(0, 2).map(item => item.char);
     const resultString = `Là người thuộc nhóm ${topTwoChars[0]} và ${topTwoChars[1]}, tôi nên học ngành nào?`;
-    // console.log(resultString);
     return resultString;
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!isFormFilled()) {
       alert('Vui lòng điền vào tất cả các trường bắt buộc trong mẫu.');
       return;
@@ -104,7 +106,18 @@ const CareerSurvey: React.FC<CareerSurveyProps> = ({ isFormFilled }) => {
       alert('Kết quả phép toán không đúng. Vui lòng nhập lại.');
       return;
     }
-    console.log('Kết quả:', Result(calculateScores()));
+    const resultString = Result(calculateScores());
+    console.log('Kết quả:', resultString);
+    try {
+      const response = await sendMessage(resultString, null, null);
+      // await new Promise(resolve => setTimeout(resolve, 10000));
+      // console.log('Message receive to consultant:', resultString;
+      console.log('Message receive from bot:', response.response);
+      navigate('/UserChat', { state: { responseMessage: response.response, chatId: response.chatId, chatCode: response.chatCode, resultString: resultString } });
+    } catch (error) {
+      console.error('Error sending message:', error);
+      alert('Có lỗi xảy ra khi gửi tin nhắn. Vui lòng thử lại.');
+    }
   };
 
   const handleCancel = () => {
