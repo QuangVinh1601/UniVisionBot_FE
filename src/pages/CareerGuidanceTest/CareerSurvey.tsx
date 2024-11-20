@@ -75,6 +75,25 @@ const CareerSurvey: React.FC<CareerSurveyProps> = ({ isFormFilled }) => {
     setMathInput(event.target.value);
   };
 
+  const calculateScores = () => {
+    const scores = Array(6).fill(0);
+    for (let i = 0; i < responses.length; i++) {
+      const groupIndex = Math.floor(i / 9);
+      scores[groupIndex] += responses[i];
+    }
+    return scores;
+  };
+
+  const Result = (scores: number[]) => {
+    const characters = ['R', 'I', 'A', 'S', 'E', 'C'];
+    const scoreWithChar = scores.map((score, index) => ({ score, char: characters[index] }));
+    scoreWithChar.sort((a, b) => b.score - a.score);
+    const topTwoChars = scoreWithChar.slice(0, 2).map(item => item.char);
+    const resultString = `Là người thuộc nhóm ${topTwoChars[0]} và ${topTwoChars[1]}, tôi nên học ngành nào?`;
+    // console.log(resultString);
+    return resultString;
+  };
+
   const handleSubmit = () => {
     if (!isFormFilled()) {
       alert('Vui lòng điền vào tất cả các trường bắt buộc trong mẫu.');
@@ -85,7 +104,7 @@ const CareerSurvey: React.FC<CareerSurveyProps> = ({ isFormFilled }) => {
       alert('Kết quả phép toán không đúng. Vui lòng nhập lại.');
       return;
     }
-    console.log('Math input submitted:', mathInput);
+    console.log('Kết quả:', Result(calculateScores()));
   };
 
   const handleCancel = () => {
