@@ -13,7 +13,11 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import ForgotPassword from './pages/ForgotPassword';
 import ConsultantChat from './pages/ConsultantChat';
-import AdminDashboard from './admin/components/AdminDashboardHeader';
+import AdminDashboardHeader from './admin/components/AdminDashboardHeader';
+import AdminDashboard from './admin/pages/AdminDashboard';
+import AdminCareers from './admin/pages/AdminCareers';
+import AdminAccount from './admin/pages/AdminAccount';
+import AdminWhatToStudy from './admin/pages/AdminWhatToStudy';
 import { PrivateRoute } from './components/PrivateRoute';
 
 function App() {
@@ -22,9 +26,11 @@ function App() {
     location.pathname === '/login' ||
     location.pathname === '/register' ||
     location.pathname === '/forgot-password' ||
-    location.pathname === '/consultant-chat' ||
-    location.pathname === '/admin-dashboard' ||
-    location.pathname === '/chat-bot-mess';
+    location.pathname === '/admin' ||
+    location.pathname === '/admin/dashboard' ||
+    location.pathname === '/admin/careers' ||
+    location.pathname === '/admin/what-to-study' ||
+    location.pathname === '/admin/account';
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -48,30 +54,40 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
+
             {/* Protected route for ConsultantChat */}
             <Route
               path="/consultant-chat"
               element={
                 <PrivateRoute role="CONSULTANT">
-                  {' '}
-                  {/* Add role prop here */}
                   <ConsultantChat />
                 </PrivateRoute>
               }
             />
-            <Route path="/admin-dashboard" element={<PrivateRoute role="ADMIN">
 
-                  {" "}
-                  {/* Add role prop here */}
-                  <AdminDashboard />
-                </PrivateRoute>}
-            />
+            {/* Admin Dashboard with nested routes */}
+            <Route
+              path="/admin/*"
+              element={
+                <PrivateRoute role="ADMIN">
+                  <AdminDashboardHeader />
+                </PrivateRoute>
+              }
+            >
+              <Route path="dashboard" element={<AdminDashboard />} />
+              <Route path="careers" element={<AdminCareers />} />
+              <Route path="what-to-study" element={<AdminWhatToStudy />} />
+              <Route path="account" element={<AdminAccount />} />
+            </Route>
 
-            <Route path="/chat-bot-mess" element={<PrivateRoute role="USER">
-                  {" "}
-                  {/* Add role prop here */}
+            {/* ChatBotMess for USER */}
+            <Route
+              path="/chat-bot-mess"
+              element={
+                <PrivateRoute role="USER">
                   <ChatBotMess />
-                </PrivateRoute>}
+                </PrivateRoute>
+              }
             />
           </Routes>
         </main>
