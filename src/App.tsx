@@ -4,6 +4,8 @@ import Header from './components/Header';
 import Footer from './components/Footer';
 import AdBanner from './components/AdBanner';
 import ChatBot from './components/Chatbot';
+// import ChatBotMess from './components/ChatBotMess';
+import UserChat from './pages/UserChat';
 import Home from './pages/Home';
 import Careers from './pages/Careers';
 import CareerGuidanceTest from './pages/CareerGuidanceTest/CareerGuidanceTest';
@@ -12,10 +14,8 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import ForgotPassword from './pages/ForgotPassword';
 import ConsultantChat from './pages/ConsultantChat';
-import ChatWindow from './components/ChatWindow'; // Import ChatWindow component
 import AdminDashboard from './admin/components/AdminDashboardHeader';
 import { PrivateRoute } from './components/PrivateRoute';
-import UserChat from './pages/UserChat';
 
 function App() {
   const location = useLocation();
@@ -24,7 +24,8 @@ function App() {
     location.pathname === '/register' ||
     location.pathname === '/forgot-password' ||
     location.pathname === '/consultant-chat' ||
-    location.pathname === '/admin-dashboard';
+    location.pathname === '/admin-dashboard' ||
+    // location.pathname === '/chat-bot-mess';
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -48,9 +49,7 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
-            {/* <Route path="/consultant-chat" element={<PrivateRoute role="CONSULTANT"><ConsultantChat /></PrivateRoute>} />
-            <Route path="/admin-dashboard" element={<PrivateRoute role="ADMIN"><AdminDashboard /></PrivateRoute>} /> */}
-            <Route path="/UserChat" element={<UserChat />} /> {/* Add this route */}
+            {/* Protected route for ConsultantChat */}
             <Route
               path="/consultant-chat"
               element={
@@ -68,6 +67,12 @@ function App() {
             </PrivateRoute>}
             />
 
+            <Route path="/chat-bot-mess" element={<PrivateRoute role="USER">
+              {" "}
+              {/* Add role prop here */}
+              <UserChat />
+            </PrivateRoute>}
+            />
           </Routes>
         </main>
         {!isAuthPage && (
