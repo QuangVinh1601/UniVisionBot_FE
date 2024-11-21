@@ -1,6 +1,7 @@
 import gg_bot from '../images/gg_bot.png'; // Đảm bảo đường dẫn ảnh đúng
 import React, { useState, useEffect, useRef } from 'react';
 import { HubConnection, HubConnectionBuilder, HttpTransportType } from '@microsoft/signalr';
+import { X } from 'lucide-react';
 
 interface ChatbotProps {
   userId?: string;
@@ -17,22 +18,21 @@ interface UserResponse {
 
 interface MessageRequest {
   // Đổi tên các property để khớp với C#
-  Content: string;
-  ConversationId: string;
-  SenderId: string;
-  ReceiverId: string;
-  Status: StatusChatEnum;
-  Created_At: string;  // Đổi thành string thay vì Date
+  content: string;
+  conversationId: string;
+  senderId: string;
+  receiverId: string;
+  status: StatusChatEnum;
 }
 interface MessageResponse {
   // Đổi tên các property để khớp với C#
-  Id: string
-  Content: string;
-  ConversationId: string;
-  SenderId: string;
-  ReceiverId: string;
-  Status: StatusChatEnum;
-  Created_At: string;  // Đổi thành string thay vì Date
+  id: string
+  content: string;
+  conversationId: string;
+  senderId: string;
+  receiverId: string;
+  status: StatusChatEnum;
+  created_At: string;  // Đổi thành string thay vì Date
 }
 
 interface ConversationResponse {
@@ -62,6 +62,17 @@ const Chatbot: React.FC<ChatbotProps> = ({ userId }) => {
   const currentUserId = userId;
   const consultantId = "672214299c167656b2dc0d5e";
 
+  function deserialize(message: any): MessageResponse {
+    return {
+      id: message.Id,
+      content: message.Content,
+      conversationId: message.ConversationId,
+      senderId: message.SenderId,
+      receiverId: message.ReceiverId,
+      status: message.Status,
+      created_At: message.Created_At,
+    };
+  }
   const cleanup = () => {
     if (connection) {
       connection.stop();
@@ -69,26 +80,30 @@ const Chatbot: React.FC<ChatbotProps> = ({ userId }) => {
     setConnection(null);
 
     setError(null);
-    setIsReconnecting(false);
+    // setIsReconnecting(false);
   };
 
   const toggleChat = () => {
-    if (isOpen) {
-      cleanup();
-    }
     setIsOpen(!isOpen);
+    
   };
 
   useEffect(() => {
     if (isOpen) {
       setIsLoading(true);
       setError(null); // Reset error state
+      
+        setTimeout(() => {
+          scrollToBottom();
+        }, 100); // Thêm một chút delay để đảm bảo messages đã được render
+      
+
       initializeChat();
     }
     
     return () => {
       if (!isOpen) {
-        cleanup();
+        // cleanup();
       }
     };
   }, [isOpen]);
@@ -100,8 +115,6 @@ const Chatbot: React.FC<ChatbotProps> = ({ userId }) => {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
-
-
 
   const initializeChat = async () => {
     try {
@@ -135,9 +148,8 @@ const Chatbot: React.FC<ChatbotProps> = ({ userId }) => {
       
       const conversationData: ConversationResponse = await historyResponse.json();
       setConversation(conversationData);
-      if (!messages.length) {
-        setMessages(conversationData.messages || []);
-      }
+      setMessages(conversationData.messages || []);
+      
   
       // Setup SignalR with enhanced error handling
       const newConnection = new HubConnectionBuilder()
@@ -172,8 +184,16 @@ const Chatbot: React.FC<ChatbotProps> = ({ userId }) => {
       await newConnection.invoke("JoinConversation", conversationId);
   
       newConnection.on("ReceiveMessage", (message: MessageResponse) => {
-        setMessages(prev => [...prev, message]);
-        console.log('Received message:', message);
+        var currentMessage = deserialize(message)
+        setMessages(prev => 
+          {
+            var isDuplicate = prev.some(m => m.id == currentMessage.id)
+            if(!isDuplicate){
+              return [...prev, currentMessage]
+            }
+            return prev;
+          });
+        console.log('Received message:', currentMessage);
         scrollToBottom();
       });
   
@@ -182,6 +202,8 @@ const Chatbot: React.FC<ChatbotProps> = ({ userId }) => {
       console.error('Chat initialization error:', err);
       setError(`Failed to connect to chat: ${err instanceof Error ? err.message : 'Unknown error'}`);
     } finally {
+      scrollToBottom();
+
       setIsLoading(false);
     }
   };
@@ -197,12 +219,11 @@ const Chatbot: React.FC<ChatbotProps> = ({ userId }) => {
   
     try {
       const message: MessageRequest = {
-        Content: newMessage.trim(),
-        ConversationId: conversation.id || '',
-        SenderId: currentUserId,
-        ReceiverId: consultantId,
-        Status: StatusChatEnum.SENT,
-        Created_At: new Date().toISOString(),
+        content: newMessage,
+        conversationId: conversation.id || '',
+        senderId: currentUserId,
+        receiverId: consultantId,
+        status: StatusChatEnum.SENT,
       };
   
       console.log('Sending message:', message);
@@ -248,67 +269,113 @@ const Chatbot: React.FC<ChatbotProps> = ({ userId }) => {
         </div>
       )}
 
-      {isOpen && (
-        <div className="bg-white border border-green-500 rounded-lg shadow-lg mt-2 w-64 h-80 overflow-hidden flex flex-col">
-          <div className="bg-green-500 text-white p-2 font-bold flex justify-between items-center">
-          <span>UniVisionBot</span>
-          <button onClick={toggleChat} className="text-white">&times;</button>
-          </div>
-
-          <div className="flex-grow p-2 overflow-y-auto">
-            {isLoading ? (
-              <div className="loading">Loading...</div>
-            ) : error ? (
-              <div className="error">{error}</div>
-            ) : (
-              <>
-{messages.map((message, index) => (
-  <div 
-    key={message.Id || `msg-${index}`} // Prefer unique message ID if available
-    className={`message ${message.SenderId === currentUserId ? 'sent' : 'received'}`}
-  >
-    {message.Content}
-  </div>
-))}
-                <div ref={messagesEndRef} />
-              </>
-            )}
-          </div>
-
-          <form onSubmit={sendMessage} className="border-t p-4">
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={newMessage}
-                onChange={(e) => setNewMessage(e.target.value)}
-                placeholder="Type a message..."
-                disabled={isLoading || !!error}
-                className="flex-1 p-2 border rounded focus:outline-none focus:ring-1 focus:ring-green-500"
-              />
-              <button
-                type="submit"
-                disabled={!newMessage.trim() || isLoading || !!error}
-                className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 disabled:opacity-50"
-              >
-                Send
-              </button>
-            </div>  
-          </form>
-          {error && (
-            <div className="p-3 bg-red-100 border-t border-red-200 text-red-700 text-sm">
-              {error}
-              <button 
-                onClick={() => setError(null)}
-                className="float-right font-bold"
-              >
-                ×
-              </button>
-            </div>
-          )}
+{isOpen && (
+  <div className="bg-white border border-green-500 rounded-lg shadow-lg mt-2 w-96 h-[500px] overflow-hidden flex flex-col">
+    {/* Header */}
+    <div className="bg-green-500 text-white p-4 font-bold flex justify-between items-center">
+      <div className="flex items-center gap-2">
+        <div className="w-10 h-10 rounded-full bg-white p-1">
+          <img src={gg_bot} alt="Bot" className="w-full h-full object-cover rounded-full" />
         </div>
+        <div>
+          <span className="text-lg">UniVisionBot</span>
+          <div className="text-xs flex items-center gap-1">
+            <span className="w-2 h-2 bg-green-300 rounded-full"></span>
+            Online
+          </div>
+        </div>
+      </div>
+      <button title='toggleChat' onClick={toggleChat} className="hover:bg-green-600 p-2 rounded-full transition-colors">
+        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+
+    {/* Messages Area */}
+    <div className="flex-grow p-4 overflow-y-auto bg-gray-50">
+      {isLoading ? (
+        <div className="flex justify-center items-center h-full">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-500"></div>
+        </div>
+      ) : error ? (
+        <div className="bg-red-100 p-4 rounded-lg text-red-700">{error}</div>
+      ) : (
+        <>
+          {messages.map((message, index) => (
+            <div 
+              key={message.id || `msg-${index}`}
+              className={`mb-4 ${message.senderId === currentUserId ? 'flex justify-end' : 'flex justify-start'}`}
+            >
+              <div className={`max-w-[70%] rounded-lg p-3 ${
+                message.senderId === currentUserId 
+                  ? 'bg-green-500 text-white rounded-br-none' 
+                  : 'bg-white text-gray-800 shadow-md rounded-bl-none'
+              }`}>
+                <p className="break-words">{message.content}</p>
+                <div className="text-xs mt-1 opacity-75">
+                  {new Date(message.created_At).toLocaleTimeString('vi-VN', {
+                    hour: '2-digit',
+                    minute: '2-digit'
+                  })}
+                </div>
+              </div>
+            </div>
+          ))}
+          <div ref={messagesEndRef} />
+        </>
       )}
     </div>
-  );
-};
 
+    {/* Input Area */}
+    <form onSubmit={sendMessage} className="border-t bg-white p-4">
+      <div className="flex gap-2 items-center">
+        <div className="flex-grow relative">
+          <input
+            type="text"
+            value={newMessage}
+            onChange={(e) => setNewMessage(e.target.value)}
+            placeholder="Nhập tin nhắn..."
+            disabled={isLoading || !!error}
+            className="w-full p-3 pr-10 border rounded-full focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+          />
+          <button title='message'
+            type="button"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </button>
+        </div>
+        <button
+          type="submit" title='submit'
+          disabled={!newMessage.trim() || isLoading || !!error}
+          className="p-3 bg-green-500 text-white rounded-full hover:bg-green-600 disabled:opacity-50 disabled:hover:bg-green-500 transition-colors"
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+          </svg>
+        </button>
+      </div>
+    </form>
+
+    {/* Error Message */}
+    {error && (
+      <div className="absolute bottom-20 left-4 right-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg shadow-lg">
+        <span className="block sm:inline">{error}</span>
+        <button 
+          onClick={() => setError(null)} title='setError'
+          className="absolute top-0 bottom-0 right-0 px-4 py-3"
+        >
+          <svg className="fill-current h-6 w-6 text-red-500" role="button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+            <title>Close</title>
+            <path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z"/>
+          </svg>
+        </button>
+      </div>
+    )}
+  </div>
+)}</div>
+)};
 export default Chatbot;

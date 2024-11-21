@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { HubConnectionBuilder, HubConnection, HttpTransportType } from '@microsoft/signalr';
-import { Camera, Video, MoreVertical, Send, Smile } from 'lucide-react';
+import { HubConnectionBuilder, HubConnection, HttpTransportType, LogLevel } from '@microsoft/signalr';
+import { Camera, Video, MoreVertical, Send, Smile, Loader2, CheckCheck, Search, Clock, User } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
+import { deserialize, Deserializer } from 'v8';
 
 // types/chat.ts
 enum StatusChatEnum {
@@ -11,28 +12,27 @@ enum StatusChatEnum {
 }
 interface MessageRequest {
   // Đổi tên các property để khớp với C#
-  Content: string;
-  ConversationId: string;
-  SenderId: string;
-  ReceiverId: string;
-  Status: StatusChatEnum;
-  Created_At: string;  // Đổi thành string thay vì Date
+  content: string;
+  conversationId: string;
+  senderId: string;
+  receiverId: string;
+  status: StatusChatEnum;
 }
 interface MessageResponse {
-  Id: string;
-  Content: string;
-  ConversationId: string;
-  SenderId: string;
-  ReceiverId: string;
-  Status: StatusChatEnum;
-  Created_At: string;
+  id: string;
+  content: string;
+  conversationId: string;
+  senderId: string;
+  receiverId: string;
+  status: StatusChatEnum;
+  created_At: string;
 }
 
 interface ConversationWithDetails {
   id: string;
   userId: string;
   consultantId: string;
-  createdAt: Date;
+  created_At: string;
   user: {
     fullName: string;
     urlImage?: string;
@@ -54,13 +54,24 @@ const ConsultantChat = () => {
   const [shouldScroll, setShouldScroll] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const consultantId = localStorage.getItem('UserId');
+  const [messageUpdate, setMessageUpdate] = useState(0);
 
   // const selectedConversation = conversations.find(c => c.id === selectedId);
 
   const isMessageFromUser = (message: MessageResponse) => {
-    return message.SenderId !== consultantId;
+    return message.senderId !== consultantId;
   };
-
+  function deserialize(message: any): MessageResponse {
+    return {
+      id: message.Id,
+      content: message.Content,
+      conversationId: message.ConversationId,
+      senderId: message.SenderId,
+      receiverId: message.ReceiverId,
+      status: message.Status,
+      created_At: message.Created_At,
+    };
+  }
   const filteredConversations = conversations.filter(conv => 
     conv.user.fullName.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -134,18 +145,52 @@ const ConsultantChat = () => {
       }
 
       newConnection.on("ReceiveMessage", (message: MessageResponse) => {
-        setConversations(prev => prev.map(conv => {
-          if (conv.id === message.ConversationId) {
-            return {
-              ...conv,
-              messages: [...(conv.messages || []), message],
-              lastMessage: message.Content
-            };
-          }
-          return conv;
-        }));
+        console.log("Received new message:", message);
+        var currentMessage = deserialize(message)
+        setConversations(prev => {
+          console.log("Previous conversations:", prev);
+          const newConversations = prev.map(conv => {
+            if (conv.id === currentMessage.conversationId) {
+              console.log("Updating conversation:", conv.id);
+              // Kiểm tra xem tin nhắn đã tồn tại chưa
+              const isDuplicate = conv.messages.some(msg => msg.id === currentMessage.id);
+              
+              if (!isDuplicate) {
+                return {
+                  ...conv,
+                  messages: [...conv.messages, currentMessage],
+                  lastMessage: currentMessage.content
+                };
+              }
+              return conv; // Nếu là tin nhắn trùng lặp, giữ nguyên conversation - lap 2 lan nen 
+            }
+            return conv;
+          });
+          console.log("New conversations:", newConversations);
+          return newConversations;
+        });
 
-        if (selectedId === message.ConversationId && shouldScroll) {
+        setSelectedConversation(prev => {
+          if (prev && prev.id === currentMessage.conversationId) {
+            console.log("Updating selectedConversation");
+            // Kiểm tra tin nhắn trùng lặp
+            const isDuplicate = prev.messages.some(msg => msg.id === currentMessage.id);
+            
+            if (!isDuplicate) {
+              return {
+                ...prev,
+                messages: [...prev.messages, currentMessage],
+                lastMessage: currentMessage.content
+              };
+            }
+            return prev; // Nếu là tin nhắn trùng lặp, giữ nguyên state
+          }
+          return prev;
+        });
+
+        setMessageUpdate(prev => prev + 1);
+
+        if (selectedId === currentMessage.conversationId && shouldScroll) {
           scrollToBottom();
         }
       });
@@ -166,8 +211,16 @@ const ConsultantChat = () => {
       const data = await response.json();
       setConversations(prev => prev.map(conv => {
         if (conv.id === conversationId) {
-          setSelectedConversation({...conv, messages: data.messages});
-          return { ...conv, messages: data.messages };
+          const formattedMessages = data.messages.map((message: MessageResponse) => ({
+            ...message,
+            created_At: new Date(message.created_At).toISOString()
+          }));
+          setSelectedConversation({...conv, messages: formattedMessages});
+          return { 
+            ...conv,
+            messages: formattedMessages,
+            created_At: new Date(conv.created_At).toISOString()
+          };
         }
         return conv;
       }));
@@ -190,17 +243,53 @@ const ConsultantChat = () => {
 
     try {
       const message: MessageRequest = {
-        Content: newMessage,
-        ConversationId: selectedConversation.id,
-        SenderId: consultantId!, // Add non-null assertion since we know consultantId exists here
-        ReceiverId: selectedConversation.userId,
-        Status: StatusChatEnum.SENT,
-        Created_At: new Date().toISOString()
+        content: newMessage,
+        conversationId: selectedConversation.id,
+        senderId: consultantId!,
+        receiverId: selectedConversation.userId,
+        status: StatusChatEnum.SENT,
       };
+      console.log("Sending message:", message);
 
-      await connection.invoke("SendMessage", message);
+      // Gửi tin nhắn và đợi response
+      const response = await connection.invoke("SendMessage", message);
+      console.log("Server response:", response);
+
+      // Nếu server trả về response là tin nhắn mới
+      // if (response) {
+      //   // Cập nhật conversations
+      //   setConversations(prev => prev.map(conv => {
+      //     if (conv.id === selectedConversation.id) {
+      //       console.log("Updating conversation:", conv.id);
+      //       return {
+      //         ...conv,
+      //         messages: [...conv.messages, response],
+      //         lastMessage: response.content
+      //       };
+      //     }
+      //     return conv;
+      //   }));
+
+      //   // Cập nhật selectedConversation
+      //   setSelectedConversation(prev => {
+      //     if (prev) {
+      //       console.log("Updating selectedConversation");
+      //       return {
+      //         ...prev,
+      //         messages: [...prev.messages, response],
+      //         lastMessage: response.content
+      //       };
+      //     }
+      //     return prev;
+      //   });
+
+      //   // Force re-render
+      //   setMessageUpdate(prev => prev + 1);
+      // }
+      
       setNewMessage('');
     } catch (err) {
+      console.error('Send message error:', err);
       setError('Failed to send message');
     }
   };
@@ -214,69 +303,81 @@ const ConsultantChat = () => {
     if (selectedConversation?.messages?.length) {
       scrollToBottom();
     }
-  }, [selectedConversation?.messages, scrollToBottom]);
+  }, [selectedConversation?.messages, scrollToBottom, messageUpdate]);
   return (
-    <div className="flex h-screen bg-white">
-      {/* Left sidebar */}
-      <div className="w-96 border-r">
-        <div className="p-4 border-b">
-          <div className="flex items-center gap-3">
-            <img 
-              src="/api/consultant/avatar" 
-              alt="Consultant" 
-              className="w-10 h-10 rounded-full"
-            />
-            <h2 className="font-semibold">Consultant Dashboard</h2>
-            <p>ID của Admin: {consultantId}</p> 
+    <div className="flex h-screen bg-gray-50">
+      {/* Sidebar */}
+      <div className="w-96 bg-white shadow-lg flex flex-col">
+        {/* Profile Header */}
+        <div className="p-6 border-b border-gray-100">
+          <div className="flex items-center gap-4">
+            <div className="relative">
+              <img 
+                src="/api/consultant/avatar" 
+                alt="Consultant" 
+                className="w-12 h-12 rounded-full object-cover ring-2 ring-green-500"
+              />
+              <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white" />
+            </div>
+            <div>
+              <h2 className="font-semibold text-gray-800">Consultant Dashboard</h2>
+              <p className="text-sm text-gray-500">ID: {consultantId}</p>
+            </div>
           </div>
         </div>
-        
+
+        {/* Search */}
         <div className="p-4">
-          <div className="relative mb-4">
+          <div className="relative">
             <input
               type="text"
-              placeholder="Search conversations"
-              className="w-full p-2 pl-8 bg-gray-100 rounded-lg"
+              placeholder="Search conversations..."
+              className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
-            <svg className="w-4 h-4 absolute left-2 top-3 text-gray-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <circle cx="11" cy="11" r="8" />
-              <path d="M21 21l-4.35-4.35" />
-            </svg>
+            <Search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
           </div>
+        </div>
 
+        {/* Conversations List */}
+        <div className="flex-1 overflow-y-auto">
           {isLoading ? (
-            <div className="text-center py-4">Loading...</div>
+            <div className="flex items-center justify-center h-32">
+              <Loader2 className="w-8 h-8 text-green-500 animate-spin" />
+            </div>
           ) : (
-            <div className="space-y-2">
+            <div className="space-y-1 p-3">
               {filteredConversations.map(conv => (
                 <div
                   key={conv.id}
-                  className={`flex items-center p-3 rounded-lg cursor-pointer hover:bg-gray-100 ${
-                    selectedId === conv.id ? 'bg-gray-100' : ''
-                  }`}
-                  onClick={() => {
-                    // loadConversationHistory(conv.id)
-                    setSelectedId(conv.id); 
-                  }}
+                  className={`flex items-center p-3 rounded-xl cursor-pointer transition-all
+                    ${selectedId === conv.id 
+                      ? 'bg-green-50 border-green-200' 
+                      : 'hover:bg-gray-50'
+                    }`}
+                  onClick={() => setSelectedId(conv.id)}
                 >
-                  <img 
-                    src={conv.user.urlImage || `/api/placeholder/48/48`} 
-                    alt={conv.user.fullName} 
-                    className="w-12 h-12 rounded-full mr-3"
-                  />
-                  <div className="flex-1 min-w-0">
-                    <div className="flex justify-between">
-                      <h4 className="font-semibold truncate">{conv.user.fullName}</h4>
+                  <div className="relative">
+                    <img 
+                      src={conv.user.urlImage || `/api/placeholder/48/48`} 
+                      alt={conv.user.fullName} 
+                      className="w-12 h-12 rounded-full object-cover"
+                    />
+                    <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white" />
+                  </div>
+                  <div className="flex-1 min-w-0 ml-3">
+                    <div className="flex justify-between items-center">
+                      <h4 className="font-medium text-gray-900 truncate">{conv.user.fullName}</h4>
                       {conv.lastMessage && (
-                        <span className="text-xs text-gray-500">
-                         {conv.messages?.length > 0 ? new Date(conv.messages[conv.messages.length - 1].Created_At).toLocaleTimeString() : 'Unknown time'}
+                        <span className="text-xs text-gray-500 flex items-center">
+                          <Clock className="w-3 h-3 mr-1" />
+                          { new Date(conv.created_At).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}
                         </span>
                       )}
                     </div>
                     {conv.lastMessage && (
-                      <p className="text-sm text-gray-600 truncate">
+                      <p className="text-sm text-gray-500 truncate">
                         {conv.lastMessage}
                       </p>
                     )}
@@ -288,84 +389,104 @@ const ConsultantChat = () => {
         </div>
       </div>
 
-      {/* Chat area */}
-      {selectedConversation ? (
-        <div className="flex-1 flex flex-col">
-          <div className="p-4 border-b flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <img 
-                src={selectedConversation.user.urlImage || `/api/placeholder/48/48`}
-                alt={selectedConversation.user.fullName} 
-                className="w-12 h-12 rounded-full"
-              />
-              <h3 className="font-semibold">{selectedConversation.user.fullName}</h3>
+      {/* Chat Area */}
+      <div className="flex-1 flex flex-col">
+        {selectedConversation ? (
+          <>
+            {/* Chat Header */}
+            <div className="p-4 bg-white shadow-sm border-b border-gray-100">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="relative">
+                    <img 
+                      src={selectedConversation.user.urlImage || `/api/placeholder/48/48`}
+                      alt={selectedConversation.user.fullName} 
+                      className="w-12 h-12 rounded-full object-cover"
+                    />
+                    <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-gray-800">{selectedConversation.user.fullName}</h3>
+                  </div>
+                </div>
+                
+              </div>
             </div>
-          </div>
 
-          <div className="flex-1 p-4 overflow-y-auto bg-gray-50">
-            <div className="space-y-4">
+            {/* Messages */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-4">
               {selectedConversation.messages.map(msg => (
                 <div 
-                  key={msg.Id} 
+                  key={msg.id} 
                   className={`flex ${isMessageFromUser(msg) ? 'justify-start' : 'justify-end'}`}
                 >
                   <div 
-                    className={`rounded-lg p-3 max-w-[70%] ${
-                      isMessageFromUser(msg) 
-                        ? 'bg-white text-gray-900' 
-                        : 'bg-green-600 text-white'
+                    className={`max-w-[70%] rounded-2xl p-4 ${
+                      isMessageFromUser(msg)
+                        ? 'bg-white text-gray-800 shadow-sm' 
+                        : 'bg-green-500 text-white'
                     }`}
                   >
-                    <p>{msg.Content}</p>
-                    <div className="flex items-center gap-2 mt-1">
-                      <span className="text-xs opacity-75">
-                        {new Date(msg.Created_At).toLocaleTimeString()}
+                    <p className="leading-relaxed">{msg.content}</p>
+                    <div className="flex items-center gap-2 mt-2">
+                      <span className={`text-xs ${isMessageFromUser(msg) ? 'text-gray-500' : 'text-green-100'}`}>
+                        {new Date(msg.created_At).toLocaleTimeString('vi-VN', {
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })}
                       </span>
-                      <span className="text-xs opacity-75">
-                        {msg.Status}
-                      </span>
+                      {!isMessageFromUser(msg) && (
+                        <CheckCheck className="w-4 h-4 text-green-100" />
+                      )}
                     </div>
                   </div>
                 </div>
               ))}
               <div ref={messagesEndRef} />
             </div>
-          </div>
 
-          <form onSubmit={sendMessage} className="p-4 border-t">
-            <div className="flex items-center gap-2">
-              <input
-                type="text"
-                placeholder="Type a message..."
-                className="flex-1 p-3 bg-gray-100 rounded-lg focus:outline-none"
-                value={newMessage}
-                onChange={(e) => setNewMessage(e.target.value)}
-              />
-              <button 
-                type="submit" 
-                disabled={!newMessage.trim()}
-                className="p-3 bg-green-600 text-white rounded-lg disabled:opacity-50"
-              >
-                <Send className="w-5 h-5" />
-              </button>
+            {/* Message Input */}
+            <div className="p-4 bg-white border-t border-gray-100">
+              <form onSubmit={sendMessage} className="flex items-center gap-3">
+                <div className="flex-1 relative">
+                  <input
+                    type="text"
+                    placeholder="Type your message..."
+                    className="w-full px-6 py-4 bg-gray-50 rounded-full focus:outline-none focus:ring-2 focus:ring-green-500 transition-all"
+                    value={newMessage}
+                    onChange={(e) => setNewMessage(e.target.value)}
+                  />
+                </div>
+                <button  title='Video'
+                  type="submit"
+                  disabled={!newMessage.trim()}
+                  className="p-4 bg-green-500 text-white rounded-full hover:bg-green-600 disabled:opacity-50 disabled:hover:bg-green-500 transition-colors"
+                >
+                  <Send className="w-5 h-5" />
+                </button>
+              </form>
             </div>
-          </form>
-        </div>
-      ) : (
-        <div className="flex-1 flex items-center justify-center bg-gray-50">
-          <p className="text-gray-500">Select a conversation to start chatting</p>
-        </div>
-      )}
+          </>
+        ) : (
+          <div className="flex-1 flex flex-col items-center justify-center">
+            <User className="w-16 h-16 text-gray-300 mb-4" />
+            <p className="text-gray-500 text-lg">Select a conversation to start chatting</p>
+          </div>
+        )}
+      </div>
 
+      {/* Error Toast */}
       {error && (
-        <div className="fixed bottom-4 right-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-          {error}
-          <button 
-            onClick={() => setError(null)}
-            className="ml-3 font-bold"
-          >
-            ×
-          </button>
+        <div className="fixed bottom-4 right-4 bg-white border-l-4 border-red-500 shadow-lg rounded-lg p-4 max-w-md animate-slideIn">
+          <div className="flex items-center justify-between">
+            <p className="text-red-800">{error}</p>
+            <button 
+              onClick={() => setError(null)}
+              className="ml-4 text-gray-400 hover:text-gray-600 transition-colors"
+            >
+              ×
+            </button>
+          </div>
         </div>
       )}
     </div>
