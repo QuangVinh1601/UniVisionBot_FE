@@ -1,10 +1,12 @@
 
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import ChatWindow from './ChatWindow';
 import gg_bot from '../images/gg_bot.png';
 const ChatBot: React.FC = () => {
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [isUserRole, setIsUserRole] = useState(false);
+  const navigate = useNavigate(); // Hook để điều hướng
 
   useEffect(() => {
     // Check the role in localStorage when the component mounts
@@ -18,6 +20,7 @@ const ChatBot: React.FC = () => {
 
   const handleBotClick = () => {
     // Logic riêng cho chức năng của bot
+    navigate('/chat-bot-mess');
   };
 
   if (!isUserRole) {

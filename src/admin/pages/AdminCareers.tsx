@@ -1,303 +1,170 @@
-import React, { useState } from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus, faTrash, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
+import React, { useEffect, useState } from 'react';
+
+interface University {
+  id: number;
+  name: string;
+  universityCode: string;
+  location: string;
+}
 
 const AdminCareers: React.FC = () => {
-  const [careers, setCareers] = useState([
-    {
-      name: 'Đại Học Duy Tân',
-      code: 'DTT',
-      region: 'Miền Trung',
-      selected: false,
-    },
-    {
-      name: 'Trường Đại học Kiến Trúc',
-      code: 'KTD',
-      region: 'Miền Trung',
-      selected: false,
-    },
-    {
-      name: 'Đại học Bách Khoa',
-      code: 'DDK',
-      region: 'Miền Trung',
-      selected: false,
-    },
-    {
-      name: 'Đại học Kinh tế',
-      code: 'DDQ',
-      region: 'Miền Trung',
-      selected: false,
-    },
-  ]);
+  const [universities, setUniversities] = useState<University[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [hasNextPage, setHasNextPage] = useState(true);
 
-  const [newCareer, setNewCareer] = useState({
-    name: '',
-    code: '',
-    region: '',
-  });
-
-  const [isUniversity, setIsUniversity] = useState(false);
-  const [selectedUniversity, setSelectedUniversity] = useState<string | null>(null);
-  const [isFaculty, setIsFaculty] = useState(false);
-  const [selectedFaculty, setSelectedFaculty] = useState<string | null>(null);
-  const [isMajor, setIsMajor] = useState(false);
-  const [selectedMajor, setSelectedMajor] = useState<string | null>(null);
-
-  const handleAdd = () => {
-    if (newCareer.name && newCareer.code && newCareer.region) {
-      setCareers([...careers, { ...newCareer, selected: false }]);
-      setNewCareer({ name: '', code: '', region: '' }); // Reset the input fields
-    } else {
-      alert('Please fill in all fields');
-    }
-  };
-
-  const handleDeleteSelected = () => {
-    const updatedCareers = careers.filter((career) => !career.selected);
-    setCareers(updatedCareers);
-  };
-
-  const handleSelectCareer = (index: number) => {
-    const updatedCareers = careers.map((career, i) => (i === index ? { ...career, selected: !career.selected } : career));
-    setCareers(updatedCareers);
-  };
-
-  const handleUniversityClick = (universityName: string) => {
-    console.log('Starting the university information...');
-    setSelectedUniversity(universityName);
-    setIsUniversity(true);
-  };
-
-  const handleFacultyClick = (facultyName: string) => {
-    console.log('Starting the faculty information...');
-    setSelectedFaculty(facultyName);
-    setIsFaculty(true);
-  };
-
-  const handleMajorClick = (majorName: string) => {
-    console.log('Starting the major information...');
-    setSelectedMajor(majorName);
-    setIsMajor(true);
-  };
-
-  const handleSave = () => {
-    alert('Saved successfully!');
-  };
-
-  const handleCancel = () => {
-    setNewCareer({ name: '', code: '', region: '' });
-    setIsUniversity(false);
-    setIsFaculty(false);
-    setIsMajor(false);
-    setSelectedUniversity(null);
-    setSelectedFaculty(null);
-    setSelectedMajor(null);
-  };
-
-  const [faculties, setFaculties] = useState<string[]>(['Công nghệ thông tin', 'Đào Tạo Quốc tế']);
-
-  const handleDeleteFaculty = (facultyName: string) => {
-    if (faculties.includes(facultyName)) {
-      const confirmDelete = window.confirm('Bạn có chắc muốn xoá khoa này không?');
-      if (confirmDelete) {
-        const updatedFaculties = faculties.filter((faculty) => faculty !== facultyName);
-        setFaculties(updatedFaculties);
-      }
-    } else {
-      alert('Không thể xoá, chưa chọn khoa nào');
-    }
-  };
-
-  const [facultiesWithMajors, setFacultiesWithMajors] = useState<{ faculty: string; majors: string[] }[]>([
-    { faculty: 'Công nghệ thông tin', majors: ['Khoa học máy tính', 'An ninh mạng'] },
-    { faculty: 'Đào Tạo Quốc tế', majors: ['Quản trị kinh doanh', 'Kinh tế quốc tế'] },
-  ]);
-
-  const handleDeleteMajor = (facultyName: string, majorName: string) => {
-    const confirmDelete = window.confirm('Bạn có chắc muốn xoá ngành này không?');
-    if (confirmDelete) {
-      setFacultiesWithMajors((prev) =>
-        prev.map((faculty) => {
-          if (faculty.faculty === facultyName) {
-            return {
-              ...faculty,
-              majors: faculty.majors.filter((major) => major !== majorName), // Loại ngành khỏi danh sách
-            };
-          }
-          return faculty;
-        }),
+  const fetchUniversities = async (page: number) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await fetch(
+        `https://localhost:7230/api/University?page=${page}`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
       );
-      alert(`Đã xoá ngành: ${majorName} khỏi khoa: ${facultyName}`);
+
+      if (!response.ok) {
+        throw new Error('Không thể tải danh sách trường đại học');
+      }
+
+      const data: University[] = await response.json();
+
+      setUniversities(data);
+
+      const pageSize = 5;
+      setHasNextPage(data.length === pageSize);
+    } catch (err: any) {
+      setError(err.message || 'Đã xảy ra lỗi');
+    } finally {
+      setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchUniversities(currentPage);
+  }, [currentPage]);
+
+  const handlePrevPage = () => {
+    if (currentPage > 1) setCurrentPage((prev) => prev - 1);
+  };
+
+  const handleNextPage = () => {
+    if (hasNextPage) setCurrentPage((prev) => prev + 1);
+  };
+
+  // const handleCheckboxChange = (id: number) => {
+  //   setSelectedIds((prev) =>
+  //     prev.includes(id) ? prev.filter((selectedId) => selectedId !== id) : [...prev, id]
+  //   );
+  // };  
+
+  // const handleDelete = async () => {
+  //   if (selectedIds.length === 0) {
+  //     alert('Vui lòng chọn ít nhất một trường để xóa.');
+  //     return;
+  //   }
+
+  //   try {
+  //     for (const id of selectedIds) {
+  //       const response = await fetch(`https://localhost:7230/api/University/${id}`, {
+  //         method: 'DELETE',
+  //         headers: {
+  //           'Content-Type': 'application/json',
+  //         },
+  //       });
+
+  //       if (!response.ok) {
+  //         throw new Error(`Không thể xóa trường với ID: ${id}`);
+  //       }
+  //     }
+
+  //     setUniversities((prev) => prev.filter((uni) => !selectedIds.includes(uni.id)));
+  //     setSelectedIds([]);
+  //     alert('Đã xóa thành công các trường được chọn.');
+  //   } catch (error) {
+  //     alert('Không thể xóa các trường đã chọn. Vui lòng thử lại.');
+  //   }
+  // };
 
   return (
     <div className="p-5 border-2 border-gray-400 rounded-lg shadow-lg bg-white">
-      {!isUniversity && !isFaculty && !isMajor && (
+      <h1 className="text-lg font-bold mb-4">Danh sách trường đại học</h1>
+
+      {loading && <p>Đang tải dữ liệu...</p>}
+      {error && <p className="text-red-500">{error}</p>}
+
+      {!loading && !error && (
         <>
-          <div className="mb-4">
-            <input type="text" placeholder="Tên Trường" value={newCareer.name} onChange={(e) => setNewCareer({ ...newCareer, name: e.target.value })} className="border p-1 mr-2" />
-            <input type="text" placeholder="Mã Trường" value={newCareer.code} onChange={(e) => setNewCareer({ ...newCareer, code: e.target.value })} className="border p-1 mr-2" />
-            <input
-              type="text"
-              placeholder="Khu Vực"
-              value={newCareer.region}
-              onChange={(e) => setNewCareer({ ...newCareer, region: e.target.value })}
-              className="border p-1 mr-2"
-            />
-            <button onClick={handleAdd} className="p-1 bg-blue-500 text-white rounded">
-              <FontAwesomeIcon icon={faPlus} className="mr-1" /> Add
-            </button>
-          </div>
-          <table className="min-w-full mt-4 border">
+          <table className="min-w-full border">
             <thead>
               <tr>
-                <th className="border p-2 text-left">CHỌN</th>
-                <th className="border p-2 text-left">TRƯỜNG</th>
-                <th className="border p-2 text-left">MÃ TRƯỜNG</th>
-                <th className="border p-2 text-left">KHU VỰC</th>
+                <th className="border p-2 text-left">STT</th>
+                <th className="border p-2 text-left">Tên Trường</th>
+                <th className="border p-2 text-left">Mã Trường</th>
+                <th className="border p-2 text-left">Địa Điểm</th>
               </tr>
             </thead>
             <tbody>
-              {careers.map((career, index) => (
-                <tr key={index}>
+              {universities.map((university, index) => (
+                <tr key={university.id}>
                   <td className="border p-2">
-                    <input type="checkbox" checked={career.selected} onChange={() => handleSelectCareer(index)} />
+                    {(currentPage - 1) * 5 + index + 1}
                   </td>
-                  <td className="border p-2" onDoubleClick={() => handleUniversityClick(career.name)}>
-                    {career.name}
-                  </td>
-                  <td className="border p-2">{career.code}</td>
-                  <td className="border p-2">{career.region}</td>
+                  <td className="border p-2">{university.name}</td>
+                  <td className="border p-2">{university.universityCode}</td>
+                  <td className="border p-2">{university.location}</td>
                 </tr>
               ))}
             </tbody>
           </table>
-          <button onClick={handleDeleteSelected} className="mt-4 p-2 bg-red-500 text-white rounded">
-            <FontAwesomeIcon icon={faTrash} className="mr-1" /> Delete Selected
-          </button>
+
+          <div className="flex justify-between items-center mt-4">
+            <div className="flex gap-4 items-center">
+              <button
+                className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-700 "
+              >
+                Add
+              </button>
+
+              <button
+                className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-700"
+              >
+                Delete
+              </button>
+            </div>
+            
+            <div className="flex gap-4 items-center">
+              <button
+                onClick={handlePrevPage}
+                disabled={currentPage === 1}
+                className={`px-4 py-2 rounded ${
+                  currentPage === 1
+                    ? 'bg-gray-300 text-gray-600 cursor-not-allowed'
+                    : 'bg-blue-500 text-white hover:bg-blue-700'
+                }`}
+              >
+                Trang trước
+              </button>
+              <span>{currentPage}</span>
+              <button
+                onClick={handleNextPage}
+                disabled={!hasNextPage}
+                className={`px-4 py-2 rounded ${
+                  !hasNextPage
+                    ? 'bg-gray-300 text-gray-600 cursor-not-allowed'
+                    : 'bg-blue-500 text-white hover:bg-blue-700'
+                }`}
+              >
+                Trang sau
+              </button>
+            </div>
+          </div>
         </>
-      )}
-      {isUniversity && !isFaculty && !isMajor && (
-        <div className="p-4">
-          <button
-            onClick={() => {
-              setIsUniversity(false);
-              setSelectedUniversity(null);
-            }}
-            className="mb-4 p-2 bg-gray-300 text-black rounded"
-          >
-            <FontAwesomeIcon icon={faArrowLeft} className="mr-1" /> Quay lại
-          </button>
-          <h2 className="text-xl font-bold mb-2">Trường</h2>
-          <p className="mb-2 bg-gray-200 p-2 rounded-lg">{selectedUniversity}</p>
-          <h2 className="text-xl font-bold mb-2">Thông Tin</h2>
-          <textarea
-            className="mb-2 bg-gray-200 p-2 rounded-lg w-full"
-            rows={5}
-            defaultValue={`"name": "ĐH",\n"location": "Đà Nẵng"\n"description": "Trường Đại học Top 500 thế giới"\n"university_code": "DTU"\n"scholarship_available": true`}
-          />
-          <h2 className="text-xl font-bold mb-2">Khoa</h2>
-          <div className="flex space-x-4">
-            {faculties.map((faculty) => (
-              <div key={faculty} className="flex items-center space-x-2">
-                <p className="bg-gray-200 py-2 px-4 rounded cursor-pointer" onDoubleClick={() => handleFacultyClick(faculty)}>
-                  {faculty}
-                </p>
-                <button onClick={() => handleDeleteFaculty(faculty)} className="p-1 bg-red-500 text-white rounded">
-                  <FontAwesomeIcon icon={faTrash} className="mr-1" />
-                </button>
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-4">
-            <button onClick={handleSave} className="mr-2 p-2 bg-green-500 text-white rounded">
-              Save
-            </button>
-            <button onClick={handleCancel} className="p-2 bg-red-500 text-white rounded">
-              Cancel
-            </button>
-          </div>
-        </div>
-      )}
-      {isFaculty && !isMajor && (
-        <div className="p-4">
-          <button
-            onClick={() => {
-              setIsFaculty(false);
-              setSelectedFaculty(null);
-            }}
-            className="mb-4 p-2 bg-gray-300 text-black rounded"
-          >
-            <FontAwesomeIcon icon={faArrowLeft} className="mr-1" /> Quay lại
-          </button>
-          <h2 className="text-xl font-bold mb-2">Khoa</h2>
-          <p className="mb-2 bg-gray-200 p-2 rounded-lg">{selectedFaculty}</p>
-          <h2 className="text-xl font-bold mb-2">Thông Tin</h2>
-          <textarea
-            className="mb-2 bg-gray-200 p-2 rounded-lg w-full"
-            rows={5}
-            defaultValue={`"name": "ĐH",\n"location": "Đà Nẵng"\n"description": "Trường Đại học Top 500 thế giới"\n"university_code": "DTU"\n"scholarship_available": true`}
-          />
-          <h2 className="text-xl font-bold mb-2">Ngành</h2>
-          <div className="flex space-y-4">
-            {facultiesWithMajors
-              .filter((faculty) => faculty.faculty === selectedFaculty)
-              .map((faculty) => (
-                <div key={faculty.faculty} className="flex items-center space-x-4">
-                  {faculty.majors.map((major) => (
-                    <div key={major} className="flex items-center">
-                      <p className="bg-gray-200 py-2 px-4 rounded cursor-pointer" onDoubleClick={() => handleMajorClick(major)}>
-                        {major}
-                      </p>
-                      <button onClick={() => handleDeleteMajor(faculty.faculty, major)} className="p-1 bg-red-500 text-white rounded ml-2">
-                        <FontAwesomeIcon icon={faTrash} className="mr-1" />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              ))}
-          </div>
-
-          <div className="mt-4">
-            <button onClick={handleSave} className="mr-2 p-2 bg-green-500 text-white rounded">
-              Save
-            </button>
-            <button onClick={handleCancel} className="p-2 bg-red-500 text-white rounded">
-              Cancel
-            </button>
-          </div>
-        </div>
-      )}
-      {isMajor && (
-        <div className="p-4">
-          <button
-            onClick={() => {
-              setIsMajor(false);
-              setSelectedMajor(null);
-            }}
-            className="mb-4 p-2 bg-gray-300 text-black rounded"
-          >
-            <FontAwesomeIcon icon={faArrowLeft} className="mr-1" /> Quay lại
-          </button>
-          <h2 className="text-xl font-bold mb-2">Ngành</h2>
-          <p className="mb-2 bg-gray-200 p-2 rounded-lg">{selectedMajor}</p>
-          <h2 className="text-xl font-bold mb-2">Thông Tin</h2>
-          <textarea
-            className="mb-2 bg-gray-200 p-2 rounded-lg w-full"
-            rows={5}
-            defaultValue={`"name": "ĐH",\n"location": "Đà Nẵng"\n"description": "Trường Đại học Top 500 thế giới"\n"university_code": "DTU"\n"scholarship_available": true`}
-          />
-          <div className="mt-4">
-            <button onClick={handleSave} className="mr-2 p-2 bg-green-500 text-white rounded">
-              Save
-            </button>
-            <button onClick={handleCancel} className="p-2 bg-red-500 text-white rounded">
-              Cancel
-            </button>
-          </div>
-        </div>
       )}
     </div>
   );

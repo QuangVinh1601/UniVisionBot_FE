@@ -60,17 +60,18 @@ function App() {
               }
             />
             <Route path="/admin-dashboard" element={<PrivateRoute role="ADMIN">
-              {" "}
-              {/* Add role prop here */}
-              <AdminDashboard />
-            </PrivateRoute>}
+
+                  {" "}
+                  {/* Add role prop here */}
+                  <AdminDashboard />
+                </PrivateRoute>}
             />
 
             <Route path="/chat-bot-mess" element={<PrivateRoute role="USER">
-              {" "}
-              {/* Add role prop here */}
-              <ChatBotMess />
-            </PrivateRoute>}
+                  {" "}
+                  {/* Add role prop here */}
+                  <ChatBotMess />
+                </PrivateRoute>}
             />
           </Routes>
         </main>
