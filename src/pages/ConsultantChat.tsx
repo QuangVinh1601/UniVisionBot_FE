@@ -167,6 +167,11 @@ const ConsultantChat = () => {
     setConversations(updatedConversations);
     setCurrentConversation(updatedConversations.find((c) => c.id === currentConversation!.id)!);
     setNewMessage('');
+
+    // Send message to the user
+    // This is a placeholder for the actual implementation
+    // You might need to use WebSocket or any other real-time communication method
+    console.log('Message sent to user:', newMessage);
   };
 
   return (
