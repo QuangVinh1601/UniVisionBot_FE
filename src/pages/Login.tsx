@@ -44,7 +44,7 @@ const Login: React.FC = () => {
     }
     e.preventDefault();
     setError(null); // Clear any previous errors
-};
+  };
 
   return (
     <div className="min-h-screen flex flex-col">

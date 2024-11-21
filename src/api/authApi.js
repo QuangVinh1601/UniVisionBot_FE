@@ -32,3 +32,19 @@ export const login = async (email, password) => {
     throw error;
   }
 };
+
+// Hàm gửi tin nhắn
+export const sendMessage = async (message, chatId, chatCode) => {
+  try {
+    const response = await axios.post('http://127.0.0.1:5000/send_message', {
+      message,
+      chatId,
+      chatCode,
+    });
+    console.log('Message sent:', response.data);
+    return response.data; // Dữ liệu trả về từ API
+  } catch (error) {
+    console.error('Error sending message:', error.response ? error.response.data : error.message);
+    throw error;
+  }
+};
