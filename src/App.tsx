@@ -48,9 +48,26 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
-            <Route path="/consultant-chat" element={<PrivateRoute role="CONSULTANT"><ConsultantChat /></PrivateRoute>} />
-            <Route path="/admin-dashboard" element={<PrivateRoute role="ADMIN"><AdminDashboard /></PrivateRoute>} />
+            {/* <Route path="/consultant-chat" element={<PrivateRoute role="CONSULTANT"><ConsultantChat /></PrivateRoute>} />
+            <Route path="/admin-dashboard" element={<PrivateRoute role="ADMIN"><AdminDashboard /></PrivateRoute>} /> */}
             <Route path="/UserChat" element={<UserChat />} /> {/* Add this route */}
+            <Route
+              path="/consultant-chat"
+              element={
+                <PrivateRoute role="CONSULTANT">
+                  {' '}
+                  {/* Add role prop here */}
+                  <ConsultantChat />
+                </PrivateRoute>
+              }
+            />
+            <Route path="/admin-dashboard" element={<PrivateRoute role="ADMIN">
+              {" "}
+              {/* Add role prop here */}
+              <AdminDashboard />
+            </PrivateRoute>}
+            />
+
           </Routes>
         </main>
         {!isAuthPage && (
