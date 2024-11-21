@@ -28,7 +28,7 @@ const Login: React.FC = () => {
 
       // Redirect user based on role
       if (role === 'ADMIN') {
-        navigate('/admin-dashboard');
+        navigate('/admin');
       } else if (role === 'CONSULTANT') {
         navigate('/consultant-chat');
       } else if (role === 'USER') {
@@ -44,7 +44,7 @@ const Login: React.FC = () => {
     }
     e.preventDefault();
     setError(null); // Clear any previous errors
-};
+  };
 
   return (
     <div className="min-h-screen flex flex-col">
