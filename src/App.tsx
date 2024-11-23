@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Outlet, useLocation } from 'react-router-dom';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import AdBanner from './components/AdBanner';
@@ -13,12 +13,25 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import ForgotPassword from './pages/ForgotPassword';
 import ConsultantChat from './pages/ConsultantChat';
+import AdminLayout from './admin/components/AdminLayout';
 import AdminDashboardHeader from './admin/components/AdminDashboardHeader';
 import AdminDashboard from './admin/pages/AdminDashboard';
 import AdminCareers from './admin/pages/AdminCareers';
 import AdminAccount from './admin/pages/AdminAccount';
 import AdminWhatToStudy from './admin/pages/AdminWhatToStudy';
+import UniversityDetails from './admin/pages/pagesOfAdminCareers/UniversityDetails'; // Import trang chi tiết trường đại học
 import { PrivateRoute } from './components/PrivateRoute';
+
+// function AdminLayout() {
+//   return (
+//     <>
+//       <AdminDashboardHeader />
+//       <div className="p-4">
+//         <Outlet /> {/* Render các trang con */}
+//       </div>
+//     </>
+//   );
+// }
 
 function App() {
   const location = useLocation();
@@ -30,7 +43,8 @@ function App() {
     location.pathname === '/admin/dashboard' ||
     location.pathname === '/admin/careers' ||
     location.pathname === '/admin/what-to-study' ||
-    location.pathname === '/admin/account';
+    location.pathname === '/admin/account' ||
+    location.pathname.startsWith('/admin/careers/university');
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -66,16 +80,10 @@ function App() {
             />
 
             {/* Admin Dashboard with nested routes */}
-            <Route
-              path="/admin/*"
-              element={
-                <PrivateRoute role="ADMIN">
-                  <AdminDashboardHeader />
-                </PrivateRoute>
-              }
-            >
+            <Route path="/admin" element={<AdminLayout />}>
               <Route path="dashboard" element={<AdminDashboard />} />
               <Route path="careers" element={<AdminCareers />} />
+              <Route path="careers/university/:id" element={<UniversityDetails />} />
               <Route path="what-to-study" element={<AdminWhatToStudy />} />
               <Route path="account" element={<AdminAccount />} />
             </Route>
