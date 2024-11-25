@@ -1,6 +1,6 @@
 import gg_bot from '../images/gg_bot.png'; // Đảm bảo đường dẫn ảnh đúng
 import React, { useState, useEffect, useRef } from 'react';
-import { HubConnection, HubConnectionBuilder, HttpTransportType } from '@microsoft/signalr';
+import { HubConnection, HubConnectionBuilder, HttpTransportType, LogLevel } from '@microsoft/signalr';
 import { X } from 'lucide-react';
 
 interface ChatbotProps {

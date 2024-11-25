@@ -40,6 +40,13 @@ interface ConversationWithDetails {
   messages: MessageResponse[];
   lastMessage?: string;
 }
+interface PendingConversation {
+  id:string,
+  conversationId: string,
+  userName: string,
+  status: string,
+  createdAt: string
+}
 
 // ConsultantChat.tsx
 const ConsultantChat = () => {
@@ -55,6 +62,8 @@ const ConsultantChat = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const consultantId = localStorage.getItem('UserId');
   const [messageUpdate, setMessageUpdate] = useState(0);
+  const [pendingMessages, setPendingMessages] = useState<PendingConversation[]>([]);
+  const [isPendingOpen, setIsPendingOpen] = useState(false);
 
   // const selectedConversation = conversations.find(c => c.id === selectedId);
 
@@ -73,6 +82,7 @@ const ConsultantChat = () => {
     };
   }
   const filteredConversations = conversations.filter(conv => 
+    !pendingMessages.some(pm => pm.conversationId === conv.id) &&
     conv.user.fullName.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -107,7 +117,7 @@ const ConsultantChat = () => {
           'Content-Type': 'application/json',
           'Accept': 'application/json'
         },
-        credentials: 'include' // Thêm credentials nếu cần thiết
+        credentials: 'include' // Thêm credentials n���u cần thiết
       });
       
       console.log(response);
@@ -304,6 +314,92 @@ const ConsultantChat = () => {
       scrollToBottom();
     }
   }, [selectedConversation?.messages, scrollToBottom, messageUpdate]);
+
+  const fetchPendingMessages = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await fetch(`https://localhost:7230/api/conversations/pending`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      if (!response.ok) throw new Error('Failed to fetch pending messages');
+      const data: PendingConversation[] = await response.json();
+      setPendingMessages(data);
+    } catch (err) {
+      console.error('Error fetching pending messages:', err);
+      setError('Failed to load pending messages');
+    }
+  };
+
+  const handlePendingConversationClick = async (conversationId: string) => {
+    try {
+      // Call API to fetch message history for the selected conversation
+      const response = await fetch(`https://localhost:7230/api/conversations/history/${conversationId}`);
+      if (!response.ok) throw new Error('Failed to fetch conversation history');
+      
+      const conversationHistory = await response.json();
+      // Set the message history to state
+      setSelectedConversation(conversationHistory);
+      setSelectedId(conversationId); // Set the selected conversation ID
+    } catch (err) {
+      console.error('Error fetching conversation history:', err);
+      setError('Failed to load conversation history');
+    }
+  };
+
+  // Add handlers for accept/reject
+const handleAcceptConversation = async () => {
+  if (!selectedConversation) return;
+  try {
+    const createResponse = await fetch(`https://localhost:7230/api/conversations`, {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        UserId: selectedConversation.userId,
+        consultantId: consultantId
+    })
+  });
+
+    if (!createResponse.ok) throw new Error('Failed to accept');
+    const conversationId = await createResponse.text();
+      // 2. Get conversation details to add to list
+      const detailsResponse = await fetch(`https://localhost:7230/api/conversations/history/${conversationId}`);
+      if (!detailsResponse.ok) throw new Error('Failed to fetch conversation details');
+      const newConversation = await detailsResponse.json();
+    
+      setConversations(prev => [...prev, newConversation]);
+      setPendingMessages(prev => 
+        prev.filter(m => m.conversationId !== selectedConversation.id)
+      );
+      setSelectedId(conversationId);
+      setSelectedConversation(null);
+  } catch (error) {
+    console.error('Error accepting conversation:', error);
+    setError('Failed to accept conversation');
+  }
+};
+
+const handleRejectConversation = async () => {
+  if (!selectedConversation) return;
+  try {
+    const response = await fetch(`https://localhost:7230/api/conversations/${selectedConversation.id}`, {
+      method: 'DELETE'
+    });
+    if (!response.ok) throw new Error('Failed to reject');
+    
+    setPendingMessages(prev => prev.filter(m => m.conversationId !== selectedConversation.id));
+    setSelectedConversation(null);
+  } catch (error) {
+    console.error('Error rejecting conversation:', error);
+  }
+};
+const isPendingConversation = (conversation: ConversationWithDetails) => {
+  return pendingMessages.some(pm => pm.conversationId === conversation.id);
+};
   return (
     <div className="flex h-screen bg-gray-50">
       {/* Sidebar */}
@@ -338,6 +434,84 @@ const ConsultantChat = () => {
             />
             <Search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
           </div>
+        </div>
+
+        {/* Pending Messages Dropdown */}
+        <div className="px-4 py-2">
+          <div 
+            className="flex items-center justify-between p-3 bg-yellow-50 rounded-lg cursor-pointer hover:bg-yellow-100 transition-colors"
+            onClick={() => {
+              setIsPendingOpen(!isPendingOpen);
+              if (!isPendingOpen) fetchPendingMessages();
+            }}
+          >
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></div>
+              <span className="font-medium text-gray-700">Tin nhắn đang chờ</span>
+              {pendingMessages.length > 0 && (
+                <span className="px-2 py-1 text-xs bg-yellow-500 text-white rounded-full">
+                  {pendingMessages.length}
+                </span>
+              )}
+            </div>
+            <svg 
+              className={`w-5 h-5 text-gray-500 transform transition-transform ${isPendingOpen ? 'rotate-180' : ''}`} 
+              fill="none" 
+              stroke="currentColor" 
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
+
+          {/* Pending Messages List */}
+          {isPendingOpen && (
+            <div className="mt-2 bg-white rounded-lg shadow-lg overflow-hidden">
+              {pendingMessages.length === 0 ? (
+                <div className="p-4 text-center text-gray-500">
+                  Không có tin nhắn đang chờ
+                </div>
+              ) : (
+                <div className="max-h-60 overflow-y-auto">
+                  {pendingMessages.map((conv) => (
+                    <div
+                      key={conv.id}
+                      className="p-3 hover:bg-gray-50 cursor-pointer border-b last:border-0 transition-colors"
+                      onClick={() => {
+                        handlePendingConversationClick(conv.conversationId);
+                      }}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="relative">
+                          <img 
+                            src={`/api/placeholder/40/40`}
+                            alt={conv.userName}
+                            className="w-10 h-10 rounded-full object-cover"
+                          />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-medium text-gray-900 truncate">
+                            {conv.userName}
+                          </h4>
+                          <p className="text-sm text-gray-500 truncate">
+                            {conv.status}
+                          </p>
+                        </div>
+                        <span className="text-xs text-gray-400">
+                          {new Date(conv.createdAt  ).toLocaleTimeString('vi-VN', {
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+ {/*Render history between User and Bot*/}
+
         </div>
 
         {/* Conversations List */}
@@ -389,11 +563,10 @@ const ConsultantChat = () => {
         </div>
       </div>
 
-      {/* Chat Area */}
       <div className="flex-1 flex flex-col">
-        {selectedConversation ? (
+        {selectedConversation && (
           <>
-            {/* Chat Header */}
+            {/* Chat Header - Always show */}
             <div className="p-4 bg-white shadow-sm border-b border-gray-100">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
@@ -409,87 +582,100 @@ const ConsultantChat = () => {
                     <h3 className="font-semibold text-gray-800">{selectedConversation.user.fullName}</h3>
                   </div>
                 </div>
-                
               </div>
             </div>
 
-            {/* Messages */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4">
-              {selectedConversation.messages.map(msg => (
-                <div 
-                  key={msg.id} 
-                  className={`flex ${isMessageFromUser(msg) ? 'justify-start' : 'justify-end'}`}
-                >
-                  <div 
-                    className={`max-w-[70%] rounded-2xl p-4 ${
-                      isMessageFromUser(msg)
-                        ? 'bg-white text-gray-800 shadow-sm' 
-                        : 'bg-green-500 text-white'
-                    }`}
-                  >
-                    <p className="leading-relaxed">{msg.content}</p>
-                    <div className="flex items-center gap-2 mt-2">
-                      <span className={`text-xs ${isMessageFromUser(msg) ? 'text-gray-500' : 'text-green-100'}`}>
-                        {new Date(msg.created_At).toLocaleTimeString('vi-VN', {
-                          hour: '2-digit',
-                          minute: '2-digit',
-                        })}
-                      </span>
-                      {!isMessageFromUser(msg) && (
-                        <CheckCheck className="w-4 h-4 text-green-100" />
-                      )}
+            {/* Conditional Rendering based on Conversation Status */}
+            {isPendingConversation(selectedConversation) ? (
+              <>
+                {/* History View with Accept/Reject */}
+                <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                  {selectedConversation.messages.map(msg => (
+                    <div 
+                      key={msg.id} 
+                      className={`flex ${isMessageFromUser(msg) ? 'justify-start' : 'justify-end'}`}
+                    >
+                      <div className={`max-w-[70%] rounded-2xl p-4 ${
+                        isMessageFromUser(msg) 
+                          ? 'bg-gray-100 text-gray-800' 
+                          : 'bg-blue-100 text-gray-800'
+                      }`}>
+                        <p className="leading-relaxed">{msg.content}</p>
+                        <span className="text-xs text-gray-500">
+                          {new Date(msg.created_At).toLocaleTimeString('vi-VN')}
+                        </span>
+                      </div>
                     </div>
-                  </div>
+                  ))}
                 </div>
-              ))}
-              <div ref={messagesEndRef} />
-            </div>
-
-            {/* Message Input */}
-            <div className="p-4 bg-white border-t border-gray-100">
-              <form onSubmit={sendMessage} className="flex items-center gap-3">
-                <div className="flex-1 relative">
-                  <input
-                    type="text"
-                    placeholder="Type your message..."
-                    className="w-full px-6 py-4 bg-gray-50 rounded-full focus:outline-none focus:ring-2 focus:ring-green-500 transition-all"
-                    value={newMessage}
-                    onChange={(e) => setNewMessage(e.target.value)}
-                  />
+                <div className="p-4 border-t border-gray-100 flex justify-end gap-4">
+                  <button 
+                    onClick={handleRejectConversation}
+                    className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
+                  >
+                    Từ chối
+                  </button>
+                  <button 
+                    onClick={handleAcceptConversation}
+                    className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600"
+                  >
+                    Chấp nhận
+                  </button>
                 </div>
-                <button  title='Video'
-                  type="submit"
-                  disabled={!newMessage.trim()}
-                  className="p-4 bg-green-500 text-white rounded-full hover:bg-green-600 disabled:opacity-50 disabled:hover:bg-green-500 transition-colors"
-                >
-                  <Send className="w-5 h-5" />
-                </button>
-              </form>
-            </div>
+              </>
+            ) : (
+              <>
+                {/* Regular Chat View */}
+                <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                  {selectedConversation.messages.map(msg => (
+                    <div 
+                      key={msg.id} 
+                      className={`flex ${isMessageFromUser(msg) ? 'justify-start' : 'justify-end'}`}
+                    >
+                      <div className={`max-w-[70%] rounded-2xl p-4 ${
+                        isMessageFromUser(msg)
+                          ? 'bg-white text-gray-800 shadow-sm' 
+                          : 'bg-green-500 text-white'
+                      }`}>
+                        <p className="leading-relaxed">{msg.content}</p>
+                        <div className="flex items-center gap-2 mt-2">
+                          <span className={`text-xs ${isMessageFromUser(msg) ? 'text-gray-500' : 'text-green-100'}`}>
+                            {new Date(msg.created_At).toLocaleTimeString('vi-VN', {
+                              hour: '2-digit',
+                              minute: '2-digit',
+                            })}
+                          </span>
+                          {!isMessageFromUser(msg) && (
+                            <CheckCheck className="w-4 h-4 text-green-100" />
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                  <div ref={messagesEndRef} />
+                </div>
+                {/* Message Input */}
+                <div className="p-4 border-t border-gray-100">
+                  <form onSubmit={sendMessage} className="flex gap-2">
+                    <input
+                      type="text"
+                      value={newMessage}
+                      onChange={(e) => setNewMessage(e.target.value)}
+                      className="flex-1 p-2 border rounded-lg"
+                      placeholder="Nhập tin nhắn..."
+                    />
+                    <button type="submit" className="p-2 bg-green-500 text-white rounded-lg">
+                      <Send className="w-5 h-5" />
+                    </button>
+                  </form>
+                </div>
+              </>
+            )}
           </>
-        ) : (
-          <div className="flex-1 flex flex-col items-center justify-center">
-            <User className="w-16 h-16 text-gray-300 mb-4" />
-            <p className="text-gray-500 text-lg">Select a conversation to start chatting</p>
-          </div>
         )}
       </div>
-
-      {/* Error Toast */}
-      {error && (
-        <div className="fixed bottom-4 right-4 bg-white border-l-4 border-red-500 shadow-lg rounded-lg p-4 max-w-md animate-slideIn">
-          <div className="flex items-center justify-between">
-            <p className="text-red-800">{error}</p>
-            <button 
-              onClick={() => setError(null)}
-              className="ml-4 text-gray-400 hover:text-gray-600 transition-colors"
-            >
-              ×
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
+
 export default ConsultantChat;
