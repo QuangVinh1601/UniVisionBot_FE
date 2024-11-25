@@ -179,7 +179,10 @@ const ConsultantChat = () => {
           console.log("New conversations:", newConversations);
           return newConversations;
         });
-
+        newConnection.on("NofityPendingConversation", conversations => {
+          console.log("Received new pending message:", conversations.conversationId);
+          setPendingMessages(prev => [...prev, conversations]);
+        })
         setSelectedConversation(prev => {
           if (prev && prev.id === currentMessage.conversationId) {
             console.log("Updating selectedConversation");
@@ -370,13 +373,16 @@ const handleAcceptConversation = async () => {
       const detailsResponse = await fetch(`https://localhost:7230/api/conversations/history/${conversationId}`);
       if (!detailsResponse.ok) throw new Error('Failed to fetch conversation details');
       const newConversation = await detailsResponse.json();
+
+      console.log('Joining new conversation:', conversationId);
+      await connection?.invoke("JoinConversation", conversationId);
     
       setConversations(prev => [...prev, newConversation]);
       setPendingMessages(prev => 
         prev.filter(m => m.conversationId !== selectedConversation.id)
       );
       setSelectedId(conversationId);
-      setSelectedConversation(null);
+      setSelectedConversation(newConversation);
   } catch (error) {
     console.error('Error accepting conversation:', error);
     setError('Failed to accept conversation');
