@@ -1,10 +1,9 @@
 import React from 'react';
-import { BrowserRouter as Router, Route, Routes, Outlet, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import AdBanner from './components/AdBanner';
 import ChatBot from './components/Chatbot';
-import ChatBotMess from './components/ChatBotMess';
 import Home from './pages/Home';
 import Careers from './pages/Careers';
 import CareerGuidanceTest from './pages/CareerGuidanceTest/CareerGuidanceTest';
@@ -13,25 +12,10 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import ForgotPassword from './pages/ForgotPassword';
 import ConsultantChat from './pages/ConsultantChat';
-import AdminLayout from './admin/components/AdminLayout';
-import AdminDashboardHeader from './admin/components/AdminDashboardHeader';
-import AdminDashboard from './admin/pages/AdminDashboard';
-import AdminCareers from './admin/pages/AdminCareers';
-import AdminAccount from './admin/pages/AdminAccount';
-import AdminWhatToStudy from './admin/pages/AdminWhatToStudy';
-import UniversityDetails from './admin/pages/pagesOfAdminCareers/UniversityDetails'; // Import trang chi tiết trường đại học
+import ChatWindow from './components/ChatWindow'; // Import ChatWindow component
+import AdminDashboard from './admin/components/AdminDashboardHeader';
 import { PrivateRoute } from './components/PrivateRoute';
-
-// function AdminLayout() {
-//   return (
-//     <>
-//       <AdminDashboardHeader />
-//       <div className="p-4">
-//         <Outlet /> {/* Render các trang con */}
-//       </div>
-//     </>
-//   );
-// }
+import UserChat from './pages/UserChat';
 
 function App() {
   const location = useLocation();
@@ -39,12 +23,9 @@ function App() {
     location.pathname === '/login' ||
     location.pathname === '/register' ||
     location.pathname === '/forgot-password' ||
-    location.pathname === '/admin' ||
-    location.pathname === '/admin/dashboard' ||
-    location.pathname === '/admin/careers' ||
-    location.pathname === '/admin/what-to-study' ||
-    location.pathname === '/admin/account' ||
-    location.pathname.startsWith('/admin/careers/university');
+    location.pathname === '/consultant-chat' ||
+    location.pathname === '/admin-dashboard' ||
+    location.pathname === '/UserChat'; // Add UserChat to isAuthPage check
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -68,35 +49,11 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/consultant-chat" element={<PrivateRoute role="CONSULTANT"><ConsultantChat /></PrivateRoute>} />
+            <Route path="/admin-dashboard" element={<PrivateRoute role="ADMIN"><AdminDashboard /></PrivateRoute>} />
+            <Route path="/UserChat" element={<UserChat />} />
 
-            {/* Protected route for ConsultantChat */}
-            <Route
-              path="/consultant-chat"
-              element={
-                <PrivateRoute role="CONSULTANT">
-                  <ConsultantChat />
-                </PrivateRoute>
-              }
-            />
 
-            {/* Admin Dashboard with nested routes */}
-            <Route path="/admin" element={<AdminLayout />}>
-              <Route path="dashboard" element={<AdminDashboard />} />
-              <Route path="careers" element={<AdminCareers />} />
-              <Route path="careers/university/:id" element={<UniversityDetails />} />
-              <Route path="what-to-study" element={<AdminWhatToStudy />} />
-              <Route path="account" element={<AdminAccount />} />
-            </Route>
-
-            {/* ChatBotMess for USER */}
-            <Route
-              path="/chat-bot-mess"
-              element={
-                <PrivateRoute role="USER">
-                  <ChatBotMess />
-                </PrivateRoute>
-              }
-            />
           </Routes>
         </main>
         {!isAuthPage && (
