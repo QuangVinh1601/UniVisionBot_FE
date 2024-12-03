@@ -8,6 +8,8 @@ interface Message {
     id: number;
     content: string;
     sender: 'user' | 'consultant';
+    senderId: string; // Add senderId property
+    receiverId: string; // Add receiverId property
     time: string;
 }
 
@@ -30,7 +32,7 @@ const UserChat = () => {
     const email = location.state?.email || ''; // Corrected variable name
 
     const role = localStorage.getItem('role'); // Get role from localStorage
-    const userId = localStorage.getItem('userId'); // Get userId from localStorage
+    const userId = localStorage.getItem('userId') || ''; // Get userId from localStorage and provide a default value
     const fullName = localStorage.getItem('fullName'); // Get fullName from localStorage
     console.log(role)
     console.log(userId)
@@ -55,6 +57,8 @@ const UserChat = () => {
                 id: 1,
                 content: resultString,
                 sender: 'user',
+                senderId: userId, // Add senderId for user
+                receiverId: '672214299c167656b2dc0d5e', // Add receiverId for consultant
                 time: new Date().toLocaleTimeString([], {
                     hour: '2-digit',
                     minute: '2-digit',
@@ -64,6 +68,8 @@ const UserChat = () => {
                 id: 2,
                 content: handleResponse(responseMessage),
                 sender: 'consultant',
+                senderId: '672214299c167656b2dc0d5e', // Add senderId for consultant
+                receiverId: userId, // Add receiverId for user
                 time: new Date().toLocaleTimeString([], {
                     hour: '2-digit',
                     minute: '2-digit',
@@ -81,6 +87,8 @@ const UserChat = () => {
             id: conversation.messages.length + 1,
             content: newMessage,
             sender: 'user',
+            senderId: userId, // Add senderId for user
+            receiverId: '672214299c167656b2dc0d5e', // Add receiverId for consultant
             time: new Date().toLocaleTimeString([], {
                 hour: '2-digit',
                 minute: '2-digit',
@@ -111,6 +119,8 @@ const UserChat = () => {
                 id: updatedConversation.messages.length + 1,
                 content: formattedResponse,
                 sender: 'consultant',
+                senderId: '672214299c167656b2dc0d5e', // Add senderId for consultant
+                receiverId: userId, // Add receiverId for user
                 time: new Date().toLocaleTimeString([], {
                     hour: '2-digit',
                     minute: '2-digit',
@@ -134,12 +144,12 @@ const UserChat = () => {
     const handleSwitchToAssistant = async () => {
         try {
             // Call the addPendingConversation API
-            const pendingConversation = await addPendingConversation('pending', userId);
+            const pendingConversation = await addPendingConversation('pending', userId, fullName);
             console.log('Pending conversation added:', pendingConversation.conversation_id);
 
             // Call the addMessage API for each message in the conversation
             for (const message of conversation.messages) {
-                const addedMessage = await addMessage(pendingConversation.conversation_id, message.content, message.sender);
+                const addedMessage = await addMessage(pendingConversation.conversation_id, message.content, message.senderId, message.receiverId);
                 console.log('Message added:', addedMessage);
             }
 

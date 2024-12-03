@@ -50,11 +50,12 @@ export const sendMessage = async (message, chatId, chatCode) => {
 };
 
 // Hàm thêm cuộc trò chuyện đang chờ
-export const addPendingConversation = async (status, user_Id) => {
+export const addPendingConversation = async (status, user_Id, fullName) => {
   try {
     const response = await axios.post('http://127.0.0.1:5000/add_pending_conversation', {
       status,
       user_Id,
+      fullName,
     });
     return response.data; // Dữ liệu trả về từ API
   } catch (error) {
@@ -64,12 +65,13 @@ export const addPendingConversation = async (status, user_Id) => {
 };
 
 // Hàm thêm tin nhắn
-export const addMessage = async (conversationId, message, sender) => {
+export const addMessage = async (conversationId, message, sender, receiverId) => {
   try {
     const response = await axios.post('http://127.0.0.1:5000/add_message', {
       conversationId,
       message,
       sender,
+      receiverId,
     });
     return response.data; // Dữ liệu trả về từ API
   } catch (error) {
