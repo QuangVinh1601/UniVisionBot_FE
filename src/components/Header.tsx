@@ -1,9 +1,8 @@
 import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import logo from '../images/logo.jpg';
 
 const Header: React.FC = () => {
-  const navigate = useNavigate();
   const token = localStorage.getItem('token');
   const role = localStorage.getItem('role');
 
@@ -11,9 +10,9 @@ const Header: React.FC = () => {
     // Remove token and role from localStorage
     localStorage.removeItem('token');
     localStorage.removeItem('role');
-    
-    // Redirect to homepage
-    navigate('/');
+
+    // Refresh the page and redirect to homepage
+    window.location.href = '/';
   };
 
   return (
@@ -28,33 +27,47 @@ const Header: React.FC = () => {
             {/* Display only the "Đăng xuất" button for Admin and Consultant roles */}
             {token && (role === 'ADMIN' || role === 'CONSULTANT') ? (
               <li>
-                <button 
-                  onClick={handleLogout} 
-                  className="bg-green-500 text-white px-4 py-2 rounded flex items-center text-lg font-semibold"
-                >
+                <button onClick={handleLogout} className="bg-green-500 text-white px-4 py-2 rounded flex items-center text-lg font-semibold">
                   Đăng xuất
                 </button>
               </li>
             ) : (
               <>
-                <li><Link to="/" className="text-gray-700 hover:text-green-500 text-lg font-semibold">Trang chủ</Link></li>
-                <li><Link to="/careers" className="text-gray-700 hover:text-green-500 text-lg font-semibold">Các ngành nghề</Link></li>
-                <li><Link to="/career-guidance-test" className="text-gray-700 hover:text-green-500 text-lg font-semibold">Trắc nghiệm hướng nghiệp</Link></li>
-                <li><Link to="/what-to-study" className="text-gray-700 hover:text-green-500 text-lg font-semibold">Học nghề gì</Link></li>
+                <li>
+                  <Link to="/" className="text-gray-700 hover:text-green-500 text-lg font-semibold">
+                    Trang chủ
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/careers" className="text-gray-700 hover:text-green-500 text-lg font-semibold">
+                    Các ngành nghề
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/career-guidance-test" className="text-gray-700 hover:text-green-500 text-lg font-semibold">
+                    Trắc nghiệm hướng nghiệp
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/what-to-study" className="text-gray-700 hover:text-green-500 text-lg font-semibold">
+                    Học nghề gì
+                  </Link>
+                </li>
 
                 {/* Display "Đăng nhập" and "Đăng ký" for other users or if not logged in */}
                 {token ? (
                   <li>
-                    <button 
-                      onClick={handleLogout} 
-                      className="bg-green-500 text-white px-4 py-2 rounded flex items-center text-lg font-semibold"
-                    >
+                    <button onClick={handleLogout} className="bg-green-500 text-white px-4 py-2 rounded flex items-center text-lg font-semibold">
                       Đăng xuất
                     </button>
                   </li>
                 ) : (
                   <>
-                    <li><Link to="/login" className="text-gray-700 hover:text-green-500 text-lg font-semibold">Đăng nhập</Link></li>
+                    <li>
+                      <Link to="/login" className="text-gray-700 hover:text-green-500 text-lg font-semibold">
+                        Đăng nhập
+                      </Link>
+                    </li>
                     <li>
                       <Link to="/register" className="bg-green-500 text-white px-4 py-2 rounded flex items-center text-lg font-semibold">
                         Đăng ký

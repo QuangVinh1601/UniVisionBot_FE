@@ -23,11 +23,11 @@ const Register: React.FC = () => {
     }
     try {
       const response = await register(fullName, userName, email, password, confirmPassword);
-      setSuccess("Đăng ký thành công! Bạn có thể đăng nhập.");
+      setSuccess('Đăng ký thành công! Bạn có thể đăng nhập.');
       setError(null);
       navigate('/login');
     } catch (err) {
-      setError("Đăng ký không thành công. Vui lòng thử lại.");
+      setError('Đăng ký không thành công. Vui lòng thử lại.');
     }
   };
 
@@ -38,7 +38,7 @@ const Register: React.FC = () => {
         {/* Left Side - Green Background with Logo */}
         <div className="w-1/2 bg-green-500 flex flex-col items-center justify-center text-white p-12">
           <div className="w-48 h-48 mb-5">
-            <img src={logo} alt="UNI VISION BOT Logo" className="w-full h-full object-contain p-2"/>
+            <img src={logo} alt="UNI VISION BOT Logo" className="w-full h-full object-contain p-2" />
           </div>
           <h1 className="text-2xl font-semibold text-center text-black mb-4">UNI VISION BOT</h1>
           <p className="text-center text-lg">
@@ -104,10 +104,7 @@ const Register: React.FC = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
-              <span
-                className="absolute right-3 top-10 text-sm text-blue-500 cursor-pointer"
-                onClick={() => setShowPassword(!showPassword)}
-              >
+              <span className="absolute right-3 top-10 text-sm text-blue-500 cursor-pointer" onClick={() => setShowPassword(!showPassword)}>
                 {showPassword ? 'Ẩn mật khẩu' : 'Hiển thị mật khẩu'}
               </span>
             </div>
@@ -123,33 +120,28 @@ const Register: React.FC = () => {
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
               />
-              <span
-                className="absolute right-3 top-10 text-sm text-blue-500 cursor-pointer"
-                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-              >
+              <span className="absolute right-3 top-10 text-sm text-blue-500 cursor-pointer" onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
                 {showConfirmPassword ? 'Ẩn mật khẩu' : 'Hiển thị mật khẩu'}
               </span>
             </div>
 
             <div className="mb-4">
               <label className="flex items-center">
-                <input
-                  type="checkbox"
-                  className="mr-2 leading-tight"
-                />
+                <input type="checkbox" className="mr-2 leading-tight" />
                 <span className="text-gray-700 text-sm">Nhớ mật khẩu</span>
               </label>
             </div>
 
-            <button
-              type="submit"
-              className="w-full bg-green-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500"
-            >
+            <button type="submit" className="w-full bg-green-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500">
               Tạo tài khoản
             </button>
 
             <p className="mt-4 text-center text-sm">
-              Bạn đã có tài khoản? <a href="/login" className="text-blue-500 font-bold">Đăng Nhập</a>.
+              Bạn đã có tài khoản?{' '}
+              <a href="/login" className="text-blue-500 font-bold">
+                Đăng Nhập
+              </a>
+              .
             </p>
           </form>
         </div>
