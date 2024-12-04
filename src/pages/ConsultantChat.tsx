@@ -377,7 +377,7 @@ const handleAcceptConversation = async () => {
       console.log('Joining new conversation:', conversationId);
       await connection?.invoke("JoinConversation", conversationId);
     
-      setConversations(prev => [...prev, newConversation]);
+      conversations.some( conv => conv.id === conversationId) ? setConversations(prev => [...prev]) :setConversations(prev => [...prev, newConversation]);
       setPendingMessages(prev => 
         prev.filter(m => m.conversationId !== selectedConversation.id)
       );

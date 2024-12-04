@@ -141,7 +141,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ userId }) => {
       const conversationId = await response.text();
   
       // Get conversation history
-      const historyResponse = await fetch(`https://localhost:7230/api/conversations/current/${currentUserId}`);
+      const historyResponse = await fetch(`https://localhost:7230/api/conversations/current/${currentUserId}/${consultantId}`);
       if (!historyResponse.ok) {
         throw new Error(`Failed to fetch history: ${historyResponse.statusText}`);
       }
