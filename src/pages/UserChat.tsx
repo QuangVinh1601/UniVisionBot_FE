@@ -32,7 +32,7 @@ const UserChat = () => {
     const email = location.state?.email || ''; // Corrected variable name
 
     const role = localStorage.getItem('role'); // Get role from localStorage
-    const userId = localStorage.getItem('userId') || ''; // Get userId from localStorage and provide a default value
+    const userId = localStorage.getItem('UserId') || ''; // Get userId from localStorage and provide a default value
     const fullName = localStorage.getItem('fullName'); // Get fullName from localStorage
     console.log(role)
     console.log(userId)

@@ -25,6 +25,7 @@ const Login: React.FC = () => {
       // Save token and role to localStorage
       localStorage.setItem('token', token);
       localStorage.setItem('role', role);
+      localStorage.setItem('fullName', response.fullName);
 
       // Redirect user based on role
       if (role === 'ADMIN') {
