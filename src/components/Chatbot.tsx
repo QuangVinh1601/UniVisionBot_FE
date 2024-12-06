@@ -48,7 +48,7 @@ interface ConsultantResponse {
   id: string;
 }
 
-const Chatbot: React.FC<ChatbotProps> = ({ userId }) => {
+const Chatbot: React.FC<ChatbotProps> = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -59,7 +59,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ userId }) => {
   const [newMessage, setNewMessage] = useState('');
   const [isReconnecting, setIsReconnecting] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const currentUserId = userId;
+  const currentUserId = localStorage.getItem('UserId');
   const consultantId = "672214299c167656b2dc0d5e";
 
   function deserialize(message: any): MessageResponse {
@@ -179,8 +179,8 @@ const Chatbot: React.FC<ChatbotProps> = ({ userId }) => {
       });
   
       await newConnection.start();
+      console.log('SignalR Connected:', newConnection.connectionId);
     
-   
       await newConnection.invoke("JoinConversation", conversationId);
   
       newConnection.on("ReceiveMessage", (message: MessageResponse) => {
@@ -196,6 +196,8 @@ const Chatbot: React.FC<ChatbotProps> = ({ userId }) => {
         console.log('Received message:', currentMessage);
         scrollToBottom();
       });
+
+      
   
       setConnection(newConnection);
     } catch (err) {
@@ -209,7 +211,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ userId }) => {
   };
 
   
-  const sendMessage = async (e: React.FormEvent) => {
+    const sendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
   
     if (!newMessage.trim() || !connection || !conversation || !currentUserId) {
@@ -229,11 +231,18 @@ const Chatbot: React.FC<ChatbotProps> = ({ userId }) => {
       console.log('Sending message:', message);
       await connection.invoke("SendMessage", message);
   
-      // Xóa dòng dưới, chỉ cập nhật state qua sự kiện ReceiveMessage
-      // setMessages(prev => [...prev, message]);
-  
-      setNewMessage('');
-    } catch (err) {
+      if(!conversation.messages || conversation.messages.length === 0){ 
+        console.log("New conversation detected, sending notification...");
+        try {
+          await connection.invoke("NotifyNewConversation", conversation.id);
+          console.log("Notification sent for conversation:", conversation.id);
+        } catch (error) {
+          console.error("Failed to send new conversation notification:", error);
+    }
+    }
+  setNewMessage('');
+}
+   catch (err) {
       console.error('Send message error:', err);
       setError('Failed to send message');
     }

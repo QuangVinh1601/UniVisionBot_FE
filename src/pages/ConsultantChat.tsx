@@ -43,7 +43,7 @@ interface ConversationWithDetails {
 interface PendingConversation {
   id:string,
   conversationId: string,
-  userName: string,
+  fullname: string,
   status: string,
   createdAt: string
 }
@@ -60,6 +60,7 @@ const ConsultantChat = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [shouldScroll, setShouldScroll] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const isInitialized = useRef(false);
   const consultantId = localStorage.getItem('UserId');
   const [messageUpdate, setMessageUpdate] = useState(0);
   const [pendingMessages, setPendingMessages] = useState<PendingConversation[]>([]);
@@ -81,9 +82,22 @@ const ConsultantChat = () => {
       created_At: message.Created_At,
     };
   }
+  function deserializeConversation(message: any): ConversationWithDetails {
+    return {
+      id: message.Id,
+      userId: message.UserId,
+      consultantId: message.ConsultantId,
+      created_At: message.Created_At,
+      user: {
+        fullName: message.User.FullName,
+        urlImage: message.User.UrlImage
+      },
+      messages: message.Messages.map((msg: any) => deserialize(msg)),
+      lastMessage: message.LastMessage
+  }
+}
   const filteredConversations = conversations.filter(conv => 
-    !pendingMessages.some(pm => pm.conversationId === conv.id) &&
-    conv.user.fullName.toLowerCase().includes(searchTerm.toLowerCase())
+    !pendingMessages.some(pm => pm.conversationId === conv.id) 
   );
 
   useEffect(() => {
@@ -92,10 +106,14 @@ const ConsultantChat = () => {
       setError('Missing consultant ID');
       return;
     }
-    initializeHub();
+    
+    // Check the initialization flag before calling
+    if (!isInitialized.current) {
+      initializeHub();
+      isInitialized.current = true;
+    }
   }, []);
-
-
+  
   const initializeHub = async () => {
     try {
 
@@ -149,10 +167,27 @@ const ConsultantChat = () => {
         .build();
 
       await newConnection.start();
-
+ 
+  
+      console.log("SignalR Connection ID:", newConnection.connectionId);
+      await newConnection.invoke("SetConsultantConnection", consultantId);
       for (const conv of conversationsData) {
         await newConnection.invoke("JoinConversation", conv.id);
       }
+
+      newConnection.on("NotifyNewConversation", (conversation: ConversationWithDetails) => {
+        console.log("NotifyNewConversation:", conversation);
+        var conversationEdit = deserializeConversation(conversation);
+        setConversations(prev => {
+          const isDuplicate = prev.some(conv => conv.id === conversationEdit.id);
+          if (!isDuplicate) {
+            //convert Id sang id
+            newConnection.invoke("JoinConversation", conversationEdit.id);
+            return [...prev, conversationEdit];
+          }
+          return prev;
+        });
+      });
 
       newConnection.on("ReceiveMessage", (message: MessageResponse) => {
         console.log("Received new message:", message);
@@ -166,6 +201,12 @@ const ConsultantChat = () => {
               const isDuplicate = conv.messages.some(msg => msg.id === currentMessage.id);
               
               if (!isDuplicate) {
+                setSelectedId(conv.id);
+                setSelectedConversation({
+                  ...conv,
+                  messages: [...conv.messages, currentMessage],
+                  lastMessage: currentMessage.content
+                });
                 return {
                   ...conv,
                   messages: [...conv.messages, currentMessage],
@@ -183,6 +224,7 @@ const ConsultantChat = () => {
           console.log("Received new pending message:", conversations.conversationId);
           setPendingMessages(prev => [...prev, conversations]);
         })
+        
         setSelectedConversation(prev => {
           if (prev && prev.id === currentMessage.conversationId) {
             console.log("Updating selectedConversation");
@@ -208,7 +250,11 @@ const ConsultantChat = () => {
         }
       });
 
-      setConnection(newConnection);
+      
+
+
+      
+              setConnection(newConnection);
     } catch (err) {
       console.error('Error in initializeHub:', err);
       setError(err instanceof Error ? err.message : 'Failed to connect to chat hub');
@@ -406,6 +452,10 @@ const handleRejectConversation = async () => {
 const isPendingConversation = (conversation: ConversationWithDetails) => {
   return pendingMessages.some(pm => pm.conversationId === conversation.id);
 };
+const isValidUser = (conv: ConversationWithDetails) => {
+  return conv?.user && typeof conv.user.fullName === 'string';
+};
+
   return (
     <div className="flex h-screen bg-gray-50">
       {/* Sidebar */}
@@ -491,13 +541,13 @@ const isPendingConversation = (conversation: ConversationWithDetails) => {
                         <div className="relative">
                           <img 
                             src={`/api/placeholder/40/40`}
-                            alt={conv.userName}
+                            alt={conv.fullname}
                             className="w-10 h-10 rounded-full object-cover"
                           />
                         </div>
                         <div className="flex-1 min-w-0">
                           <h4 className="font-medium text-gray-900 truncate">
-                            {conv.userName}
+                            {conv.fullname}
                           </h4>
                           <p className="text-sm text-gray-500 truncate">
                             {conv.status}
@@ -539,16 +589,12 @@ const isPendingConversation = (conversation: ConversationWithDetails) => {
                   onClick={() => setSelectedId(conv.id)}
                 >
                   <div className="relative">
-                    <img 
-                      src={conv.user.urlImage || `/api/placeholder/48/48`} 
-                      alt={conv.user.fullName} 
-                      className="w-12 h-12 rounded-full object-cover"
-                    />
+                    
                     <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white" />
                   </div>
                   <div className="flex-1 min-w-0 ml-3">
                     <div className="flex justify-between items-center">
-                      <h4 className="font-medium text-gray-900 truncate">{conv.user.fullName}</h4>
+                      <h4 className="font-medium text-gray-900 truncate"> {isValidUser(conv) ? conv.user.fullName : 'Unknown User'}</h4>
                       {conv.lastMessage && (
                         <span className="text-xs text-gray-500 flex items-center">
                           <Clock className="w-3 h-3 mr-1" />

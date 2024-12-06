@@ -145,11 +145,12 @@ const UserChat = () => {
         try {
             // Call the addPendingConversation API
             const pendingConversation = await addPendingConversation('pending', userId, fullName);
-            console.log('Pending conversation added:', pendingConversation.conversation_id);
+            console.log('Pending conversation added:', pendingConversation.conversation_Id);
 
             // Call the addMessage API for each message in the conversation
             for (const message of conversation.messages) {
-                const addedMessage = await addMessage(pendingConversation.conversation_id, message.content, message.senderId, message.receiverId);
+                console.log('Pending conversation added:', pendingConversation.conversation_Id);
+                const addedMessage = await addMessage(pendingConversation.conversation_Id, message.content, message.senderId, message.receiverId);
                 console.log('Message added:', addedMessage);
             }
 
