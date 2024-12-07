@@ -6,6 +6,7 @@ import {
   faGraduationCap,
   faUser,
   faCalendar,
+  faSignOutAlt,
 } from '@fortawesome/free-solid-svg-icons';
 import { Link, Outlet } from 'react-router-dom';
 import logo from '../../images/logo.jpg';
@@ -16,6 +17,13 @@ const AdminDashboardHeader: React.FC = () => {
 
   const handleFilterChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setFilterPeriod(event.target.value);
+  };
+
+  // Xử lý đăng xuất
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('role');
+    window.location.href = '/'; // Chuyển hướng về trang chủ
   };
 
   return (
@@ -74,32 +82,43 @@ const AdminDashboardHeader: React.FC = () => {
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col bg-gray-100">
         {/* Header */}
-        <header className="bg-gray-300 shadow-md p-4 flex items-center justify-end gap-4">
-          <div className="flex items-center space-x-4">
-            <div className="flex items-center bg-white p-2 shadow rounded-lg">
-              <label htmlFor="filter" className="mr-2 text-gray-800 flex items-center">
-                <FontAwesomeIcon icon={faCalendar} className="mr-1" />
-                Filter Period
-              </label>
-              <select
-                id="filter"
-                value={filterPeriod}
-                onChange={handleFilterChange}
-                className="p-1 border border-gray-400 rounded shadow-sm"
-              >
-                <option value="17 April 2024 - 21 May 2024">17 April 2024 - 21 May 2024</option>
-                <option value="01 June 2024 - 30 June 2024">01 June 2024 - 30 June 2024</option>
-                <option value="01 July 2024 - 31 July 2024">01 July 2024 - 31 July 2024</option>
-              </select>
-            </div>
+        <header className="bg-gray-300 shadow-md p-4 flex items-center justify-between">
+          {/* Filter Period */}
+          <div className="flex items-center bg-white p-2 shadow rounded-lg">
+            <label htmlFor="filter" className="mr-2 text-gray-800 flex items-center">
+              <FontAwesomeIcon icon={faCalendar} className="mr-1" />
+              Filter Period
+            </label>
+            <select
+              id="filter"
+              value={filterPeriod}
+              onChange={handleFilterChange}
+              className="p-1 border border-gray-400 rounded shadow-sm"
+            >
+              <option value="17 April 2024 - 21 May 2024">17 April 2024 - 21 May 2024</option>
+              <option value="01 June 2024 - 30 June 2024">01 June 2024 - 30 June 2024</option>
+              <option value="01 July 2024 - 31 July 2024">01 July 2024 - 31 July 2024</option>
+            </select>
           </div>
-          <div className="flex gap-2">
-            <h1 className="text-xl font-bold text-gray-800">
-              <span className="text-gray-600">Hello, </span>
-              <span className="font-bold">Trung</span>
-            </h1>
-            <img src={Profile_Admin} alt="Admin Profile" className="w-10 h-10 rounded-full" />
-          </div>        
+
+          {/* Admin Info and Logout */}
+          <div className="flex items-center gap-4">
+            <div className="flex items-center">
+              <h1 className="text-xl font-bold text-gray-800">
+                <span className="text-gray-600">Hello, </span>
+                <span className="font-bold">Trung</span>
+              </h1>
+              <img src={Profile_Admin} alt="Admin Profile" className="w-10 h-10 rounded-full ml-4" />
+            </div>
+            {/* Logout Button */}
+            <button
+              onClick={handleLogout}
+              className="flex items-center bg-red-500 text-white px-4 py-2 rounded shadow hover:bg-red-600"
+            >
+              <FontAwesomeIcon icon={faSignOutAlt} className="mr-2" />
+              Đăng xuất
+            </button>
+          </div>
         </header>
 
         {/* Content */}

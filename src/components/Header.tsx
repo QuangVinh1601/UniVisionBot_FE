@@ -5,11 +5,13 @@ import logo from '../images/logo.jpg';
 const Header: React.FC = () => {
   const token = localStorage.getItem('token');
   const role = localStorage.getItem('role');
+  const name = localStorage.getItem('name');
 
   const handleLogout = () => {
     // Remove token and role from localStorage
     localStorage.removeItem('token');
     localStorage.removeItem('role');
+    localStorage.removeItem('name');
 
     // Refresh the page and redirect to homepage
     window.location.href = '/';
@@ -25,7 +27,7 @@ const Header: React.FC = () => {
         <nav>
           <ul className="flex space-x-10 items-center">
             {/* Display only the "Đăng xuất" button for Admin and Consultant roles */}
-            {token && (role === 'ADMIN' || role === 'CONSULTANT') ? (
+            {token && (role === 'CONSULTANT') ? (
               <li>
                 <button onClick={handleLogout} className="bg-green-500 text-white px-4 py-2 rounded flex items-center text-lg font-semibold">
                   Đăng xuất
@@ -55,12 +57,22 @@ const Header: React.FC = () => {
                 </li>
 
                 {/* Display "Đăng nhập" and "Đăng ký" for other users or if not logged in */}
-                {token ? (
+                {token && role === 'USER'? (
+                <>
                   <li>
-                    <button onClick={handleLogout} className="bg-green-500 text-white px-4 py-2 rounded flex items-center text-lg font-semibold">
+                    <span className="text-gray-700 text-sm font-semibold">
+                      Xin chào, {name}
+                    </span>
+                  </li>
+                  <li>
+                    <button
+                      onClick={handleLogout}
+                      className="bg-green-500 text-white px-4 py-2 rounded flex items-center text-lg font-semibold"
+                    >
                       Đăng xuất
                     </button>
                   </li>
+                </>
                 ) : (
                   <>
                     <li>

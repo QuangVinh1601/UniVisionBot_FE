@@ -16,36 +16,40 @@ const Login: React.FC = () => {
 
     try {
       const response = await login(email, password);
+      const token = response.accessToken;
+      const role = response.roleUser; // Get role directly from response
+      const name = response.fullName;
+
     
-    // Debug log to check response structure
-    console.log('Full response:', response);
-    
-    const token = response.accessToken;
-    const role = response.roleUser;
-    const UserId = response.userId;
-
-    // Debug log before storing
-    console.log('Values to store:', {
-      token,
-      role,
-      UserId
-    });
-
-    localStorage.setItem('token', token);
-    localStorage.setItem('role', role);
-    localStorage.setItem('UserId', UserId);
-    localStorage.setItem('fullName', response.fullName);
+      // Debug log to check response structure
+      console.log('Full response:', response);
+      const UserId = response.userId;
 
 
-    // Verify storage immediately after setting
-    console.log('Stored values:', {
-      token: localStorage.getItem('token'),
-      role: localStorage.getItem('role'),
-      userId: localStorage.getItem('UserId')
-    });
+      // Debug log before storing
+      console.log('Values to store:', {
+        token,
+        role,
+        UserId
+      });
+
+      localStorage.setItem('token', token);
+      localStorage.setItem('role', role);
+      localStorage.setItem('UserId', UserId);
+      localStorage.setItem('fullName', response.fullName);
+
+
+      // Verify storage immediately after setting
+      console.log('Stored values:', {
+        token: localStorage.getItem('token'),
+        role: localStorage.getItem('role'),
+        userId: localStorage.getItem('UserId')
+      });
 
       // Save token and role to localStorage
-
+      localStorage.setItem('token', token);
+      localStorage.setItem('role', role);
+      localStorage.setItem('name', name);
 
       // Redirect user based on role
       if (role === 'ADMIN') {
