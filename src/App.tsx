@@ -1,10 +1,9 @@
 import React from 'react';
-import { BrowserRouter as Router, Route, Routes, Outlet, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import AdBanner from './components/AdBanner';
 import ChatBot from './components/Chatbot';
-import ChatBotMess from './components/ChatBotMess';
 import Home from './pages/Home';
 import Careers from './pages/Careers';
 import CareerGuidanceTest from './pages/CareerGuidanceTest/CareerGuidanceTest';
@@ -27,18 +26,9 @@ import FacultyEdit from './admin/pages/pagesOfAdminCareers/FacultyEdit';
 import FacultyMajors from './admin/pages/pagesOfAdminCareers/FacultyMajors';
 import AddMajor from './admin/pages/pagesOfAdminCareers/MajorAdd';
 import EditMajor from './admin/pages/pagesOfAdminCareers/EditMajor';
+import ChatWindow from './components/ChatWindow'; // Import ChatWindow component
 import { PrivateRoute } from './components/PrivateRoute';
-
-// function AdminLayout() {
-//   return (
-//     <>
-//       <AdminDashboardHeader />
-//       <div className="p-4">
-//         <Outlet /> {/* Render các trang con */}
-//       </div>
-//     </>
-//   );
-// }
+import UserChat from './pages/UserChat';
 
 function App() {
   const location = useLocation();
@@ -68,6 +58,10 @@ function App() {
     location.pathname.startsWith('/admin/careers/university') ||
     location.pathname.startsWith('/admin/careers/edit');
 
+    location.pathname === '/consultant-chat' ||
+
+    location.pathname === '/UserChat'; // Add UserChat to isAuthPage check
+
   return (
     <div className="flex flex-col min-h-screen">
       {!isPageAdmin && !isAdminOrConsultant && (
@@ -96,16 +90,9 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
-
-            {/* Protected route for ConsultantChat */}
-            <Route
-              path="/consultant-chat"
-              element={
-                <PrivateRoute role="CONSULTANT">
-                  <ConsultantChat />
-                </PrivateRoute>
-              }
-            />
+            <Route path="/consultant-chat" element={<PrivateRoute role="CONSULTANT"><ConsultantChat /></PrivateRoute>} />
+            
+            <Route path="/UserChat" element={<UserChat />} />
 
             {/* Admin Dashboard with nested routes */}
             <Route path="/admin" element={<AdminLayout />}>
@@ -122,16 +109,6 @@ function App() {
               <Route path="what-to-study" element={<AdminWhatToStudy />} />
               <Route path="account" element={<AdminAccount />} />
             </Route>
-
-            {/* ChatBotMess for USER */}
-            <Route
-              path="/chat-bot-mess"
-              element={
-                <PrivateRoute role="USER">
-                  <ChatBotMess />
-                </PrivateRoute>
-              }
-            />
           </Routes>
         </main>
         {!isAuthPage && (
