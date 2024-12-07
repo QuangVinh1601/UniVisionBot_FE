@@ -58,7 +58,7 @@ const UserChat = () => {
                 content: resultString,
                 sender: 'user',
                 senderId: userId, // Add senderId for user
-                receiverId: '672214299c167656b2dc0d5e', // Add receiverId for consultant
+                receiverId: '675461fbf87f485f45b118a6', // Add receiverId for consultant
                 time: new Date().toLocaleTimeString([], {
                     hour: '2-digit',
                     minute: '2-digit',
@@ -68,7 +68,7 @@ const UserChat = () => {
                 id: 2,
                 content: handleResponse(responseMessage),
                 sender: 'consultant',
-                senderId: '672214299c167656b2dc0d5e', // Add senderId for consultant
+                senderId: '675461fbf87f485f45b118a6', // Add senderId for consultant
                 receiverId: userId, // Add receiverId for user
                 time: new Date().toLocaleTimeString([], {
                     hour: '2-digit',
@@ -88,7 +88,7 @@ const UserChat = () => {
             content: newMessage,
             sender: 'user',
             senderId: userId, // Add senderId for user
-            receiverId: '672214299c167656b2dc0d5e', // Add receiverId for consultant
+            receiverId: '675461fbf87f485f45b118a6', // Add receiverId for consultant
             time: new Date().toLocaleTimeString([], {
                 hour: '2-digit',
                 minute: '2-digit',
@@ -119,7 +119,7 @@ const UserChat = () => {
                 id: updatedConversation.messages.length + 1,
                 content: formattedResponse,
                 sender: 'consultant',
-                senderId: '672214299c167656b2dc0d5e', // Add senderId for consultant
+                senderId: '675461fbf87f485f45b118a6', // Add senderId for consultant
                 receiverId: userId, // Add receiverId for user
                 time: new Date().toLocaleTimeString([], {
                     hour: '2-digit',

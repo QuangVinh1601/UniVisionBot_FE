@@ -16,6 +16,9 @@ import ChatWindow from './components/ChatWindow'; // Import ChatWindow component
 import AdminDashboard from './admin/components/AdminDashboardHeader';
 import { PrivateRoute } from './components/PrivateRoute';
 import UserChat from './pages/UserChat';
+import { FeedbackProvider } from './contexts/FeedbackContext';
+import { FeedbackModal } from './components/FeedbackModal';
+import AdminLayout from './admin/components/AdminLayout';
 
 function App() {
   const location = useLocation();
@@ -24,54 +27,66 @@ function App() {
     location.pathname === '/register' ||
     location.pathname === '/forgot-password' ||
     location.pathname === '/consultant-chat' ||
+    location.pathname === '/admin' ||
     location.pathname === '/admin-dashboard' ||
     location.pathname === '/UserChat'; // Add UserChat to isAuthPage check
 
   return (
-    <div className="flex flex-col min-h-screen">
-      <div className="fixed top-0 left-0 right-0 z-50">
-        <Header />
-        <hr className="border-t border-gray-300" />
-      </div>
-      <div className={`flex flex-1 mt-16 ${isAuthPage ? 'justify-center' : ''}`}>
-        {!isAuthPage && (
-          <>
-            <AdBanner position="left" />
-            <hr className="border-l border-gray-300" />
-          </>
-        )}
-        <main className="flex-1">
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/careers" element={<Careers />} />
-            <Route path="/career-guidance-test" element={<CareerGuidanceTest />} />
-            <Route path="/what-to-study" element={<WhatToStudy />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
-            <Route path="/consultant-chat" element={<PrivateRoute role="CONSULTANT"><ConsultantChat /></PrivateRoute>} />
-            <Route path="/admin-dashboard" element={<PrivateRoute role="ADMIN"><AdminDashboard /></PrivateRoute>} />
-            <Route path="/UserChat" element={<UserChat />} />
-
-
-          </Routes>
-        </main>
-        {!isAuthPage && (
-          <>
-            <hr className="border-r border-gray-300" />
-            <AdBanner position="right" />
-          </>
-        )}
-      </div>
-
-      {!isAuthPage && (
-        <>
+    <FeedbackProvider>
+      <div className="flex flex-col min-h-screen">
+        <div className="fixed top-0 left-0 right-0 z-50">
+          <Header />
           <hr className="border-t border-gray-300" />
-          <Footer />
-        </>
-      )}
-      {!isAuthPage && <ChatBot />}
-    </div>
+        </div>
+        <div className={`flex flex-1 mt-16 ${isAuthPage ? 'justify-center' : ''}`}>
+          {!isAuthPage && (
+            <>
+              <AdBanner position="left" />
+              <hr className="border-l border-gray-300" />
+            </>
+          )}
+          <main className="flex-1">
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/careers" element={<Careers />} />
+              <Route path="/career-guidance-test" element={<CareerGuidanceTest />} />
+              <Route path="/what-to-study" element={<WhatToStudy />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/consultant-chat" element={<PrivateRoute role="CONSULTANT"><ConsultantChat /></PrivateRoute>} />
+              <Route path="/UserChat" element={<UserChat />} />
+              <Route
+              path="/consultant-chat"
+              element={
+                <PrivateRoute role="CONSULTANT">
+                  <ConsultantChat />
+                </PrivateRoute>
+              }
+            />
+             <Route path="/admin" element={<AdminLayout />}></Route>
+             <Route path="dashboard" element={<AdminDashboard />} />
+            </Routes>
+          </main>
+          {!isAuthPage && (
+            <>
+              <hr className="border-r border-gray-300" />
+              <AdBanner position="right" />
+            </>
+          )}
+        </div>
+
+        {!isAuthPage && (
+          <>
+            <hr className="border-t border-gray-300" />
+            <Footer />
+          </>
+        )}
+        
+        {!isAuthPage && <FeedbackModal />}  {/* Add FeedbackModal here */}
+        {!isAuthPage && <ChatBot />}
+      </div>
+    </FeedbackProvider>
   );
 }
 

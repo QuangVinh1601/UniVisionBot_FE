@@ -201,12 +201,12 @@ const ConsultantChat = () => {
               const isDuplicate = conv.messages.some(msg => msg.id === currentMessage.id);
               
               if (!isDuplicate) {
-                setSelectedId(conv.id);
-                setSelectedConversation({
-                  ...conv,
-                  messages: [...conv.messages, currentMessage],
-                  lastMessage: currentMessage.content
-                });
+                // setSelectedId(conv.id);
+                // setSelectedConversation({
+                //   ...conv,
+                //   messages: [...conv.messages, currentMessage],
+                //   lastMessage: currentMessage.content
+                // });
                 return {
                   ...conv,
                   messages: [...conv.messages, currentMessage],

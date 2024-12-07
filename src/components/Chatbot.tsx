@@ -50,6 +50,7 @@ interface ConsultantResponse {
 
 const Chatbot: React.FC<ChatbotProps> = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const isOpenRef = useRef(isOpen);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [connection, setConnection] = useState<HubConnection | null>(null);
@@ -60,7 +61,8 @@ const Chatbot: React.FC<ChatbotProps> = () => {
   const [isReconnecting, setIsReconnecting] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const currentUserId = localStorage.getItem('UserId');
-  const consultantId = "672214299c167656b2dc0d5e";
+  const consultantId = "675461fbf87f485f45b118a6";
+  const [notifyNewMessage, setNotifyNewMessage] = useState(false);
 
   function deserialize(message: any): MessageResponse {
     return {
@@ -73,6 +75,9 @@ const Chatbot: React.FC<ChatbotProps> = () => {
       created_At: message.Created_At,
     };
   }
+  useEffect(() => {
+    isOpenRef.current = isOpen;
+  }, [isOpen]);
   const cleanup = () => {
     if (connection) {
       connection.stop();
@@ -82,9 +87,13 @@ const Chatbot: React.FC<ChatbotProps> = () => {
     setError(null);
     // setIsReconnecting(false);
   };
+  useEffect(() => {
+    console.log('Chat window state:', { isOpen });
+  }, [isOpen]);
 
   const toggleChat = () => {
     setIsOpen(!isOpen);
+    setNotifyNewMessage(false);
     
   };
 
@@ -189,6 +198,12 @@ const Chatbot: React.FC<ChatbotProps> = () => {
           {
             var isDuplicate = prev.some(m => m.id == currentMessage.id)
             if(!isDuplicate){
+              const currentIsOpen = isOpenRef.current;
+              const shouldNotify = !currentIsOpen && currentMessage.senderId !== currentUserId;
+              console.log('Should notify:', shouldNotify, 'isOpen:', currentIsOpen);
+              if(shouldNotify){
+                setNotifyNewMessage(true);
+              }
               return [...prev, currentMessage]
             }
             return prev;
@@ -250,39 +265,19 @@ const Chatbot: React.FC<ChatbotProps> = () => {
 
   return (
     <div className="fixed bottom-5 right-5 z-50 flex flex-col items-center">
-      {/* Chat bubble */}
-      <div className="relative bg-white border border-green-500 p-3 rounded-lg shadow-lg mb-2">
-        <p className="text-sm text-gray-800">
-          Sử dụng UniVisionBot để
-          <br />
-          giải đáp mọi thắc mắc về
-          <br />
-          tuyển sinh ngành nghề
-        </p>
-        {/* Arrow on the bubble */}
-        <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-8 border-l-transparent border-r-8 border-r-transparent border-t-8 border-t-green-500"></div>
-      </div>
-
-      {/* Hình ảnh bot */}
-      <img src={gg_bot} alt="Chatbot" className={`w-10 h-10 cursor-pointer ${isOpen ? 'mb-2' : ''}`} onClick={toggleChat} />
-      <button 
-        className="chat-button"
-        onClick={() => setIsOpen(!isOpen)}
-      >
-        {isOpen ? 'Close Chat' : 'Chat with Consultant'}
-      </button>
-      {!isOpen && (
-        <div className="bg-green-500 text-white p-2 font-bold flex items-center cursor-pointer" onClick={toggleChat}>
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-            <path
-              fillRule="evenodd"
-              d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z"
-              clipRule="evenodd"
-            />
-          </svg>
-          Chat tư vấn - giải đáp thắc mắc
-        </div>
-      )}
+{!isOpen && (
+  <div 
+    className="bg-green-500 text-white p-2 font-bold flex items-center cursor-pointer hover:bg-green-600 transition-colors rounded-lg shadow-md" 
+    onClick={toggleChat}
+  >
+    <span>Chat tư vấn - giải đáp thắc mắc</span>
+    {notifyNewMessage && (
+      <span className="ml-2 text-xs bg-white text-green-500 px-2 py-0.5 rounded-full animate-pulse">
+        Tin nhắn mới!
+      </span>
+    )}
+  </div>
+)}
 
 {isOpen && (
   <div className="bg-white border border-green-500 rounded-lg shadow-lg mt-2 w-96 h-[500px] overflow-hidden flex flex-col">
