@@ -5,7 +5,7 @@ interface ChatSession {
   messages: { sender: string; text: string }[];
 }
 
-const ChatBot: React.FC = () => {
+const ChatBotMess: React.FC = () => {
   const [chats, setChats] = useState<ChatSession[]>([
     {
       id: 1,
@@ -158,4 +158,4 @@ const ChatBot: React.FC = () => {
   );
 };
 
-export default ChatBot;
+export default ChatBotMess;
