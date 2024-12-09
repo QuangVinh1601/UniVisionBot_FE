@@ -32,9 +32,11 @@ import { PrivateRoute } from './components/PrivateRoute';
 import UserChat from './pages/UserChat';
 import { FeedbackProvider } from './contexts/FeedbackContext';
 import { FeedbackModal } from './components/FeedbackModal';
+import VisitorCounter from './components/VisitorCounter'; // Import useVisitorCounter hook
 
 function App() {
   const location = useLocation();
+  const visitorCount = VisitorCounter();
   const role = localStorage.getItem('role');
   const isPageAdmin =
     location.pathname === '/admin' ||
