@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Send, Smile } from 'lucide-react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom'; // Import useNavigate
 import { sendMessage, addPendingConversation, addMessage } from '../api/authApi'; // Import the sendMessage and new APIs
 import AdBanner from '../components/AdBanner'; // Import AdBanner component
 
@@ -79,6 +79,7 @@ const UserChat = () => {
     });
     const [newMessage, setNewMessage] = useState('');
     const [isLoading, setIsLoading] = useState(false); // Add loading state
+    const navigate = useNavigate(); // Initialize useNavigate
 
     const handleSendMessage = async () => {
         if (!newMessage.trim()) return;
@@ -145,17 +146,19 @@ const UserChat = () => {
         try {
             // Call the addPendingConversation API
             const pendingConversation = await addPendingConversation('pending', userId, fullName);
-            console.log('Pending conversation added:', pendingConversation.conversation_Id);
+            // console.log('Pending conversation added:', pendingConversation);
+            console.log('Pending conversation added:', pendingConversation.conversation_id);
 
             // Call the addMessage API for each message in the conversation
             for (const message of conversation.messages) {
-                console.log('Pending conversation added:', pendingConversation.conversation_Id);
-                const addedMessage = await addMessage(pendingConversation.conversation_Id, message.content, message.senderId, message.receiverId);
+                // console.log('Pending conversation added:', pendingConversation.conversation_id);
+                const addedMessage = await addMessage(pendingConversation.conversation_id, message.content, message.senderId, message.receiverId);
                 console.log('Message added:', addedMessage);
             }
 
             // Logic to switch to the assistant
             console.log('Switching to assistant...');
+            navigate('/'); // Navigate to home page
         } catch (error) {
             console.error('Error switching to assistant:', error);
             alert('Có lỗi xảy ra khi chuyển sang trợ lý. Vui lòng thử lại.');
