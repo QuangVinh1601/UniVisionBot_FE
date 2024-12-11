@@ -63,6 +63,7 @@ const Chatbot: React.FC<ChatbotProps> = () => {
   const currentUserId = localStorage.getItem('UserId');
   const consultantId = "675461fbf87f485f45b118a6";
   const [notifyNewMessage, setNotifyNewMessage] = useState(false);
+  let audio = new Audio('/Messenger Notification Sound Effect.mp3')
 
   function deserialize(message: any): MessageResponse {
     return {
@@ -194,6 +195,11 @@ const Chatbot: React.FC<ChatbotProps> = () => {
   
       newConnection.on("ReceiveMessage", (message: MessageResponse) => {
         var currentMessage = deserialize(message)
+
+        if(currentMessage.receiverId != '675461fbf87f485f45b118a6') {
+          audio.play();
+        }
+        
         setMessages(prev => 
           {
             var isDuplicate = prev.some(m => m.id == currentMessage.id)
@@ -288,7 +294,7 @@ const Chatbot: React.FC<ChatbotProps> = () => {
           <img src={gg_bot} alt="Bot" className="w-full h-full object-cover rounded-full" />
         </div>
         <div>
-          <span className="text-lg">UniVisionBot</span>
+          <span className="text-lg">Tư vấn viên</span>
           <div className="text-xs flex items-center gap-1">
             <span className="w-2 h-2 bg-green-300 rounded-full"></span>
             Online

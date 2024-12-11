@@ -32,6 +32,7 @@ import { PrivateRoute } from './components/PrivateRoute';
 import UserChat from './pages/UserChat';
 import { FeedbackProvider } from './contexts/FeedbackContext';
 import { FeedbackModal } from './components/FeedbackModal';
+import AdminFeedback from './admin/pages/AdminFeedback';
 
 function App() {
   const location = useLocation();
@@ -41,6 +42,7 @@ function App() {
     location.pathname === '/admin/dashboard' ||
     location.pathname === '/admin/careers' ||
     location.pathname === '/admin/what-to-study' ||
+    location.pathname === '/admin/feedback' ||
     location.pathname === '/admin/account' ||
     location.pathname === '/admin/careers/add' ||
     location.pathname.startsWith('/admin/careers/university') ||
@@ -53,6 +55,7 @@ function App() {
     location.pathname === '/register' ||
     location.pathname === '/forgot-password' ||
     location.pathname === '/admin' ||
+    location.pathname === '/admin/feedback' ||
     location.pathname === '/admin/dashboard' ||
     location.pathname === '/admin/careers' ||
     location.pathname === '/admin/what-to-study' ||
@@ -60,19 +63,21 @@ function App() {
     location.pathname === '/admin/careers/add' ||
     location.pathname.startsWith('/admin/careers/university') ||
     location.pathname.startsWith('/admin/careers/edit') ||
-    location.pathname === '/consultant-chat';
+    location.pathname === '/consultant-chat' ||
+    location.pathname === '/UserChat'
 
 
   return (
     <FeedbackProvider>
     <div className="flex flex-col min-h-screen">
-        <div className="fixed top-0 left-0 right-0 z-50">
-          <Header />
-          <hr className="border-t border-gray-300" />
-        </div>
+      {!isPageAdmin && !isAdminOrConsultant && role !== 'CONSULTANT' &&( <div className="fixed top-0 left-0 right-0 z-50">
+         <Header />
+         <hr className="border-t border-gray-300" />
+       </div>)
+      }
       <div
         className={`flex flex-1 ${isAuthPage ? 'justify-center' : ''} ${
-          isPageAdmin ? '' : 'mt-16'
+          isPageAdmin   ? '' : 'mt-16'
         }`}
       >
         {!isAuthPage && (
@@ -83,6 +88,12 @@ function App() {
         )}
         <main className="flex-1">
           <Routes>
+          <Route path="/UserChat" element={
+          <PrivateRoute role="USER">
+            <UserChat />
+          </PrivateRoute>
+           } 
+          />
           <Route path="/" element={<Home />} />
             <Route path="/careers" element={<Careers />} />
             <Route path="/career-guidance-test" element={<CareerGuidanceTest />} />
@@ -114,6 +125,7 @@ function App() {
               <Route path="/admin/careers/university/:universityId/faculties/:facultyId/majors/add" element={<AddMajor />} />
               <Route path="/admin/careers/university/:universityId/faculties/:facultyId/majors/edit/:majorId" element={<EditMajor />} />
               <Route path="what-to-study" element={<AdminWhatToStudy />} />
+              <Route path="feedback" element={<AdminFeedback />} />
               <Route path="account" element={<AdminAccount />} />
             </Route>
                {/* ChatBotMess for USER */}

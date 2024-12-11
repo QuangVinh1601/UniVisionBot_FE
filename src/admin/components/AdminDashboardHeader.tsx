@@ -68,6 +68,15 @@ const AdminDashboardHeader: React.FC = () => {
             </li>
             <li className="mb-2">
               <Link
+                to="/admin/feedback"
+                className="flex items-center p-2 text-gray-800 hover:text-green-600"
+              >
+                <FontAwesomeIcon icon={faGraduationCap} className="mr-2" />
+                Đánh Giá
+              </Link>
+            </li>
+            <li className="mb-2">
+              <Link
                 to="/admin/account"
                 className="flex items-center p-2 text-gray-800 hover:text-green-600"
               >
