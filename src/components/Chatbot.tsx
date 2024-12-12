@@ -129,11 +129,7 @@ const Chatbot: React.FC<ChatbotProps> = () => {
   const initializeChat = async () => {
     try {
       // First check system status
-      const diagnosticResponse = await fetch('https://localhost:7230/api/diagnostics/chat-status');
-      if (!diagnosticResponse.ok) {
-        throw new Error('System status check failed');
-      }
-  
+      
       // Create or get conversation
       const response = await fetch('https://localhost:7230/api/conversations', {
         method: 'POST',
@@ -199,7 +195,6 @@ const Chatbot: React.FC<ChatbotProps> = () => {
         if(currentMessage.receiverId != '675461fbf87f485f45b118a6') {
           audio.play();
         }
-        
         setMessages(prev => 
           {
             var isDuplicate = prev.some(m => m.id == currentMessage.id)
