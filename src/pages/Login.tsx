@@ -20,8 +20,31 @@ const Login: React.FC = () => {
       const role = response.roleUser; // Get role directly from response
       const name = response.fullName;
 
-      // Log the response for debugging (optional)
-      console.log(response);
+    
+      // Debug log to check response structure
+      console.log('Full response:', response);
+      const UserId = response.userId;
+
+
+      // Debug log before storing
+      console.log('Values to store:', {
+        token,
+        role,
+        UserId
+      });
+
+      localStorage.setItem('token', token);
+      localStorage.setItem('role', role);
+      localStorage.setItem('UserId', UserId);
+      localStorage.setItem('fullName', response.fullName);
+
+
+      // Verify storage immediately after setting
+      console.log('Stored values:', {
+        token: localStorage.getItem('token'),
+        role: localStorage.getItem('role'),
+        userId: localStorage.getItem('UserId')
+      });
 
       // Save token and role to localStorage
       localStorage.setItem('token', token);
@@ -32,9 +55,9 @@ const Login: React.FC = () => {
       if (role === 'ADMIN') {
         navigate('/admin');
       } else if (role === 'CONSULTANT') {
-        navigate('/consultant-chat');
-      } else if (role === 'USER') {
-        navigate('/');
+        navigate('/consultant-chat',{ state: { UserId } });
+      } else if (role === 'USER' ) {
+        navigate('/',{ state: { UserId } });
       } else {
         // Handle unknown role more gracefully
         console.error('Unknown role:', role);

@@ -1,11 +1,14 @@
 import React from 'react';
-import image1 from '../images/image1.jpg';
+import { useLocation } from 'react-router-dom';
+import image1 from '../images/image1.jpg'; 
 import image2 from '../images/image2.jpg';
 import aboutHomeImage from '../images/about_home.png';
 import article1 from '../images/article1.jpg';
 import image5 from '../images/image5.jpg';
 import image6 from '../images/image6.png';
 const Home: React.FC = () => {
+  const location = useLocation();
+  const { UserId } = location.state || {};
   return (
     <div className="relative">
       <img src={image1} alt="Background" className="w-full h-full object-cover mb-4" />
