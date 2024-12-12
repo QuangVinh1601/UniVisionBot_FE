@@ -33,12 +33,14 @@ import UserChat from './pages/UserChat';
 import { FeedbackProvider } from './contexts/FeedbackContext';
 import { FeedbackModal } from './components/FeedbackModal';
 import AdminFeedback from './admin/pages/AdminFeedback';
+import VisitorCounter from './components/VisitorCounter'; // Import useVisitorCounter hook
 
 function App() {
   const location = useLocation();
+  const visitorCount = VisitorCounter();
   const role = localStorage.getItem('role');
-  const isPageAdmin = 
-    location.pathname === '/admin'||
+  const isPageAdmin =
+    location.pathname === '/admin' ||
     location.pathname === '/admin/dashboard' ||
     location.pathname === '/admin/careers' ||
     location.pathname === '/admin/what-to-study' ||
@@ -47,7 +49,7 @@ function App() {
     location.pathname === '/admin/careers/add' ||
     location.pathname.startsWith('/admin/careers/university') ||
     location.pathname.startsWith('/admin/careers/edit');
-  
+
   const isAdminOrConsultant = role === 'ADMIN' || role === 'CONSULTANT';
 
   const isAuthPage =
@@ -102,15 +104,15 @@ function App() {
             <Route path="/register" element={<Register />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
 
-            {/* Protected route for ConsultantChat */}
-            <Route
-              path="/consultant-chat"
-              element={
-                <PrivateRoute role="CONSULTANT">
-                  <ConsultantChat />
-                </PrivateRoute>
-              }
-            />
+              {/* Protected route for ConsultantChat */}
+              <Route
+                path="/consultant-chat"
+                element={
+                  <PrivateRoute role="CONSULTANT">
+                    <ConsultantChat />
+                  </PrivateRoute>
+                }
+              />
 
               {/* Admin Dashboard with nested routes */}
               <Route path="/admin" element={<AdminLayout />}>
@@ -147,18 +149,18 @@ function App() {
         )}
       </div>
 
-      {!isAuthPage && (
+        {!isAuthPage && (
           <>
             <hr className="border-t border-gray-300" />
             <Footer />
           </>
         )}
-        
+
         {!isAuthPage && <FeedbackModal />}  {/* Add FeedbackModal here */}
         {!isAuthPage && <Chatbot />}
       </div>
     </FeedbackProvider>
-       
+
   );
 }
 
