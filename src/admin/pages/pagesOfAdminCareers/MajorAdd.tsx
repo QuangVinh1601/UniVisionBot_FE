@@ -30,22 +30,28 @@ const AddMajor: React.FC = () => {
     setError(null);
 
   // Parse subject combinations và entry scores
-  const parsedSubjectCombinations = formData.subjectCombinations
-    .split(",")
-    .map((item) => item.trim());
+const parsedSubjectCombinations = formData.subjectCombinations
+.split(",")
+.map((item) => item.trim());
 
-  // Không chuyển giá trị sang số, giữ nguyên dạng chuỗi
-  const parsedEntryScoreExam = Object.fromEntries(
-    formData.entryScoreExam
-      .split(",")
-      .map((item) => item.split(":").map((val) => val.trim()))
-  );
+// Chuyển key thành số nguyên (int) và giữ giá trị là chuỗi (string)
+const parsedEntryScoreExam = Object.fromEntries(
+formData.entryScoreExam
+  .split(",")
+  .map((item) => {
+    const [key, value] = item.split(":").map((val) => val.trim());
+    return [parseInt(key, 10), value]; // Key là số nguyên, Value là chuỗi
+  })
+);
 
-  const parsedEntryScoreRecord = Object.fromEntries(
-    formData.entryScoreRecord
-      .split(",")
-      .map((item) => item.split(":").map((val) => val.trim()))
-  );
+const parsedEntryScoreRecord = Object.fromEntries(
+formData.entryScoreRecord
+  .split(",")
+  .map((item) => {
+    const [key, value] = item.split(":").map((val) => val.trim());
+    return [parseInt(key, 10), value]; // Key là số nguyên, Value là chuỗi
+  })
+);
 
   try {
     const response = await fetch(
@@ -68,9 +74,6 @@ const AddMajor: React.FC = () => {
         }),
       }
     );
-
-      console.log(response);
-      console.log(response.body);
 
       if (!response.ok) {
         throw new Error("Thêm ngành thất bại. Vui lòng kiểm tra thông tin.");

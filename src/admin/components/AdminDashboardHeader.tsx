@@ -23,6 +23,7 @@ const AdminDashboardHeader: React.FC = () => {
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('role');
+    localStorage.removeItem('name');
     window.location.href = '/'; // Chuyển hướng về trang chủ
   };
 
