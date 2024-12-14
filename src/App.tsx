@@ -78,7 +78,7 @@ function App() {
     location.pathname === '/UserChat'
 
   const is404 = location.pathname === '/404';
-
+  const isUser = role === 'USER';
 
   return (
     <FeedbackProvider>
@@ -179,7 +179,7 @@ function App() {
         )}
 
         {!isAuthPage && <FeedbackModal />}  {/* Add FeedbackModal here */}
-        {(!isAuthPage && !is404) && <Chatbot />}
+        {(isUser) && <Chatbot />}
       </div>
     </FeedbackProvider>
 
