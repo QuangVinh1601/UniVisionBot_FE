@@ -32,6 +32,7 @@ import { PrivateRoute } from './components/PrivateRoute';
 import UserChat from './pages/UserChat';
 import { FeedbackProvider } from './contexts/FeedbackContext';
 import { FeedbackModal } from './components/FeedbackModal';
+import AdminFeedback from './admin/pages/AdminFeedback';
 import VisitorCounter from './components/VisitorCounter'; // Import useVisitorCounter hook
 import NotFoundPage from './pages/NotFoundPage';
 import { Navigate } from 'react-router-dom';
@@ -52,6 +53,7 @@ function App() {
     location.pathname === '/admin/dashboard' ||
     location.pathname === '/admin/careers' ||
     location.pathname === '/admin/what-to-study' ||
+    location.pathname === '/admin/feedback' ||
     location.pathname === '/admin/account' ||
     location.pathname === '/admin/careers/add' ||
     location.pathname.startsWith('/admin/careers/university') ||
@@ -64,6 +66,7 @@ function App() {
     location.pathname === '/register' ||
     location.pathname === '/forgot-password' ||
     location.pathname === '/admin' ||
+    location.pathname === '/admin/feedback' ||
     location.pathname === '/admin/dashboard' ||
     location.pathname === '/admin/careers' ||
     location.pathname === '/admin/what-to-study' ||
@@ -71,7 +74,8 @@ function App() {
     location.pathname === '/admin/careers/add' ||
     location.pathname.startsWith('/admin/careers/university') ||
     location.pathname.startsWith('/admin/careers/edit') ||
-    location.pathname === '/consultant-chat';
+    location.pathname === '/consultant-chat' ||
+    location.pathname === '/UserChat'
 
   const is404 = location.pathname === '/404';
 
@@ -140,6 +144,7 @@ function App() {
                 <Route path="/admin/careers/university/:universityId/faculties/:facultyId/majors/edit/:majorId" element={<EditMajor />} />
                 <Route path="what-to-study" element={<AdminWhatToStudy />} />
                 <Route path="account" element={<AdminAccount />} />
+                <Route path="feedback" element={<AdminFeedback />} />
               </Route>
               {/* ChatBotMess for USER */}
               <Route
@@ -150,7 +155,12 @@ function App() {
                   </PrivateRoute>
                 }
               />
-              <Route path="/UserChat" element={<UserChat />} />
+              <Route path="/UserChat" element={
+                <PrivateRoute role="USER">
+                  <UserChat />
+                </PrivateRoute>
+                } 
+              />
             </Routes>
           </main>
           {isHaveBanner && (
