@@ -16,7 +16,7 @@ interface Major {
 }
 
 const FacultyMajors: React.FC = () => {
-  const { facultyId } = useParams<{ facultyId: string }>();
+  const { universityId, facultyId } = useParams<{ universityId: string; facultyId: string }>();
   const [majors, setMajors] = useState<Major[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -218,7 +218,7 @@ const FacultyMajors: React.FC = () => {
       </div>
 
       <button
-        onClick={() => window.history.back()}
+        onClick={() => navigate(`/admin/careers/university/${universityId}`)}
         className="mt-4 px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-700"
       >
         Quay lại

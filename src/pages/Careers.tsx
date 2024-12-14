@@ -49,6 +49,7 @@ const Careers: React.FC = () => {
         setFilteredScores(data);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An unknown error occurred');
+      
       }
     };
 

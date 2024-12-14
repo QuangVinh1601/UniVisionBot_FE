@@ -202,7 +202,7 @@ formData.entryScoreRecord
           </button>
           <button
             type="button"
-            onClick={() => window.history.back()}
+            onClick={() => navigate(`/admin/careers/university/${universityId}/faculties/${facultyId}/majors`)}
             className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-700"
           >
             Quay lại

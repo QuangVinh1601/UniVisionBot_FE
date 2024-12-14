@@ -33,11 +33,20 @@ import UserChat from './pages/UserChat';
 import { FeedbackProvider } from './contexts/FeedbackContext';
 import { FeedbackModal } from './components/FeedbackModal';
 import VisitorCounter from './components/VisitorCounter'; // Import useVisitorCounter hook
+import NotFoundPage from './pages/NotFoundPage';
+import { Navigate } from 'react-router-dom';
 
 function App() {
   const location = useLocation();
   const visitorCount = VisitorCounter();
   const role = localStorage.getItem('role');
+  const isHaveBanner = 
+    location.pathname === '/' ||
+    location.pathname === '/careers' ||
+    location.pathname === '/career-guidance-test' ||
+    location.pathname === '/what-to-study';
+  
+  
   const isPageAdmin =
     location.pathname === '/admin' ||
     location.pathname === '/admin/dashboard' ||
@@ -64,19 +73,23 @@ function App() {
     location.pathname.startsWith('/admin/careers/edit') ||
     location.pathname === '/consultant-chat';
 
+  const is404 = location.pathname === '/404';
+
 
   return (
     <FeedbackProvider>
       <div className="flex flex-col min-h-screen">
-        <div className="fixed top-0 left-0 right-0 z-50">
-          <Header />
-          <hr className="border-t border-gray-300" />
-        </div>
+        {!isPageAdmin && !isAdminOrConsultant && (
+          <div className="fixed top-0 left-0 right-0 z-50">
+            <Header />
+            <hr className="border-t border-gray-300" />
+          </div>
+        )}
         <div
-          className={`flex flex-1 ${isAuthPage ? 'justify-center' : ''} ${isPageAdmin ? '' : 'mt-16'
+          className={`flex flex-1 ${isAuthPage ? 'justify-center' : ''} ${isHaveBanner ?'mt-16' : ''
             }`}
         >
-          {!isAuthPage && (
+          {isHaveBanner && (
             <>
               <AdBanner position="left" />
               <hr className="border-l border-gray-300" />
@@ -84,7 +97,18 @@ function App() {
           )}
           <main className="flex-1">
             <Routes>
-              <Route path="/" element={<Home />} />
+              <Route path="/404" element={<NotFoundPage />} />
+              {/* Check if user is ADMIN or CONSULTANT, redirect Home to 404 */}
+              <Route
+                path="/"
+                element={
+                  isAdminOrConsultant ? (
+                    <Navigate to="/404" replace />
+                  ) : (
+                    <Home />
+                  )
+                }
+              />
               <Route path="/careers" element={<Careers />} />
               <Route path="/career-guidance-test" element={<CareerGuidanceTest />} />
               <Route path="/what-to-study" element={<WhatToStudy />} />
@@ -129,7 +153,7 @@ function App() {
               <Route path="/UserChat" element={<UserChat />} />
             </Routes>
           </main>
-          {!isAuthPage && (
+          {isHaveBanner && (
             <>
               <hr className="border-r border-gray-300" />
               <AdBanner position="right" />
@@ -137,7 +161,7 @@ function App() {
           )}
         </div>
 
-        {!isAuthPage && (
+        {(!isAuthPage && !is404) && (
           <>
             <hr className="border-t border-gray-300" />
             <Footer />
@@ -145,7 +169,7 @@ function App() {
         )}
 
         {!isAuthPage && <FeedbackModal />}  {/* Add FeedbackModal here */}
-        {!isAuthPage && <Chatbot />}
+        {(!isAuthPage && !is404) && <Chatbot />}
       </div>
     </FeedbackProvider>
 

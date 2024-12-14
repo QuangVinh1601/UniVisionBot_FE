@@ -10,7 +10,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { Link, Outlet } from 'react-router-dom';
 import logo from '../../images/logo.jpg';
-import Profile_Admin from '../../images/profile_admin.png';
+// import Profile_Admin from '../../images/profile_admin.png';
 
 const AdminDashboardHeader: React.FC = () => {
   const [filterPeriod, setFilterPeriod] = useState<string>('17 April 2024 - 21 May 2024');
@@ -19,11 +19,14 @@ const AdminDashboardHeader: React.FC = () => {
     setFilterPeriod(event.target.value);
   };
 
+  const name = localStorage.getItem('fullName');
+
   // Xử lý đăng xuất
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('role');
-    localStorage.removeItem('name');
+    localStorage.removeItem('fullName');
+    localStorage.removeItem('UserId');
     window.location.href = '/'; // Chuyển hướng về trang chủ
   };
 
@@ -106,10 +109,11 @@ const AdminDashboardHeader: React.FC = () => {
           <div className="flex items-center gap-4">
             <div className="flex items-center">
               <h1 className="text-xl font-bold text-gray-800">
-                <span className="text-gray-600">Hello, </span>
-                <span className="font-bold">Trung</span>
+                <span className="text-gray-700 text-sm font-semibold">
+                  Xin chào, {name}
+                </span>
               </h1>
-              <img src={Profile_Admin} alt="Admin Profile" className="w-10 h-10 rounded-full ml-4" />
+              {/* <img src={Profile_Admin} alt="Admin Profile" className="w-10 h-10 rounded-full ml-4" /> */}
             </div>
             {/* Logout Button */}
             <button
