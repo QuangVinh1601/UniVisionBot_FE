@@ -83,7 +83,7 @@ function App() {
   return (
     <FeedbackProvider>
       <div className="flex flex-col min-h-screen">
-        {!isPageAdmin && !isAdminOrConsultant && (
+        {!isPageAdmin && !isAdminOrConsultant && !is404 && (
           <div className="fixed top-0 left-0 right-0 z-50">
             <Header />
             <hr className="border-t border-gray-300" />
@@ -131,7 +131,7 @@ function App() {
               />
 
               {/* Admin Dashboard with nested routes */}
-              <Route path="/admin" element={<AdminLayout />}>
+              <Route path="/admin" element={<PrivateRoute role="ADMIN"><AdminLayout /></PrivateRoute>}>
                 <Route path="dashboard" element={<AdminDashboard />} />
                 <Route path="careers" element={<AdminCareers />} />
                 <Route path="careers/add" element={<UniversityAdd />} />
