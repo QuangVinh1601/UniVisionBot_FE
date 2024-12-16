@@ -18,7 +18,7 @@ import AdminDashboardHeader from './admin/components/AdminDashboardHeader';
 import AdminDashboard from './admin/pages/AdminDashboard';
 import AdminCareers from './admin/pages/AdminCareers';
 import AdminAccount from './admin/pages/AdminAccount';
-import AdminWhatToStudy from './admin/pages/AdminWhatToStudy';
+import AdminWhatToStudy from './admin/pages/pagesOfAdminArticle/AdminWhatToStudy';
 import UniversityDetails from './admin/pages/pagesOfAdminCareers/UniversityDetails'; // Import trang chi tiết trường đại học
 import UniversityEdit from './admin/pages/pagesOfAdminCareers/UniversityEdit';
 import UniversityAdd from './admin/pages/pagesOfAdminCareers/UniversityAdd';
@@ -36,6 +36,7 @@ import AdminFeedback from './admin/pages/AdminFeedback';
 import VisitorCounter from './components/VisitorCounter'; // Import useVisitorCounter hook
 import NotFoundPage from './pages/NotFoundPage';
 import { Navigate } from 'react-router-dom';
+import ArticleEditor from './admin/pages/pagesOfAdminArticle/ArticleEditor';
 
 function App() {
   const location = useLocation();
@@ -143,6 +144,7 @@ function App() {
                 <Route path="/admin/careers/university/:universityId/faculties/:facultyId/majors/add" element={<AddMajor />} />
                 <Route path="/admin/careers/university/:universityId/faculties/:facultyId/majors/edit/:majorId" element={<EditMajor />} />
                 <Route path="what-to-study" element={<AdminWhatToStudy />} />
+                <Route path="what-to-study/edit/:id" element={<ArticleEditor />} />
                 <Route path="account" element={<AdminAccount />} />
                 <Route path="feedback" element={<AdminFeedback />} />
               </Route>
