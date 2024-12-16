@@ -285,8 +285,7 @@ function deserializePendingConversation(message: any): PendingConversation {
               console.log("Updating conversation:", conv.id);
               // Kiểm tra xem tin nhắn đã tồn tại chưa
               const isDuplicate = conv.messages.some(msg => msg.id === currentMessage.id);
-              const formattedTime = format(new Date(currentMessage.created_At), 'HH:mm dd/MM/yyyy');
-        
+              const formattedTime = currentMessage.created_At;
               if (!isDuplicate) {
                 // setSelectedId(conv.id);
                 // setSelectedConversation({
@@ -609,7 +608,7 @@ const isValidUser = (conv: ConversationWithDetails) => {
               <span className="font-medium text-gray-700">Tin nhắn đang chờ</span>
               {unReadPendingConversationCount > 0 && (
                 <span className="px-2 py-1 text-xs bg-yellow-500 text-white rounded-full">
-                  {unReadPendingConversationCount}  
+                  {unReadPendingConversationCount > 99 ? "99+" : unReadPendingConversationCount}
                 </span>
               )}
             </div>
@@ -690,7 +689,7 @@ const isValidUser = (conv: ConversationWithDetails) => {
                       : 'hover:bg-gray-50'
                     }`}
                   onClick={() => setSelectedId(conv.id)}
-                >
+                > 
                   <div className="relative">
                     
                     <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white" />

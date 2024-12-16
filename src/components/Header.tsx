@@ -60,7 +60,7 @@ const Header: React.FC = () => {
                 </li>
                 {token && role === 'USER' && (<li>
                   <button onClick={openModal} className="bg-green-500 text-white px-4 py-2 rounded flex items-center text-lg font-semibold">
-                    Feedback
+                    Đánh giá
                   </button>
                 </li>)}
 
