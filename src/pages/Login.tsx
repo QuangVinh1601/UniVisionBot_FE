@@ -17,8 +17,8 @@ const Login: React.FC = () => {
     try {
       const response = await login(email, password);
       const token = response.accessToken;
+      
       const role = response.roleUser; // Get role directly from response
-      const name = response.fullName;
 
     
       // Debug log to check response structure
@@ -45,11 +45,6 @@ const Login: React.FC = () => {
         role: localStorage.getItem('role'),
         userId: localStorage.getItem('UserId')
       });
-
-      // Save token and role to localStorage
-      localStorage.setItem('token', token);
-      localStorage.setItem('role', role);
-      localStorage.setItem('name', name);
 
       // Redirect user based on role
       if (role === 'ADMIN') {

@@ -14,7 +14,7 @@ function checkRole(role) {
 
 export const PrivateRoute = ({ children, role }) => {
   if (!checkRole(role)) {
-    return <Navigate to="/login" />;
+    return <Navigate to="/404" />;
   }
   return children;
 };

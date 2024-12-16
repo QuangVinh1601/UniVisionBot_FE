@@ -34,11 +34,20 @@ import { FeedbackProvider } from './contexts/FeedbackContext';
 import { FeedbackModal } from './components/FeedbackModal';
 import AdminFeedback from './admin/pages/AdminFeedback';
 import VisitorCounter from './components/VisitorCounter'; // Import useVisitorCounter hook
+import NotFoundPage from './pages/NotFoundPage';
+import { Navigate } from 'react-router-dom';
 
 function App() {
   const location = useLocation();
   const visitorCount = VisitorCounter();
   const role = localStorage.getItem('role');
+  const isHaveBanner = 
+    location.pathname === '/' ||
+    location.pathname === '/careers' ||
+    location.pathname === '/career-guidance-test' ||
+    location.pathname === '/what-to-study';
+  
+  
   const isPageAdmin =
     location.pathname === '/admin' ||
     location.pathname === '/admin/dashboard' ||
@@ -68,41 +77,48 @@ function App() {
     location.pathname === '/consultant-chat' ||
     location.pathname === '/UserChat'
 
+  const is404 = location.pathname === '/404';
+  const isUser = role === 'USER';
 
   return (
     <FeedbackProvider>
-    <div className="flex flex-col min-h-screen">
-      {!isPageAdmin && !isAdminOrConsultant && role !== 'CONSULTANT' &&( <div className="fixed top-0 left-0 right-0 z-50">
-         <Header />
-         <hr className="border-t border-gray-300" />
-       </div>)
-      }
-      <div
-        className={`flex flex-1 ${isAuthPage ? 'justify-center' : ''} ${
-          isPageAdmin   ? '' : 'mt-16'
-        }`}
-      >
-        {!isAuthPage && (
-          <>
-            <AdBanner position="left" />
-            <hr className="border-l border-gray-300" />
-          </>
+      <div className="flex flex-col min-h-screen">
+        {!isPageAdmin && !isAdminOrConsultant && (
+          <div className="fixed top-0 left-0 right-0 z-50">
+            <Header />
+            <hr className="border-t border-gray-300" />
+          </div>
         )}
-        <main className="flex-1">
-          <Routes>
-          <Route path="/UserChat" element={
-          <PrivateRoute role="USER">
-            <UserChat />
-          </PrivateRoute>
-           } 
-          />
-          <Route path="/" element={<Home />} />
-            <Route path="/careers" element={<Careers />} />
-            <Route path="/career-guidance-test" element={<CareerGuidanceTest />} />
-            <Route path="/what-to-study" element={<WhatToStudy />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
+        <div
+          className={`flex flex-1 ${isAuthPage ? 'justify-center' : ''} ${isHaveBanner ?'mt-16' : ''
+            }`}
+        >
+          {isHaveBanner && (
+            <>
+              <AdBanner position="left" />
+              <hr className="border-l border-gray-300" />
+            </>
+          )}
+          <main className="flex-1">
+            <Routes>
+              <Route path="/404" element={<NotFoundPage />} />
+              {/* Check if user is ADMIN or CONSULTANT, redirect Home to 404 */}
+              <Route
+                path="/"
+                element={
+                  isAdminOrConsultant ? (
+                    <Navigate to="/404" replace />
+                  ) : (
+                    <Home />
+                  )
+                }
+              />
+              <Route path="/careers" element={<Careers />} />
+              <Route path="/career-guidance-test" element={<CareerGuidanceTest />} />
+              <Route path="/what-to-study" element={<WhatToStudy />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
 
               {/* Protected route for ConsultantChat */}
               <Route
@@ -116,40 +132,46 @@ function App() {
 
               {/* Admin Dashboard with nested routes */}
               <Route path="/admin" element={<AdminLayout />}>
-              <Route path="dashboard" element={<AdminDashboard />} />
-              <Route path="careers" element={<AdminCareers />} />
-              <Route path="careers/add" element={<UniversityAdd />} />
-              <Route path="careers/university/:id" element={<UniversityDetails />} />
-              <Route path="careers/edit/:id" element={<UniversityEdit />} />
-              <Route path="/admin/careers/university/:universityId/faculties/add" element={<FacultyAdd />} />
-              <Route path="/admin/careers/university/:universityId/faculties/edit/:facultyId" element={<FacultyEdit />} />
-              <Route path="/admin/careers/university/:universityId/faculties/:facultyId/majors" element={<FacultyMajors />} />
-              <Route path="/admin/careers/university/:universityId/faculties/:facultyId/majors/add" element={<AddMajor />} />
-              <Route path="/admin/careers/university/:universityId/faculties/:facultyId/majors/edit/:majorId" element={<EditMajor />} />
-              <Route path="what-to-study" element={<AdminWhatToStudy />} />
-              <Route path="feedback" element={<AdminFeedback />} />
-              <Route path="account" element={<AdminAccount />} />
-            </Route>
-               {/* ChatBotMess for USER */}
-               <Route
-              path="/chat-bot-mess"
-              element={
+                <Route path="dashboard" element={<AdminDashboard />} />
+                <Route path="careers" element={<AdminCareers />} />
+                <Route path="careers/add" element={<UniversityAdd />} />
+                <Route path="careers/university/:id" element={<UniversityDetails />} />
+                <Route path="careers/edit/:id" element={<UniversityEdit />} />
+                <Route path="/admin/careers/university/:universityId/faculties/add" element={<FacultyAdd />} />
+                <Route path="/admin/careers/university/:universityId/faculties/edit/:facultyId" element={<FacultyEdit />} />
+                <Route path="/admin/careers/university/:universityId/faculties/:facultyId/majors" element={<FacultyMajors />} />
+                <Route path="/admin/careers/university/:universityId/faculties/:facultyId/majors/add" element={<AddMajor />} />
+                <Route path="/admin/careers/university/:universityId/faculties/:facultyId/majors/edit/:majorId" element={<EditMajor />} />
+                <Route path="what-to-study" element={<AdminWhatToStudy />} />
+                <Route path="account" element={<AdminAccount />} />
+                <Route path="feedback" element={<AdminFeedback />} />
+              </Route>
+              {/* ChatBotMess for USER */}
+              <Route
+                path="/chat-bot-mess"
+                element={
+                  <PrivateRoute role="USER">
+                    <ChatBotMess />
+                  </PrivateRoute>
+                }
+              />
+              <Route path="/UserChat" element={
                 <PrivateRoute role="USER">
-                  <ChatBotMess />
+                  <UserChat />
                 </PrivateRoute>
-              }
-            />
-          </Routes>
-        </main>
-        {!isAuthPage && (
-          <>
-            <hr className="border-r border-gray-300" />
-            <AdBanner position="right" />
-          </>
-        )}
-      </div>
+                } 
+              />
+            </Routes>
+          </main>
+          {isHaveBanner && (
+            <>
+              <hr className="border-r border-gray-300" />
+              <AdBanner position="right" />
+            </>
+          )}
+        </div>
 
-        {!isAuthPage && (
+        {(!isAuthPage && !is404) && (
           <>
             <hr className="border-t border-gray-300" />
             <Footer />
@@ -157,7 +179,7 @@ function App() {
         )}
 
         {!isAuthPage && <FeedbackModal />}  {/* Add FeedbackModal here */}
-        {!isAuthPage && <Chatbot />}
+        {(isUser) && <Chatbot />}
       </div>
     </FeedbackProvider>
 
