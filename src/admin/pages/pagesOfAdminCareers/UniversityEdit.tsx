@@ -69,7 +69,7 @@ const UniversityEdit: React.FC = () => {
       });
 
       if (!response.ok) {
-        throw new Error('Không thể lưu thay đổi');
+        throw alert('Đã xảy ra lỗi khi lưu dữ liệu');
       }
 
       alert('Thông tin đã được cập nhật thành công!');

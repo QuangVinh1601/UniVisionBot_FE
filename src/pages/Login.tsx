@@ -16,7 +16,7 @@ const Login: React.FC = () => {
 
     try {
       const response = await login(email, password);
-      const token = response.accessToken;
+      const token = response.token;
       
       const role = response.roleUser; // Get role directly from response
 
