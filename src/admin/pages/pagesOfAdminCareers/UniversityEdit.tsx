@@ -69,11 +69,11 @@ const UniversityEdit: React.FC = () => {
       });
 
       if (!response.ok) {
-        throw new Error('Không thể lưu thay đổi');
+        throw alert('Đã xảy ra lỗi khi lưu dữ liệu');
       }
 
       alert('Thông tin đã được cập nhật thành công!');
-      navigate(-1); // Quay lại trang trước
+      navigate(`/admin/careers`); // Quay lại trang trước
     } catch (err: any) {
       setError(err.message || 'Đã xảy ra lỗi khi lưu dữ liệu');
     } finally {
@@ -142,27 +142,31 @@ const UniversityEdit: React.FC = () => {
                 Có Học Bổng
             </label>
 
-            <button
-                type="button"
-                onClick={handleSave}
-                disabled={saving}
-                className={`px-4 py-2 mt-4 rounded ${
-                saving
-                    ? 'bg-gray-300 text-gray-600 cursor-not-allowed'
-                    : 'bg-blue-500 text-white hover:bg-blue-700'
-                }`}
-            >
-                {saving ? 'Đang lưu...' : 'Lưu Thay Đổi'}
-            </button>
+            <div className="flex justify-between items-center">
+              <button
+                  type="button"
+                  onClick={handleSave}
+                  disabled={saving}
+                  className={`px-4 py-2 mt-4 rounded ${
+                  saving
+                      ? 'bg-gray-300 text-gray-600 cursor-not-allowed'
+                      : 'bg-blue-500 text-white hover:bg-blue-700'
+                  }`}
+              >
+                  {saving ? 'Đang lưu...' : 'Lưu Thay Đổi'}
+              </button>
+
+              <button
+                  onClick={() => navigate('/admin/careers')}
+                  className="mt-4 px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-700"
+              >
+                  Quay lại
+              </button>
+            </div>
         </form>
         )}
 
-        <button
-            onClick={() => navigate('/admin/careers')}
-            className="mt-4 px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-700 absolute right-[46px] top-[653px]"
-        >
-            Quay lại
-        </button>
+        
     </div>
   );
 };

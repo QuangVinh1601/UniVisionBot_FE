@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { HubConnectionBuilder, HubConnection, HttpTransportType, LogLevel } from '@microsoft/signalr';
 import { Camera, Video, MoreVertical, Send, Smile, Loader2, CheckCheck, Search, Clock, User } from 'lucide-react';
-import { useLocation } from 'react-router-dom';
-import { deserialize, Deserializer } from 'v8';
-
+import gg_bot from '../images/gg_bot.png'; 
+import { useNavigate } from 'react-router-dom';
+import { format } from 'date-fns';
 // types/chat.ts
 enum StatusChatEnum {
   SENT = 'SENT',
@@ -39,6 +39,7 @@ interface ConversationWithDetails {
   };
   messages: MessageResponse[];
   lastMessage?: string;
+  lastMessageTime: string;
 }
 interface PendingConversation {
   id:string,
@@ -58,6 +59,7 @@ const ConsultantChat = () => {
   const [newMessage, setNewMessage] = useState('');
   const [selectedConversation, setSelectedConversation] = useState<ConversationWithDetails | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [filterConversations, setFilterConversations] = useState<ConversationWithDetails[]>([]);
   const [shouldScroll, setShouldScroll] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const isInitialized = useRef(false);
@@ -65,7 +67,39 @@ const ConsultantChat = () => {
   const [messageUpdate, setMessageUpdate] = useState(0);
   const [pendingMessages, setPendingMessages] = useState<PendingConversation[]>([]);
   const [isPendingOpen, setIsPendingOpen] = useState(false);
+  const [consultantName, setConsultantName] = useState(() => {
+    var fullName = localStorage.getItem('fullName');
+    return fullName;
+  });
+  const [unReadPendingConversationCount, setUnReadPendingConversationCount] = useState(() => {
+    const saveCount = localStorage.getItem('unReadPendingConversationCount');
+    return saveCount ? parseInt(saveCount, 10) : 0;
+  });
+  const [newMessageTime, setNewMessageTime] = useState('')
+  const navigate = useNavigate();
 
+  const handleLogout = () => {
+    // Clear local storage
+    localStorage.clear();
+    // Navigate to login page
+    navigate('/login');
+  };
+
+  const getConversationBySearchTerm = (searchTerm: string) => {
+      try {
+        if(!searchTerm.trim()) {
+          setFilterConversations(conversations);
+          return;
+        }
+        const filtered = conversations.filter(conv => conv.user.fullName.toLowerCase().includes(searchTerm.toLowerCase()));
+        setFilterConversations(filtered);
+      }
+      catch (error) {
+        console.log("Seach error:", error)
+        setFilterConversations([]);
+      }
+      
+  }
   // const selectedConversation = conversations.find(c => c.id === selectedId);
 
   const isMessageFromUser = (message: MessageResponse) => {
@@ -93,12 +127,30 @@ const ConsultantChat = () => {
         urlImage: message.User.UrlImage
       },
       messages: message.Messages.map((msg: any) => deserialize(msg)),
-      lastMessage: message.LastMessage
+      lastMessage: message.LastMessage,
+      lastMessageTime: message.LastMessageTime
   }
 }
+
+function deserializePendingConversation(message: any): PendingConversation {
+  return {
+    id: message.Id,
+    conversationId: message.ConversationId,
+    fullname: message.Fullname,
+    status: message.Status,
+    createdAt: message.CreatedAt
+  };
+ }
+
+
   const filteredConversations = conversations.filter(conv => 
     !pendingMessages.some(pm => pm.conversationId === conv.id) 
   );
+
+  const resetUnReadPendingConversationCount = () => {
+    setUnReadPendingConversationCount(0);
+    localStorage.setItem('unReadPendingConversationCount', '0');
+  };
 
   useEffect(() => {
     console.log('ConsultantChat mounted with consultantId:', consultantId);
@@ -113,7 +165,13 @@ const ConsultantChat = () => {
       isInitialized.current = true;
     }
   }, []);
+
+  useEffect(()=> {
+    localStorage.setItem('unReadPendingConversationCount', unReadPendingConversationCount.toString());
+  }, [unReadPendingConversationCount]);
+
   
+
   const initializeHub = async () => {
     try {
 
@@ -165,8 +223,36 @@ const ConsultantChat = () => {
           }
         })
         .build();
+      console.log('Attempting to connect to SignalR...');
+      newConnection.on("NotifyPendingConversation", pendingconversation => {
+        var pendingConversation = deserializePendingConversation(pendingconversation);
+        console.log("Received new pending message:", pendingConversation.conversationId);
+        setPendingMessages(prev => [...prev, pendingConversation]);
+        setUnReadPendingConversationCount(prev =>{
+          var newCount = prev + 1;
+          localStorage.setItem('unReadPendingConversationCount', newCount.toString());
+          return newCount;
+        });
+      })
+      
+      
+      newConnection.onreconnecting((error) => {
+        console.warn('SignalR Reconnecting:', error);
+      });
+
+      newConnection.onreconnected((connectionId) => {
+        console.log('SignalR Reconnected:', connectionId);
+      });
+
+      newConnection.onclose((error) => {
+        console.error('SignalR Connection closed:', error);
+      });
 
       await newConnection.start();
+      console.log('SignalR Connected:', newConnection.connectionId);
+
+      // Log event registration
+      console.log('Registering NofityPendingConversation event handler');
  
   
       console.log("SignalR Connection ID:", newConnection.connectionId);
@@ -199,7 +285,7 @@ const ConsultantChat = () => {
               console.log("Updating conversation:", conv.id);
               // Kiểm tra xem tin nhắn đã tồn tại chưa
               const isDuplicate = conv.messages.some(msg => msg.id === currentMessage.id);
-              
+              const formattedTime = currentMessage.created_At;
               if (!isDuplicate) {
                 // setSelectedId(conv.id);
                 // setSelectedConversation({
@@ -210,7 +296,8 @@ const ConsultantChat = () => {
                 return {
                   ...conv,
                   messages: [...conv.messages, currentMessage],
-                  lastMessage: currentMessage.content
+                  lastMessage: currentMessage.content,
+                  lastMessageTime : formattedTime
                 };
               }
               return conv; // Nếu là tin nhắn trùng lặp, giữ nguyên conversation - lap 2 lan nen 
@@ -220,11 +307,7 @@ const ConsultantChat = () => {
           console.log("New conversations:", newConversations);
           return newConversations;
         });
-        newConnection.on("NofityPendingConversation", conversations => {
-          console.log("Received new pending message:", conversations.conversationId);
-          setPendingMessages(prev => [...prev, conversations]);
-        })
-        
+       
         setSelectedConversation(prev => {
           if (prev && prev.id === currentMessage.conversationId) {
             console.log("Updating selectedConversation");
@@ -254,7 +337,7 @@ const ConsultantChat = () => {
 
 
       
-              setConnection(newConnection);
+    setConnection(newConnection);
     } catch (err) {
       console.error('Error in initializeHub:', err);
       setError(err instanceof Error ? err.message : 'Failed to connect to chat hub');
@@ -376,6 +459,7 @@ const ConsultantChat = () => {
       if (!response.ok) throw new Error('Failed to fetch pending messages');
       const data: PendingConversation[] = await response.json();
       setPendingMessages(data);
+      setUnReadPendingConversationCount(0);
     } catch (err) {
       console.error('Error fetching pending messages:', err);
       setError('Failed to load pending messages');
@@ -427,6 +511,11 @@ const handleAcceptConversation = async () => {
       setPendingMessages(prev => 
         prev.filter(m => m.conversationId !== selectedConversation.id)
       );
+      const response = await fetch(`https://localhost:7230/api/conversations/${selectedConversation.id}`, {
+        method: 'DELETE'
+      });
+
+      if (!response.ok) throw new Error('Failed to reject');
       setSelectedId(conversationId);
       setSelectedConversation(newConversation);
   } catch (error) {
@@ -465,17 +554,26 @@ const isValidUser = (conv: ConversationWithDetails) => {
           <div className="flex items-center gap-4">
             <div className="relative">
               <img 
-                src="/api/consultant/avatar" 
+                src={gg_bot} 
                 alt="Consultant" 
                 className="w-12 h-12 rounded-full object-cover ring-2 ring-green-500"
               />
               <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white" />
             </div>
             <div>
-              <h2 className="font-semibold text-gray-800">Consultant Dashboard</h2>
+              <h2 className="font-semibold text-gray-800">Tư vấn viên: {consultantName}</h2>
               <p className="text-sm text-gray-500">ID: {consultantId}</p>
             </div>
           </div>
+          <button
+              onClick={handleLogout}
+              className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors flex items-center gap-2 mt-5"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 001 1h12a1 1 0 001-1V4a1 1 0 00-1-1H3zm11 4.414l-4.293 4.293a1 1 0 01-1.414 0L4 7.414 5.414 6l3.293 3.293L12 6l2 1.414z" clipRule="evenodd" />
+              </svg>
+              Đăng xuất
+            </button>
         </div>
 
         {/* Search */}
@@ -486,7 +584,11 @@ const isValidUser = (conv: ConversationWithDetails) => {
               placeholder="Search conversations..."
               className="w-full pl-10 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={(e) => {
+                setSearchTerm(e.target.value)
+                getConversationBySearchTerm(e.target.value);
+              }}
+
             />
             <Search className="w-5 h-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
           </div>
@@ -504,9 +606,9 @@ const isValidUser = (conv: ConversationWithDetails) => {
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></div>
               <span className="font-medium text-gray-700">Tin nhắn đang chờ</span>
-              {pendingMessages.length > 0 && (
+              {unReadPendingConversationCount > 0 && (
                 <span className="px-2 py-1 text-xs bg-yellow-500 text-white rounded-full">
-                  {pendingMessages.length}
+                  {unReadPendingConversationCount > 99 ? "99+" : unReadPendingConversationCount}
                 </span>
               )}
             </div>
@@ -578,7 +680,7 @@ const isValidUser = (conv: ConversationWithDetails) => {
             </div>
           ) : (
             <div className="space-y-1 p-3">
-              {filteredConversations.map(conv => (
+              {(searchTerm ? filterConversations : conversations).map(conv => (
                 <div
                   key={conv.id}
                   className={`flex items-center p-3 rounded-xl cursor-pointer transition-all
@@ -587,7 +689,7 @@ const isValidUser = (conv: ConversationWithDetails) => {
                       : 'hover:bg-gray-50'
                     }`}
                   onClick={() => setSelectedId(conv.id)}
-                >
+                > 
                   <div className="relative">
                     
                     <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white" />
@@ -598,7 +700,7 @@ const isValidUser = (conv: ConversationWithDetails) => {
                       {conv.lastMessage && (
                         <span className="text-xs text-gray-500 flex items-center">
                           <Clock className="w-3 h-3 mr-1" />
-                          { new Date(conv.created_At).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}
+                          { new Date(conv.lastMessageTime).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}
                         </span>
                       )}
                     </div>
@@ -624,7 +726,7 @@ const isValidUser = (conv: ConversationWithDetails) => {
                 <div className="flex items-center gap-3">
                   <div className="relative">
                     <img 
-                      src={selectedConversation.user.urlImage || `/api/placeholder/48/48`}
+                      src='/Unknown_person.jpg'
                       alt={selectedConversation.user.fullName} 
                       className="w-12 h-12 rounded-full object-cover"
                     />

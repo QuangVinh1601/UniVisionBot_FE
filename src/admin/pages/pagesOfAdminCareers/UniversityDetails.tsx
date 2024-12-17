@@ -71,6 +71,7 @@ const UniversityDetails: React.FC = () => {
           const newPage = currentPage - 1;
           setCurrentPage(newPage);
           fetchFaculties(newPage);
+          alert('Đã xóa thành công!');
         } else {
           // Tải lại danh sách khoa của trang hiện tại
           fetchFaculties(currentPage);
