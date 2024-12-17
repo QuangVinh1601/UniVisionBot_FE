@@ -46,27 +46,43 @@ const EditArticle: React.FC = () => {
   // Xử lý khi nhấn nút Lưu
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-  
-    // Tạo FormData để gửi dữ liệu
-    const dataToSend = new FormData();
-    dataToSend.append("Title", formData.title || "");
-    dataToSend.append("Author", formData.author || "");
-    dataToSend.append("Content", formData.content || "");
-    
-    // Nếu người dùng không chọn ảnh mới, gửi PublicId thay vì ImageFile
-    if (formData.imageFile) {
-      dataToSend.append("ImageFile", formData.imageFile);
-    } else {
-      dataToSend.append("PublicId", formData.publicId); // Gửi thông tin PublicId để giữ ảnh cũ
-    }
-  
+
     try {
-      const response = await axios.put(`https://localhost:7230/api/Article/${id}`, dataToSend, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
-  
+      let response;
+      
+      if (formData.imageFile) {
+        // If new image selected, use multipart/form-data
+        const dataWithImage = new FormData();
+        dataWithImage.append("Title", formData.title || "");
+        dataWithImage.append("Author", formData.author || "");
+        dataWithImage.append("Content", formData.content || "");
+        dataWithImage.append("ImageFile", formData.imageFile);
+        dataWithImage.append("PublicId", formData.publicId);
+        response = await axios.put(
+          `https://localhost:7230/api/Article/${id}`,
+          dataWithImage,
+          {
+            headers: { "Content-Type": "multipart/form-data" }
+          }
+        );
+      } else {
+        // If no new image, use JSON with existing PublicId
+        const dataWithoutImage = {
+          title: formData.title,
+          author: formData.author,
+          content: formData.content,
+          publicId: formData.publicId
+        };
+
+        response = await axios.put(
+          `https://localhost:7230/api/Article/${id}/update-without-image`,
+          dataWithoutImage,
+          {
+            headers: { "Content-Type": "application/json" }
+          }
+        );
+      }
+
       console.log("Bài viết đã được chỉnh sửa thành công!", response.data);
       alert("Bài viết đã được chỉnh sửa thành công!");
     } catch (err: any) {
@@ -76,7 +92,7 @@ const EditArticle: React.FC = () => {
   };
 
   // Xử lý khi chỉnh sửa một trường
-  const handleChange = (field: string, value: any) => {
+  const   handleChange = (field: string, value: any) => {
     setFormData((prevFormData: any) => ({
       ...prevFormData,
       [field]: value,
