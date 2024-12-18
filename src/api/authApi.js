@@ -76,3 +76,60 @@ export const addMessage = async (conversationId, message, sender, receiverId) =>
     throw error;
   }
 };
+//User Count
+
+// Get total user count and new user count in the last 30 days
+export const getUserCount = async () => {
+  try {
+    const response = await axios.get('http://localhost:5000/user-count');
+    return response.data;
+  } catch (error) {
+    console.error('Error getting user count:', error.response ? error.response.data : error.message);
+    throw error;
+  }
+};
+
+// Get new user count in the last n days
+export const getNewUserCount = async (days) => {
+  try {
+    const response = await axios.get('http://localhost:5000/new-user-count', {
+      params: { days }
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error getting new user count:', error.response ? error.response.data : error.message);
+    throw error;
+  }
+};
+
+// Get AD_Click
+export const get_AD_Click = async () => {
+  try {
+    const response = await axios.get('http://localhost:5000/get-ad-click');
+    return response.data;
+  } catch (error) {
+    console.error('Error getting AD_Click:', error.response ? error.response.data : error.message);
+    throw error;
+  }
+};
+
+// Set AD_Click
+export const AD_Click = async () => {
+  try {
+    const response = await axios.post('http://localhost:5000/set-ad-click', {});
+    return response.data;
+  } catch (error) {
+    console.error('Error setting AD_Click:', error.response ? error.response.data : error.message);
+    throw error;
+  }
+};
+
+export const getVisitor = async () => {
+  try {
+    const response = await axios.get('http://127.0.0.1:5000/visitor-count');
+    return response.data;
+} catch (error) {
+    console.error('Error setting AD_Click:', error.response ? error.response.data : error.message);
+    throw error;
+}
+}

@@ -6,11 +6,12 @@ import vanlang from '../images/vanlang.jpg';
 
 interface AdBannerProps {
   position: 'left' | 'right';
+  onClick?: () => Promise<void>; // Add onClick prop
 }
 
-const AdBanner: React.FC<AdBannerProps> = ({ position }) => {
+const AdBanner: React.FC<AdBannerProps> = ({ position, onClick }) => {
   return (
-    <div className={`w-1/5 bg-white ${position === 'left' ? 'order-first' : 'order-last'}`}>
+    <div className={`w-1/5 bg-white ${position === 'left' ? 'order-first' : 'order-last'}`} onClick={onClick}>
       <div className="p-4">
         <a href="https://duytan.edu.vn/tuyen-sinh/Page/Home.aspx" target="_blank" rel="noopener noreferrer">
           <img src={duytan} alt="Advertisement" className="cursor-pointer rounded-lg shadow-lg transition-transform transform hover:scale-105" />
