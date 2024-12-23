@@ -6,7 +6,7 @@ interface UniversityDetails {
   name: string;
   universityCode: string;
   location: string;
-  description: string;
+  description?: string;
   scholarshipsAvailable: boolean;
 }
 

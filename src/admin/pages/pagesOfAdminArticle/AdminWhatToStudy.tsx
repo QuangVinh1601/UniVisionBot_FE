@@ -7,7 +7,8 @@ interface Article {
   title: string;
   author: string;
   content: string;
-  urlImage: string;
+  urlImage?: string;
+  publicId?: string;
 }
 
 const ArticleTable: React.FC = () => {
@@ -36,6 +37,26 @@ const ArticleTable: React.FC = () => {
     navigate(`edit/${id}`);
   };
 
+  const handleDeleteClick = async (id: number) => {
+    try {
+      const article = articles.find(a => a.id === id);
+    if (article && article.urlImage) {
+      // Get first key from dictionary
+      const publicId = Object.keys(article.urlImage)[0] || '';
+      const encodedPublicId = encodeURIComponent(publicId);
+      const response = await axios.delete(`https://localhost:7230/api/Article/${id}/${encodedPublicId}`);
+      if(response.data.result === "ok"){
+        setArticles(prev => prev.filter( a => a.id != id));
+      }
+    } else {
+      throw new Error('Xóa bài viết thất bại');
+    }
+    }
+    catch(error) {
+      console.error('Error deleting article:', error);
+      alert('Có lỗi xảy ra khi xóa bài viết. Vui lòng thử lại!');
+    }
+  }
   if (loading) return <p>Đang tải dữ liệu...</p>;
   if (error) return <p>{error}</p>;
 
@@ -67,7 +88,7 @@ const ArticleTable: React.FC = () => {
                   <button className="bg-yellow-400 hover:bg-yellow-500 text-white font-bold py-1 px-3 rounded mr-2">
                     Edit
                   </button>
-                  <button className="bg-red-500 hover:bg-red-600 text-white font-bold py-1 px-3 rounded">
+                  <button className="bg-red-500 hover:bg-red-600 text-white font-bold py-1 px-3 rounded" onClick={() => {handleDeleteClick(article.id)}}>
                     Delete
                   </button>
                 </td>

@@ -17,7 +17,6 @@ import AdminLayout from './admin/components/AdminLayout';
 import AdminDashboardHeader from './admin/components/AdminDashboardHeader';
 import AdminDashboard from './admin/pages/AdminDashboard';
 import AdminCareers from './admin/pages/AdminCareers';
-import AdminAccount from './admin/pages/AdminAccount';
 import AdminWhatToStudy from './admin/pages/pagesOfAdminArticle/AdminWhatToStudy';
 import UniversityDetails from './admin/pages/pagesOfAdminCareers/UniversityDetails'; // Import trang chi tiết trường đại học
 import UniversityEdit from './admin/pages/pagesOfAdminCareers/UniversityEdit';
@@ -37,6 +36,9 @@ import VisitorCounter from './components/VisitorCounter'; // Import useVisitorCo
 import NotFoundPage from './pages/NotFoundPage';
 import { Navigate } from 'react-router-dom';
 import ArticleEditor from './admin/pages/pagesOfAdminArticle/ArticleEditor';
+import { User } from 'lucide-react';
+import UserManagement from './admin/pages/pagesOfAdminUser/User';
+import EditUser from './admin/pages/pagesOfAdminUser/EditUser';
 
 function App() {
   const location = useLocation();
@@ -145,7 +147,8 @@ function App() {
                 <Route path="/admin/careers/university/:universityId/faculties/:facultyId/majors/edit/:majorId" element={<EditMajor />} />
                 <Route path="what-to-study" element={<AdminWhatToStudy />} />
                 <Route path="what-to-study/edit/:id" element={<ArticleEditor />} />
-                <Route path="account" element={<AdminAccount />} />
+                <Route path="account" element={<UserManagement />} />
+                <Route path="account/:id" element={<EditUser />} />
                 <Route path="feedback" element={<AdminFeedback />} />
               </Route>
               {/* ChatBotMess for USER */}
