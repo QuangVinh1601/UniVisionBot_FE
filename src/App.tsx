@@ -27,6 +27,8 @@ import FacultyEdit from './admin/pages/pagesOfAdminCareers/FacultyEdit';
 import FacultyMajors from './admin/pages/pagesOfAdminCareers/FacultyMajors';
 import AddMajor from './admin/pages/pagesOfAdminCareers/MajorAdd';
 import EditMajor from './admin/pages/pagesOfAdminCareers/EditMajor';
+import ArticleEditor from './admin/pages/pagesOfAdminArticle/ArticleEditor';
+import ArticleAdd from './admin/pages/pagesOfAdminArticle/ArticleAdd';
 import ChatWindow from './components/ChatWindow'; // Import ChatWindow component
 import { PrivateRoute } from './components/PrivateRoute';
 import UserChat from './pages/UserChat';
@@ -36,7 +38,7 @@ import AdminFeedback from './admin/pages/AdminFeedback';
 import VisitorCounter from './components/VisitorCounter'; // Import useVisitorCounter hook
 import NotFoundPage from './pages/NotFoundPage';
 import { Navigate } from 'react-router-dom';
-import ArticleEditor from './admin/pages/pagesOfAdminArticle/ArticleEditor';
+
 
 function App() {
   const location = useLocation();
@@ -145,6 +147,7 @@ function App() {
                 <Route path="/admin/careers/university/:universityId/faculties/:facultyId/majors/edit/:majorId" element={<EditMajor />} />
                 <Route path="what-to-study" element={<AdminWhatToStudy />} />
                 <Route path="what-to-study/edit/:id" element={<ArticleEditor />} />
+                <Route path="what-to-study/add" element={< ArticleAdd/>} />
                 <Route path="account" element={<AdminAccount />} />
                 <Route path="feedback" element={<AdminFeedback />} />
               </Route>
