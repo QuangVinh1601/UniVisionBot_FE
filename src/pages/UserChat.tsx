@@ -147,12 +147,12 @@ const UserChat = () => {
             // Call the addPendingConversation API
             const pendingConversation = await addPendingConversation('pending', userId, fullName);
             // console.log('Pending conversation added:', pendingConversation);
-            console.log('Pending conversation added:', pendingConversation.conversation_id);
+            console.log('Pending conversation added:', pendingConversation.conversation_Id);
 
             // Call the addMessage API for each message in the conversation
             for (const message of conversation.messages) {
                 // console.log('Pending conversation added:', pendingConversation.conversation_id);
-                const addedMessage = await addMessage(pendingConversation.conversation_id, message.content, message.senderId, message.receiverId);
+                const addedMessage = await addMessage(pendingConversation.conversation_Id, message.content, message.senderId, message.receiverId);
                 console.log('Message added:', addedMessage);
             }
 
@@ -173,7 +173,7 @@ const UserChat = () => {
                     {/* Add AdBanner on the left */}
                     <div className="flex flex-col flex-1">
                         {/* Chat Header */}
-                        <div className="p-4 border-b bg-white flex items-center justify-between">
+                        <div className="p-4 border-b bg-white flex items-center justify-between mt-14" >
                             <div className="flex items-center gap-3">
                                 <img src={conversation.avatar} alt={conversation.consultant} className="w-10 h-10 rounded-full" />
                                 <h3 className="font-medium">{conversation.consultant}</h3>

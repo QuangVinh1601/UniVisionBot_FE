@@ -38,19 +38,28 @@ import AdminFeedback from './admin/pages/AdminFeedback';
 import VisitorCounter from './components/VisitorCounter'; // Import useVisitorCounter hook
 import NotFoundPage from './pages/NotFoundPage';
 import { Navigate } from 'react-router-dom';
+import { AD_Click } from './api/authApi';
 
 
 function App() {
   const location = useLocation();
   const visitorCount = VisitorCounter();
   const role = localStorage.getItem('role');
-  const isHaveBanner = 
+  const isHaveBanner =
     location.pathname === '/' ||
     location.pathname === '/careers' ||
     location.pathname === '/career-guidance-test' ||
     location.pathname === '/what-to-study';
-  
-  
+
+  const handleAdClick = async () => {
+    try {
+      await AD_Click();
+      console.log('Ad click recorded');
+    } catch (error) {
+      console.error('Error recording ad click', error);
+    }
+  };
+
   const isPageAdmin =
     location.pathname === '/admin' ||
     location.pathname === '/admin/dashboard' ||
@@ -93,12 +102,12 @@ function App() {
           </div>
         )}
         <div
-          className={`flex flex-1 ${isAuthPage ? 'justify-center' : ''} ${isHaveBanner ?'mt-16' : ''
+          className={`flex flex-1 ${isAuthPage ? 'justify-center' : ''} ${isHaveBanner ? 'mt-16' : ''
             }`}
         >
           {isHaveBanner && (
             <>
-              <AdBanner position="left" />
+              <AdBanner position="left" onClick={handleAdClick} />
               <hr className="border-l border-gray-300" />
             </>
           )}
@@ -164,14 +173,14 @@ function App() {
                 <PrivateRoute role="USER">
                   <UserChat />
                 </PrivateRoute>
-                } 
+              }
               />
             </Routes>
           </main>
           {isHaveBanner && (
             <>
               <hr className="border-r border-gray-300" />
-              <AdBanner position="right" />
+              <AdBanner position="right" onClick={handleAdClick} />
             </>
           )}
         </div>
