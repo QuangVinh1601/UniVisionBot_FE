@@ -26,6 +26,8 @@ import FacultyEdit from './admin/pages/pagesOfAdminCareers/FacultyEdit';
 import FacultyMajors from './admin/pages/pagesOfAdminCareers/FacultyMajors';
 import AddMajor from './admin/pages/pagesOfAdminCareers/MajorAdd';
 import EditMajor from './admin/pages/pagesOfAdminCareers/EditMajor';
+import ArticleEditor from './admin/pages/pagesOfAdminArticle/ArticleEditor';
+import ArticleAdd from './admin/pages/pagesOfAdminArticle/ArticleAdd';
 import ChatWindow from './components/ChatWindow'; // Import ChatWindow component
 import { PrivateRoute } from './components/PrivateRoute';
 import UserChat from './pages/UserChat';
@@ -35,22 +37,31 @@ import AdminFeedback from './admin/pages/AdminFeedback';
 import VisitorCounter from './components/VisitorCounter'; // Import useVisitorCounter hook
 import NotFoundPage from './pages/NotFoundPage';
 import { Navigate } from 'react-router-dom';
-import ArticleEditor from './admin/pages/pagesOfAdminArticle/ArticleEditor';
 import { User } from 'lucide-react';
 import UserManagement from './admin/pages/pagesOfAdminUser/User';
 import EditUser from './admin/pages/pagesOfAdminUser/EditUser';
+import { AD_Click } from './api/authApi';
+
 
 function App() {
   const location = useLocation();
   const visitorCount = VisitorCounter();
   const role = localStorage.getItem('role');
-  const isHaveBanner = 
+  const isHaveBanner =
     location.pathname === '/' ||
     location.pathname === '/careers' ||
     location.pathname === '/career-guidance-test' ||
     location.pathname === '/what-to-study';
-  
-  
+
+  const handleAdClick = async () => {
+    try {
+      await AD_Click();
+      console.log('Ad click recorded');
+    } catch (error) {
+      console.error('Error recording ad click', error);
+    }
+  };
+
   const isPageAdmin =
     location.pathname === '/admin' ||
     location.pathname === '/admin/dashboard' ||
@@ -93,12 +104,12 @@ function App() {
           </div>
         )}
         <div
-          className={`flex flex-1 ${isAuthPage ? 'justify-center' : ''} ${isHaveBanner ?'mt-16' : ''
+          className={`flex flex-1 ${isAuthPage ? 'justify-center' : ''} ${isHaveBanner ? 'mt-16' : ''
             }`}
         >
           {isHaveBanner && (
             <>
-              <AdBanner position="left" />
+              <AdBanner position="left" onClick={handleAdClick} />
               <hr className="border-l border-gray-300" />
             </>
           )}
@@ -149,6 +160,7 @@ function App() {
                 <Route path="what-to-study/edit/:id" element={<ArticleEditor />} />
                 <Route path="account" element={<UserManagement />} />
                 <Route path="account/:id" element={<EditUser />} />
+                <Route path="what-to-study/add" element={< ArticleAdd/>} />
                 <Route path="feedback" element={<AdminFeedback />} />
               </Route>
               {/* ChatBotMess for USER */}
@@ -164,14 +176,14 @@ function App() {
                 <PrivateRoute role="USER">
                   <UserChat />
                 </PrivateRoute>
-                } 
+              }
               />
             </Routes>
           </main>
           {isHaveBanner && (
             <>
               <hr className="border-r border-gray-300" />
-              <AdBanner position="right" />
+              <AdBanner position="right" onClick={handleAdClick} />
             </>
           )}
         </div>

@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";  // Import useNavigate từ react-router-dom
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 interface Article {
-  id: number;
+  id: string; 
   title: string;
   author: string;
   content: string;
@@ -11,20 +11,21 @@ interface Article {
   publicId?: string;
 }
 
-const ArticleTable: React.FC = () => {
+const AdminWhatToStudy: React.FC = () => {
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const navigate = useNavigate(); // Khởi tạo navigate từ useNavigate
+  const navigate = useNavigate();
 
+  // Fetch danh sách bài viết khi component được mount
   useEffect(() => {
     const fetchArticles = async () => {
       try {
         const response = await axios.get("https://localhost:7230/api/Article");
         setArticles(response.data);
-        setLoading(false);
       } catch (err) {
         setError("Có lỗi xảy ra khi tải dữ liệu.");
+      } finally {
         setLoading(false);
       }
     };
@@ -32,12 +33,12 @@ const ArticleTable: React.FC = () => {
     fetchArticles();
   }, []);
 
-  const handleTitleClick = (id: number) => {
-    // Sử dụng navigate để điều hướng đến trang Edit với id bài viết
+  // Hàm chuyển hướng tới trang Edit
+  const handleTitleClick = (id: string) => {
     navigate(`edit/${id}`);
   };
 
-  const handleDeleteClick = async (id: number) => {
+  const handleDeleteClick = async (id: string) => {
     try {
       const article = articles.find(a => a.id === id);
     if (article && article.urlImage) {
@@ -57,15 +58,22 @@ const ArticleTable: React.FC = () => {
       alert('Có lỗi xảy ra khi xóa bài viết. Vui lòng thử lại!');
     }
   }
+  // Hàm chuyển hướng tới trang Add
+  const handleAddClick = () => {
+    navigate("add");
+  };
+
+
+
   if (loading) return <p>Đang tải dữ liệu...</p>;
   if (error) return <p>{error}</p>;
 
   return (
-    <div className="p-4">
+    <div className="p-5 border-2 border-gray-400 rounded-lg shadow-lg bg-white">
       <h1 className="text-xl font-bold mb-4">Danh sách bài viết</h1>
       <div className="overflow-x-auto">
         <table className="border-collapse border border-gray-300 w-full">
-          <thead className="bg-gray-200">
+          <thead>
             <tr>
               <th className="border border-gray-300 px-4 py-2 text-center">STT</th>
               <th className="border border-gray-300 px-4 py-2">Tiêu đề</th>
@@ -79,13 +87,16 @@ const ArticleTable: React.FC = () => {
                 <td className="border border-gray-300 px-4 py-2 text-center">{index + 1}</td>
                 <td
                   className="border border-gray-300 px-4 py-2 text-blue-600 cursor-pointer hover:underline"
-                  onClick={() => handleTitleClick(article.id)} // Thêm sự kiện click
+                  onClick={() => handleTitleClick(article.id)}
                 >
                   {article.title}
                 </td>
                 <td className="border border-gray-300 px-4 py-2">{article.author}</td>
                 <td className="border border-gray-300 px-4 py-2 text-center">
-                  <button className="bg-yellow-400 hover:bg-yellow-500 text-white font-bold py-1 px-3 rounded mr-2">
+                  <button
+                    className="bg-yellow-400 hover:bg-yellow-500 text-white font-bold py-1 px-3 rounded mr-2"
+                    onClick={() => handleTitleClick(article.id)}
+                  >
                     Edit
                   </button>
                   <button className="bg-red-500 hover:bg-red-600 text-white font-bold py-1 px-3 rounded" onClick={() => {handleDeleteClick(article.id)}}>
@@ -98,7 +109,10 @@ const ArticleTable: React.FC = () => {
         </table>
       </div>
       <div className="flex justify-between items-center mt-4">
-        <button className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded">
+        <button
+          onClick={handleAddClick}
+          className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded"
+        >
           Add
         </button>
         <div className="flex items-center">
@@ -115,4 +129,4 @@ const ArticleTable: React.FC = () => {
   );
 };
 
-export default ArticleTable;
+export default AdminWhatToStudy;
