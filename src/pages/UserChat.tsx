@@ -111,7 +111,7 @@ const UserChat = () => {
         consultant: 'Trợ lý ảo',
         lastMessage: 'Chào em, chị có thể giúp gì cho mình nhỉ?',
         time: '5s',
-        avatar: '/api/placeholder/40/40',
+        avatar: 'scr/images/gg_bot.jpg',
         messages: [
             {
                 id: 1,

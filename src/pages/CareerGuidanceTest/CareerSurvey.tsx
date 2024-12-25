@@ -151,6 +151,14 @@ const CareerSurvey: React.FC<CareerSurveyProps> = ({ isFormFilled }) => {
   };
 
   const handleSubmit = async () => {
+    // Check if user is logged in by looking for token or userId in localStorage
+    const isLoggedIn = localStorage.getItem('token') || localStorage.getItem('UserId');
+
+    if (!isLoggedIn) {
+      alert('Vui lòng đăng nhập để xem kết quả của bạn.');
+      return;
+    }
+
     if (!isFormFilled()) {
       alert('Vui lòng điền vào tất cả các trường bắt buộc trong mẫu.');
       return;
