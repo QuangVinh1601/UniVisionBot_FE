@@ -154,34 +154,34 @@ const AdminDashboard: React.FC = () => {
   };
 
   return (
-    <div className="p-5">
+    <div className="p-5 bg-white min-h-screen">
       <div className="flex justify-around mb-5">
         {stats.map((stat, index) => (
-          <div key={index} className="border border-gray-300 p-5 rounded-lg text-center w-1/5 shadow-md">
-            <FontAwesomeIcon icon={stat.icon} className="text-2xl mb-2 text-gray-800" />
-            <h2 className="text-lg">{stat.label}</h2>
-            <p className="text-xl">{stat.value}</p>
+          <div key={index} className="border border-gray-300 p-5 rounded-lg text-center w-1/5 shadow-lg bg-white">
+            <FontAwesomeIcon icon={stat.icon} className="text-3xl mb-2 text-gray-800" />
+            <h2 className="text-lg font-semibold text-gray-700">{stat.label}</h2>
+            <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
           </div>
         ))}
       </div>
       <div className="flex justify-around mb-5">
-        <div className="w-1/4 relative">
+        <div className="w-1/4 relative bg-white p-5 rounded-lg shadow-lg">
           <Doughnut data={userGrowthData} options={{ plugins: { datalabels: { display: false }, legend: { display: false } } }} />
           <div className="absolute inset-0 flex flex-col items-center justify-center" style={{ top: '-30px' }}>
-            <p className="text-xl font-bold">{userGrowthPercentage.toFixed(2)}%</p>
+            <p className="text-2xl font-bold text-gray-900">{userGrowthPercentage.toFixed(2)}%</p>
           </div>
-          <h2 className="text-lg text-center mt-2">User Growth</h2>
+          <h2 className="text-lg text-center mt-2 font-semibold text-gray-700">User Growth</h2>
         </div>
-        <div className="w-1/4 relative">
+        <div className="w-1/4 relative bg-white p-5 rounded-lg shadow-lg">
           <Doughnut data={totalRevenueData} options={{ plugins: { datalabels: { display: false }, legend: { display: false } } }} />
           <div className="absolute inset-0 flex flex-col items-center justify-center" style={{ top: '-30px' }}>
-            <p className="text-xl font-bold">{revenuePercentage.toFixed(2)}%</p>
+            <p className="text-2xl font-bold text-gray-900">{revenuePercentage.toFixed(2)}%</p>
           </div>
-          <h2 className="text-lg text-center mt-2">Return on Expectation</h2>
+          <h2 className="text-lg text-center mt-2 font-semibold text-gray-700">Return on Expectation</h2>
         </div>
       </div>
-      <div className="w-full">
-        <h2 className="text-lg">User Growth Chart</h2>
+      <div className="w-full bg-white p-5 rounded-lg shadow-lg">
+        <h2 className="text-lg font-semibold text-gray-700 mb-3">User Growth Chart</h2>
         <Line data={lineData} options={lineOptions} />
       </div>
     </div>
