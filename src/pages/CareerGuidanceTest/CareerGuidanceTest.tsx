@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import CareerSurvey from './CareerSurvey';
 import image_careers from '../../images/image_careers.png';
 
@@ -7,8 +8,16 @@ const CareerGuidanceTest: React.FC = () => {
   const [name, setName] = useState('');
   const [className, setClassName] = useState('');
   const [schoolName, setSchoolName] = useState('');
+  const navigate = useNavigate();
 
   const handleStartTest = () => {
+    // Check if user is logged in by looking for auth token in localStorage
+    const token = localStorage.getItem('token');
+    if (!token) {
+      alert('Vui lòng đăng nhập để làm bài trắc nghiệm!');
+      // navigate('/login'); // Redirect to login page
+      return;
+    }
     console.log('Starting the career guidance test...');
     setIsTestStarted(true);
   };
