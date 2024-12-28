@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { Editor } from "@tinymce/tinymce-react";
 
@@ -15,6 +16,8 @@ const EditArticle: React.FC = () => {
   });
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [isSaved, setIsSaved] = useState<boolean>(false);
+  const navigate = useNavigate();
 
   // Fetch bài viết từ API khi component được load
   useEffect(() => {
@@ -85,6 +88,7 @@ const EditArticle: React.FC = () => {
 
       console.log("Bài viết đã được chỉnh sửa thành công!", response.data);
       alert("Bài viết đã được chỉnh sửa thành công!");
+      setIsSaved(true);
     } catch (err: any) {
       console.error("Có lỗi xảy ra:", err.response?.data);
       alert("Không thể chỉnh sửa bài viết. Vui lòng kiểm tra lại thông tin.");
@@ -92,54 +96,58 @@ const EditArticle: React.FC = () => {
   };
 
   // Xử lý khi chỉnh sửa một trường
-  const   handleChange = (field: string, value: any) => {
+  const handleChange = (field: string, value: any) => {
     setFormData((prevFormData: any) => ({
       ...prevFormData,
       [field]: value,
     }));
   };
 
+  // Xử lý khi nhấn nút Quay lại
+  const handleBack = () => {
+    if (isSaved) {
+      const isConfirmed = window.confirm('Bạn có chắc muốn thoát không?');
+      if (isConfirmed) {
+        navigate('/admin/what-to-study');
+      }
+    } else {
+      const isConfirmed = window.confirm('Bạn có chắc muốn quay lại? Các thay đổi sẽ không được lưu!');
+      if (isConfirmed) {
+        navigate('/admin/what-to-study');
+      }
+    }
+  };
+
   if (loading) return <p>Đang tải bài viết...</p>;
   if (error) return <p>{error}</p>;
 
   return (
-    <div>
-      <h1 className="text-2xl font-bold">Chỉnh sửa bài viết</h1>
+    <div className="p-5 border-2 border-gray-400 rounded-lg shadow-lg bg-white">
+      <h1 className="text-2xl font-bold font-roboto">Chỉnh sửa bài viết</h1>
+      <br />
       <form onSubmit={handleSubmit}>
-        <div className="mb-4">
+        <div className="mb-4 font-roboto">
           <h2 className="text-xl font-bold mb-2">Tiêu đề</h2>
-          <Editor
-            apiKey="qtng98b7gdl3y5notdw50gnwtrrpjazmqeojga1dq6w76tce"
+          <input
+            type="text"
             value={formData.title}
-            init={{
-              height: 200,
-              menubar: false,
-              plugins: [],
-              toolbar: 'undo redo | bold italic',
-              content_style: 'body { font-family:Arial, sans-serif; font-size:14px; line-height:1.6 }',
-              entity_encoding: 'raw',
-            }}
-            onEditorChange={(content) => handleChange("title", content)}
+            onChange={(e) => handleChange("title", e.target.value)}
+            className="w-full p-2 border border-gray-300 rounded"
+            required
           />
         </div>
-        <div className="mb-4">
+        <div className="mb-4 font-roboto">
           <h2 className="text-xl font-bold mb-2">Tác giả</h2>
-          <Editor
-            apiKey="qtng98b7gdl3y5notdw50gnwtrrpjazmqeojga1dq6w76tce"
+          <input
+            type="text" 
             value={formData.author}
-            init={{
-              height: 200,
-              menubar: false,
-              plugins: [],
-              toolbar: 'undo redo | bold italic',
-              content_style: 'body { font-family:Arial, sans-serif; font-size:14px; line-height:1.6 }',
-              entity_encoding: 'raw',
-            }}
-            onEditorChange={(content) => handleChange("author", content)}
+            onChange={(e) => handleChange("author", e.target.value)}
+            className="w-full p-2 border border-gray-300 rounded"
+            required
           />
         </div>
         <div className="mb-4">
-          <h2 className="text-xl font-bold mb-2">Nội dung</h2>
+          <h2 className="text-xl font-bold mb-2 font-roboto">Nội dung</h2>
           <Editor
             apiKey="qtng98b7gdl3y5notdw50gnwtrrpjazmqeojga1dq6w76tce"
             value={formData.content}
@@ -148,7 +156,7 @@ const EditArticle: React.FC = () => {
               menubar: false,
               plugins: ['lists', 'link', 'image', 'table', 'emoticons', 'code'],
               toolbar: 'undo redo | bold italic | link image | alignleft aligncenter alignright | numlist bullist | code',
-              content_style: 'body { font-family:Arial, sans-serif; font-size:14px; line-height:1.6 }',
+              content_style: 'body { font-family:Roboto, sans-serif; font-size:16px; line-height:1.8 }',
               entity_encoding: 'raw',
             }}
             onEditorChange={(content) => handleChange("content", content)}
@@ -156,26 +164,35 @@ const EditArticle: React.FC = () => {
         </div>
 
         <div>
-          <label className="block mt-4">Hình ảnh hiện tại</label>
+          <label className="text-xl font-bold mb-2 font-roboto">Hình ảnh hiện tại</label>
           <img
             src={formData.imageUrl}
             alt="Hình ảnh bài viết"
             className="w-40 h-40 object-cover border border-gray-300 mt-2"
           />
-          <label className="block mt-4">Chọn ảnh mới</label>
+          <label className="block mt-4 font-roboto">Chọn ảnh mới</label>
           <input
             type="file"
             accept="image/*"
             onChange={(e) => handleChange("imageFile", e.target.files?.[0])}
-            className="mt-2"
+            className="mt-2 font-roboto"
           />
         </div>
-        <button
-          type="submit"
-          className="mt-4 bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600"
-        >
-          Lưu
-        </button>
+        <div className="flex justify-between items-center">
+          <button
+            type="submit"
+            className="mt-4 bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600"
+          >
+            Lưu
+          </button>
+          <button
+            type="button"
+            onClick={handleBack}
+            className="mt-4 bg-gray-500 text-white py-2 px-4 rounded hover:bg-gray-600"
+          >
+            Quay lại
+          </button>
+        </div>
       </form>
     </div>
   );
