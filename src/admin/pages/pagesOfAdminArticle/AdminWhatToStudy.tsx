@@ -59,13 +59,15 @@ const AdminWhatToStudy: React.FC = () => {
       if (article) {
       // Get first key from dictionary
       let url = `https://localhost:7230/api/Article/${id}`;
-      if(article.urlImage) {
+      if (article.urlImage) {
         const publicId = Object.keys(article.urlImage)[0] || '';
-        const encodedPublicId = encodeURIComponent(publicId);
-        url += `/${encodedPublicId}`;
+        if (publicId) {
+          const encodedPublicId = encodeURIComponent(publicId);
+          url += `/${encodedPublicId}`;
+        }
       }
       const response = await axios.delete(url);
-      if(response.data.result === "ok"){
+      if(response.status == 200){
         setArticles(prev => prev.filter( a => a.id != id));
         alert('Xóa bài viết thành công!');
       }
