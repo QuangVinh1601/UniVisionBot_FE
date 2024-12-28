@@ -37,7 +37,7 @@ const UserChat = () => {
     console.log(userId)
     console.log(fullName)
     const handleResponse = (response: string): string => {
-        // Remove lines containing links and citation patterns from the response
+
         let formattedResponse = response;
 
         return formattedResponse;
@@ -101,31 +101,6 @@ const UserChat = () => {
                     ],
                 };
                 setConversation(initialConversation);
-
-                // const response = await sendMessage(resultString, null, null);
-                // setResponseMessage(response.response);
-                // setChatId(response.chatId);
-                // setChatCode(response.chatCode);
-
-                // Update conversation with the response
-                // setConversation(prev => ({
-                //     ...prev,
-                //     messages: [
-                //         ...prev.messages,
-                //         {
-                //             id: 2,
-                //             // content: handleResponse(response.response),
-                //             content: "123",
-                //             sender: 'consultant',
-                //             senderId: '675461fbf87f485f45b118a6',
-                //             receiverId: userId,
-                //             time: new Date().toLocaleTimeString([], {
-                //                 hour: '2-digit',
-                //                 minute: '2-digit',
-                //             }),
-                //         }
-                //     ]
-                // }));
             } catch (error) {
                 console.error('Error initializing chat:', error);
                 alert('Có lỗi xảy ra khi khởi tạo cuộc trò chuyện. Vui lòng thử lại.');
@@ -141,7 +116,6 @@ const UserChat = () => {
     }, [resultString]);
 
 
-    // Initialize conversation with just the user's message first
     const [conversation, setConversation] = useState<Conversation>({
         id: 1,
         consultant: 'Trợ lý ảo',
