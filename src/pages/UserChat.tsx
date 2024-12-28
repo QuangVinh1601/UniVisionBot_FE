@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Send, Smile } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom'; // Import useNavigate
 import { sendMessage, addPendingConversation, addMessage } from '../api/authApi'; // Import the sendMessage and new APIs
 import AdBanner from '../components/AdBanner'; // Import AdBanner component
+import logo from '../images/logo.jpg'; // Import the logo image
 
 interface Message {
     id: number;
@@ -33,13 +34,14 @@ const UserChat = () => {
     const role = localStorage.getItem('role'); // Get role from localStorage
     const userId = localStorage.getItem('UserId') || ''; // Get userId from localStorage and provide a default value
     const fullName = localStorage.getItem('fullName'); // Get fullName from localStorage
-    console.log(role)
-    console.log(userId)
-    console.log(fullName)
+    const hasInitialized = useRef(false); // Add useRef to track initialization
+
+    // console.log(role)
+    // console.log(userId)
+    // console.log(fullName)
     const handleResponse = (response: string): string => {
-
-        let formattedResponse = response;
-
+        // Remove "@webseach " from the response
+        let formattedResponse = response.replace('@webseach ', '');
         return formattedResponse;
     };
 
@@ -47,7 +49,9 @@ const UserChat = () => {
         try {
             setInitialLoading(true);
             const response = await sendMessage(resultString, null, null);
-            console.log('Message sent to consultant:', response.response);
+            setChatId(response.chatId);
+            setChatCode(response.chatCode);
+            // console.log('Message sent to consultant:', response.response);
 
             const formattedResponse = handleResponse(response.response);
 
@@ -77,15 +81,18 @@ const UserChat = () => {
     };
 
     useEffect(() => {
+        if (hasInitialized.current) return; // Prevent re-initialization
+        hasInitialized.current = true; // Mark as initialized
+
+        let i = 1;
         const initializeChat = async () => {
             try {
-                setInitialLoading(true); // Show loading state
                 const initialConversation: Conversation = {
                     id: 1,
                     consultant: 'Trợ lý ảo',
-                    lastMessage: '',
-                    time: '5s',
-                    avatar: '/api/placeholder/40/40',
+                    lastMessage: resultString,
+                    time: 'Just now',
+                    avatar: logo,
                     messages: [
                         {
                             id: 1,
@@ -109,11 +116,13 @@ const UserChat = () => {
             }
         };
 
-        if (resultString) {
-            initializeChat();
-            initializeConsultantResponse(); // Call the new function here
-        }
-    }, [resultString]);
+        // Call the new function here
+        initializeChat();
+        console.log(i);
+        i += 1;
+        console.log(resultString);
+        initializeConsultantResponse();
+    }, [userId]);
 
 
     const [conversation, setConversation] = useState<Conversation>({
@@ -169,7 +178,7 @@ const UserChat = () => {
         try {
             // Call the sendMessage API with chatId and chatCode
             const response = await sendMessage(newMessage, chatId, chatCode);
-            console.log('Message sent to consultant:', response.response);
+            // console.log('Message sent to consultant:', response.response);
 
             // Format the consultant's response
             const formattedResponse = handleResponse(response.response);

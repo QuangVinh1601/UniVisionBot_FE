@@ -175,8 +175,9 @@ const CareerSurvey: React.FC<CareerSurveyProps> = ({ isFormFilled }) => {
     }
 
     const resultString = Result(calculateScores());
-    console.log('Kết quả:', resultString);
-    navigate('/UserChat', { state: { resultString: resultString } });
+    // console.log('Kết quả:', resultString);
+    navigate('/UserChat', { state: { resultString } });
+
   };
 
   const handleCancel = () => {
