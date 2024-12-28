@@ -1,5 +1,6 @@
 import gg_bot from '../images/gg_bot.png'; // Đảm bảo đường dẫn ảnh đúng
 import React, { useState, useEffect, useRef } from 'react';
+import { useLocation } from 'react-router-dom';
 import { HubConnection, HubConnectionBuilder, HttpTransportType, LogLevel } from '@microsoft/signalr';
 import { X } from 'lucide-react';
 
@@ -51,6 +52,7 @@ interface ConsultantResponse {
 const Chatbot: React.FC<ChatbotProps> = () => {
   const [isOpen, setIsOpen] = useState(false);
   const isOpenRef = useRef(isOpen);
+  const location = useLocation();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [connection, setConnection] = useState<HubConnection | null>(null);
@@ -97,6 +99,14 @@ const Chatbot: React.FC<ChatbotProps> = () => {
     setNotifyNewMessage(false);
     
   };
+  useEffect(() => {
+    // Check if navigating from UserChat and should open chat
+    if (location.state?.openChat && location.state?.fromUserChat) {
+      setIsOpen(true);
+      // Clear the state to prevent reopening on subsequent navigation
+      window.history.replaceState({}, document.title);
+    }
+  }, [location]);
 
   useEffect(() => {
     if (isOpen) {

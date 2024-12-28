@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Send, Smile } from 'lucide-react';
+import { Send, Smile, UserCog } from 'lucide-react'; // Add import for icon
 import { useLocation, useNavigate } from 'react-router-dom'; // Import useNavigate
 import { sendMessage, addPendingConversation, addMessage } from '../api/authApi'; // Import the sendMessage and new APIs
 import AdBanner from '../components/AdBanner'; // Import AdBanner component
 import logo from '../images/logo.jpg'; // Import the logo image
+import userImage from '../images/user_man.png'
 
 interface Message {
     id: number;
@@ -226,7 +227,12 @@ const UserChat = () => {
 
             // Logic to switch to the assistant
             console.log('Switching to assistant...');
-            navigate('/'); // Navigate to home page
+            navigate('/', { 
+                state: { 
+                  openChat: true,
+                  fromUserChat: true 
+                } 
+              });
         } catch (error) {
             console.error('Error switching to assistant:', error);
             alert('Có lỗi xảy ra khi chuyển sang trợ lý. Vui lòng thử lại.');
@@ -272,12 +278,18 @@ const UserChat = () => {
                                 <div className="flex items-center gap-3">
                                     <img src={conversation.avatar} alt={conversation.consultant} className="w-10 h-10 rounded-full" />
                                     <h3 className="font-medium">{conversation.consultant}</h3>
-                                    <button
-                                        onClick={handleSwitchToAssistant}
-                                        className="ml-4 px-3 py-1 bg-blue-500 text-white rounded-lg"
-                                    >
-                                        Switch
-                                    </button>
+                                    <div className="relative group">
+                                        <button
+                                            onClick={handleSwitchToAssistant}
+                                            className="ml-4 px-4 py-2 bg-blue-500 text-white rounded-lg flex items-center gap-2 hover:bg-blue-600 transition-colors"
+                                        >
+                                            <UserCog size={18} />
+                                            <span>Chuyển sang tư vấn viên</span>
+                                        </button>
+                                        <div className="absolute hidden group-hover:block w-64 p-2 bg-gray-800 text-white text-sm rounded-lg -bottom-20 left-0">
+                                            Nếu câu trả lời của bot chưa làm bạn hài lòng, bạn có thể chuyển sang chat với tư vấn viên để được hỗ trợ tốt hơn
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
@@ -290,7 +302,7 @@ const UserChat = () => {
                                             <p style={{ whiteSpace: 'pre-wrap' }}>{message.content}</p>
                                             <span className="text-xs text-gray-400 mt-1">{message.time}</span>
                                         </div>
-                                        {message.sender === 'user' && <img src="/api/placeholder/32/32" alt="User" className="w-8 h-8 rounded-full ml-2" />}
+                                        {message.sender === 'user' && <img src={userImage} alt="User" className="w-8 h-8 rounded-full ml-2" />}
                                     </div>
                                 ))}
                                 {(isLoading || initialLoading) && (
