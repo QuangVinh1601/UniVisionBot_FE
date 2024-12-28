@@ -68,21 +68,24 @@ const Careers: React.FC = () => {
   const handleSearch = async () => {
     try {
       // Tạo body cho request
-      const requestBody = {
-        searchTerm: searchQuery.trim(), // searchQuery từ input
-        year: selectedYear || "", // selectedYear từ dropdown, gửi chuỗi rỗng nếu không chọn năm
-      };
+      
+      const queryParams = new URLSearchParams({
+        SearchTerm: searchQuery || '',
+        Year: selectedYear || ''
+      }).toString();
   
-      console.log("Sending request with body:", requestBody);
+      console.log("Sending request with body:", queryParams);
   
       // Thực hiện fetch API
-      const response = await fetch("https://localhost:7230/api/UniversityExamScore/searching", {
-        method: "POST", // Phương thức POST
-        headers: {
-          "Content-Type": "application/json", // Chỉ định kiểu dữ liệu gửi
-        },
-        body: JSON.stringify(requestBody), // Chuyển đổi body sang JSON
-      });
+      const response = await fetch(
+        `https://localhost:7230/api/UniversityExamScore/search?${queryParams}`, 
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          }
+        }
+      );
   
       // Xử lý phản hồi
       if (!response.ok) throw new Error("Failed to fetch search results");

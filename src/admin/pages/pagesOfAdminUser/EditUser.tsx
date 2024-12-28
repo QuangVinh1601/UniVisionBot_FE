@@ -13,10 +13,16 @@ interface User {
 const EditUser: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const MAX_LENGTH = 255;
   const [details, setDetails] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [validationErrors, setValidationErrors] = useState({
+    userName: '',
+    fullName: '',
+    email: ''
+  });
 
   const fetchUserDetails = async () => {
     setLoading(true);
@@ -42,18 +48,73 @@ const EditUser: React.FC = () => {
     }
   };
 
+  const validateForm = (): boolean => {
+    const errors = {
+      userName: '',
+      fullName: '',
+      email: ''
+    };
+    
+    if (!details?.userName.trim()) {
+      errors.userName = 'Required username';
+    } else if (details.userName.length > MAX_LENGTH) {
+      errors.userName = `Username cannot exceed ${MAX_LENGTH} characters`;
+    }
+    
+    // Fullname validation
+    if (!details?.fullName.trim()) {
+      errors.fullName = 'Required fullname';
+    } else if (details.fullName.length > MAX_LENGTH) {
+      errors.fullName = `Fullname cannot exceed ${MAX_LENGTH} characters`;
+    }
+    
+    // Email validation
+    if (!details?.email.trim()) {
+      errors.email = 'Required email';
+    } else if (details.email.length > MAX_LENGTH) {
+      errors.email = `Email cannot exceed ${MAX_LENGTH} characters`;
+    }
+    setValidationErrors(errors);
+    return !Object.values(errors).some(error => error !== '');
+  };
+  
+
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!details) return;
+
+    if (!validateForm()) {
+      return;
+    }
+
     setSaving(true);
     setError(null);
 
     try {
-      await axios.put(`https://localhost:7230/api/User/${id}`, details);
+      const response = await axios.put(`https://localhost:7230/api/User/${id}`, details);
       alert('Thông tin đã được cập nhật thành công!');
       navigate('/admin/account');
     } catch (err: any) {
-      setError(err.message || 'Đã xảy ra lỗi khi lưu dữ liệu');
+      if (err.response?.status === 400) {
+        const errorData = err.response.data;
+        
+        const newValidationErrors = {
+          userName: '',
+          fullName: '',
+          email: ''
+        };
+
+        if (errorData.includes('Username already exists')) {
+          newValidationErrors.userName = 'existed username';
+        }
+        if (errorData.includes('Email already exists')) {
+          newValidationErrors.email = 'existed email';
+        }
+
+        setValidationErrors(newValidationErrors);
+      } else {
+        setError('Đã xảy ra lỗi khi lưu dữ liệu');
+      }
     } finally {
       setSaving(false);
     }
@@ -80,16 +141,23 @@ const EditUser: React.FC = () => {
             name="userName"
             value={details.userName}
             onChange={handleInputChange}
-            className="w-full mb-4 p-2 border rounded"
+            className={`w-full mb-1 p-2 border rounded ${validationErrors.userName ? 'border-red-500' : ''}`}
           />
+          {validationErrors.userName && (
+            <p className="text-red-500 text-sm mb-4">{validationErrors.userName}</p>
+          )}
 
           <label className="block mb-2 font-semibold">Email</label>
           <input
             type="email"
             name="email"
             value={details.email}
-            className="w-full mb-4 p-2 border rounded"
+            onChange={handleInputChange}
+            className={`w-full mb-1 p-2 border rounded ${validationErrors.email ? 'border-red-500' : ''}`}
           />
+           {validationErrors.email && (
+            <p className="text-red-500 text-sm mb-4">{validationErrors.email}</p>
+          )}
 
           <label className="block mb-2 font-semibold">Full Name</label>
           <input
@@ -97,10 +165,13 @@ const EditUser: React.FC = () => {
             name="fullName"
             value={details.fullName}
             onChange={handleInputChange}
-            className="w-full mb-4 p-2 border rounded"
+            className={`w-full mb-1 p-2 border rounded ${validationErrors.fullName ? 'border-red-500' : ''}`}
           />
+          {validationErrors.fullName && (
+            <p className="text-red-500 text-sm mb-4">{validationErrors.fullName}</p>
+          )}
 
-          <div className="flex justify-between items-center">
+          <div className="flex justify-between items-center mt-4">
             <button
               type="submit"
               disabled={saving}

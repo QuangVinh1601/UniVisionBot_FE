@@ -6,16 +6,56 @@ import { login } from '../api/authApi';
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [emailError, setEmailError] = useState<string>('');
+  const [passwordError, setPasswordError] = useState<string>('');
   const navigate = useNavigate();
+
+  const validateEmail = (email: string): boolean => {
+    if (!email) {
+      setEmailError('Required email');
+      return false;
+    }
+
+    // Check if first character is uppercase
+    if (email[0] === email[0].toUpperCase()) {
+      setEmailError('Invalid format');
+      return false;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setEmailError('Invalid format');
+      return false;
+    }
+    
+    setEmailError('');
+    return true;
+  };
+
+  const validatePassword = (password: string): boolean => {
+    if (!password) {
+      setPasswordError('Required password');
+      return false;
+    }
+    
+    setPasswordError('');
+    return true;
+  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null); // Clear any previous errors
 
+    if (!validateEmail(email) || !validatePassword(password)) {
+      return;
+    }
+
     try {
       const response = await login(email, password);
+      if(!response.success){
+        setPasswordError("Incorrect password");
+      }
       const token = response.token;
       
       const role = response.roleUser; // Get role directly from response
@@ -96,11 +136,21 @@ const Login: React.FC = () => {
                 </label>
                 <input
                   type="email"
+                  required
                   placeholder="Nhập email của bạn"
-                  className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                  className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 ${
+                    emailError ? 'border-red-500' : ''
+                  }`}
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    validateEmail(e.target.value);
+                  }}
+                  onBlur={() => validateEmail(email)}
                 />
+                {emailError && (
+                  <p className="text-red-500 text-sm mt-1">{emailError}</p>
+                )}
               </div>
 
               <div className="mb-4 relative">
@@ -108,15 +158,21 @@ const Login: React.FC = () => {
                   Mật khẩu <span className="text-red-500">*</span>
                 </label>
                 <input
-                  type={showPassword ? 'text' : 'password'}
+                  type='password'
                   placeholder="Nhập mật khẩu"
-                  className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                  className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 ${
+                    passwordError ? 'border-red-500' : ''
+                  }`}
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    validatePassword(e.target.value);
+                  }}
+                  onBlur={() => validatePassword(password)}
                 />
-                <span className="absolute right-3 top-10 text-sm text-blue-500 cursor-pointer" onClick={() => setShowPassword(!showPassword)}>
-                  {showPassword ? 'Ẩn mật khẩu' : 'Hiển thị mật khẩu'}
-                </span>
+                {passwordError && (
+                  <p className="text-red-500 text-sm mt-1">{passwordError}</p>
+                )}
               </div>
 
               <button type="submit" className="w-full bg-green-500 text-white py-3 rounded hover:bg-green-600 transition-colors">

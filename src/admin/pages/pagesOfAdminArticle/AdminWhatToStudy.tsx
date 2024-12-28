@@ -41,11 +41,15 @@ const AdminWhatToStudy: React.FC = () => {
   const handleDeleteClick = async (id: string) => {
     try {
       const article = articles.find(a => a.id === id);
-    if (article && article.urlImage) {
+    if (article) {
       // Get first key from dictionary
-      const publicId = Object.keys(article.urlImage)[0] || '';
-      const encodedPublicId = encodeURIComponent(publicId);
-      const response = await axios.delete(`https://localhost:7230/api/Article/${id}/${encodedPublicId}`);
+      let url = `https://localhost:7230/api/Article/${id}`;
+      if(article.urlImage) {
+        const publicId = Object.keys(article.urlImage)[0] || '';
+        const encodedPublicId = encodeURIComponent(publicId);
+        url += `/${encodedPublicId}`;
+      }
+      const response = await axios.delete(url);
       if(response.data.result === "ok"){
         setArticles(prev => prev.filter( a => a.id != id));
       }

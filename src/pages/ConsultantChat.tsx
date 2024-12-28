@@ -608,7 +608,7 @@ const isValidUser = (conv: ConversationWithDetails) => {
               <span className="font-medium text-gray-700">Tin nhắn đang chờ</span>
               {unReadPendingConversationCount > 0 && (
                 <span className="px-2 py-1 text-xs bg-yellow-500 text-white rounded-full">
-                  {unReadPendingConversationCount > 99 ? "99+" : unReadPendingConversationCount}
+                  {unReadPendingConversationCount}
                 </span>
               )}
             </div>

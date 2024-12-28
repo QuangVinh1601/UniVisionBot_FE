@@ -13,14 +13,81 @@ const Register: React.FC = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [fullNameError, setFullNameError] = useState('');
+  const [userNameError, setUserNameError] = useState('');
+  const [emailError, setEmailError] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+  const [confirmPasswordError, setConfirmPasswordError] = useState('');
   const navigate = useNavigate();
+
+  const validateFullName = (value: string): boolean => {
+    if (!value.trim()) {
+      setFullNameError('Required full name');
+      return false;
+    }
+    setFullNameError('');
+    return true;
+  };
+
+  const validateUserName = (value: string): boolean => {
+    if (!value.trim()) {
+      setUserNameError('Required username');
+      return false;
+    }
+    setUserNameError('');
+    return true;
+  };
+
+  const validateEmail = (value: string): boolean => {
+    if (!value.trim()) {
+      setEmailError('Required email');
+      return false;
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(value)) {
+      setEmailError('Invalid email format');
+      return false;
+    }
+    setEmailError('');
+    return true;
+  };
+
+  const validatePassword = (value: string): boolean => {
+    if (!value) {
+      setPasswordError('Required password');
+      return false;
+    }
+    setPasswordError('');
+    return true;
+  };
+
+  const validateConfirmPassword = (value: string): boolean => {
+    if (!value) {
+      setConfirmPasswordError('Required confirm password');
+      return false;
+    }
+    if (value !== password) {
+      setConfirmPasswordError('Passwords do not match');
+      return false;
+    }
+    setConfirmPasswordError('');
+    return true;
+  };
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (password !== confirmPassword) {
-      setError('Mật khẩu và xác nhận mật khẩu không khớp');
+    
+    const isFullNameValid = validateFullName(fullName);
+    const isUserNameValid = validateUserName(userName);
+    const isEmailValid = validateEmail(email);
+    const isPasswordValid = validatePassword(password);
+    const isConfirmPasswordValid = validateConfirmPassword(confirmPassword);
+
+    if (!isFullNameValid || !isUserNameValid || !isEmailValid || 
+        !isPasswordValid || !isConfirmPasswordValid) {
       return;
     }
+
     try {
       const response = await register(fullName, userName, email, password, confirmPassword);
       setSuccess('Đăng ký thành công! Bạn có thể đăng nhập.');
@@ -61,10 +128,15 @@ const Register: React.FC = () => {
               <input
                 type="text"
                 placeholder="Nhập họ và tên"
-                className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 ${fullNameError ? 'border-red-500' : ''}`}
                 value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
+                onChange={(e) => {
+                  setFullName(e.target.value);
+                  validateFullName(e.target.value);
+                }}
+                onBlur={() => validateFullName(fullName)}
               />
+              {fullNameError && <p className="text-red-500 text-sm">{fullNameError}</p>}
             </div>
 
             <div className="mb-4">
@@ -74,10 +146,15 @@ const Register: React.FC = () => {
               <input
                 type="text"
                 placeholder="Nhập tên người dùng"
-                className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 ${userNameError ? 'border-red-500' : ''}`}
                 value={userName}
-                onChange={(e) => setUserName(e.target.value)}
+                onChange={(e) => {
+                  setUserName(e.target.value);
+                  validateUserName(e.target.value);
+                }}
+                onBlur={() => validateUserName(userName)}
               />
+              {userNameError && <p className="text-red-500 text-sm">{userNameError}</p>}
             </div>
 
             <div className="mb-4">
@@ -87,10 +164,15 @@ const Register: React.FC = () => {
               <input
                 type="email"
                 placeholder="Nhập email của bạn"
-                className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 ${emailError ? 'border-red-500' : ''}`}
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  validateEmail(e.target.value);
+                }}
+                onBlur={() => validateEmail(email)}
               />
+              {emailError && <p className="text-red-500 text-sm">{emailError}</p>}
             </div>
 
             <div className="mb-4 relative">
@@ -100,13 +182,15 @@ const Register: React.FC = () => {
               <input
                 type={showPassword ? 'text' : 'password'}
                 placeholder="Nhập mật khẩu"
-                className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 ${passwordError ? 'border-red-500' : ''}`}
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  validatePassword(e.target.value);
+                }}
+                onBlur={() => validatePassword(password)}
               />
-              <span className="absolute right-3 top-10 text-sm text-blue-500 cursor-pointer" onClick={() => setShowPassword(!showPassword)}>
-                {showPassword ? 'Ẩn mật khẩu' : 'Hiển thị mật khẩu'}
-              </span>
+              {passwordError && <p className="text-red-500 text-sm">{passwordError}</p>}
             </div>
 
             <div className="mb-4 relative">
@@ -116,13 +200,15 @@ const Register: React.FC = () => {
               <input
                 type={showConfirmPassword ? 'text' : 'password'}
                 placeholder="Nhập lại mật khẩu"
-                className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
+                className={`w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 ${confirmPasswordError ? 'border-red-500' : ''}`}
                 value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
+                onChange={(e) => {
+                  setConfirmPassword(e.target.value);
+                  validateConfirmPassword(e.target.value);
+                }}
+                onBlur={() => validateConfirmPassword(confirmPassword)}
               />
-              <span className="absolute right-3 top-10 text-sm text-blue-500 cursor-pointer" onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
-                {showConfirmPassword ? 'Ẩn mật khẩu' : 'Hiển thị mật khẩu'}
-              </span>
+              {confirmPasswordError && <p className="text-red-500 text-sm">{confirmPasswordError}</p>}
             </div>
 
             <div className="mb-4">

@@ -45,7 +45,7 @@ const Header: React.FC = () => {
                 </li>
                 <li>
                   <Link to="/careers" className="text-gray-700 hover:text-green-500 text-lg font-semibold">
-                    Các ngành nghề
+                    Tra cứu điểm thi
                   </Link>
                 </li>
                 <li>
@@ -55,7 +55,7 @@ const Header: React.FC = () => {
                 </li>
                 <li>
                   <Link to="/what-to-study" className="text-gray-700 hover:text-green-500 text-lg font-semibold">
-                    Học nghề gì
+                    Bài viết
                   </Link>
                 </li>
                 {token && role === 'USER' && (<li>
