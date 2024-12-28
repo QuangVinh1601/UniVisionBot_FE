@@ -43,6 +43,39 @@ const UserChat = () => {
         return formattedResponse;
     };
 
+    const initializeConsultantResponse = async () => {
+        try {
+            setInitialLoading(true);
+            const response = await sendMessage(resultString, null, null);
+            console.log('Message sent to consultant:', response.response);
+
+            const formattedResponse = handleResponse(response.response);
+
+            const consultantResponse: Message = {
+                id: conversation.messages.length + 1,
+                content: formattedResponse,
+                sender: 'consultant',
+                senderId: '675461fbf87f485f45b118a6',
+                receiverId: userId,
+                time: new Date().toLocaleTimeString([], {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                }),
+            };
+            setInitialLoading(false);
+
+            setConversation(prevConversation => ({
+                ...prevConversation,
+                lastMessage: formattedResponse,
+                time: 'Just now',
+                messages: [...prevConversation.messages, consultantResponse],
+            }));
+        } catch (error) {
+            console.error('Error sending message:', error);
+            alert('Có lỗi xảy ra khi gửi tin nhắn. Vui lòng thử lại.');
+        }
+    };
+
     useEffect(() => {
         const initializeChat = async () => {
             try {
@@ -69,29 +102,30 @@ const UserChat = () => {
                 };
                 setConversation(initialConversation);
 
-                const response = await sendMessage(resultString, null, null);
-                setResponseMessage(response.response);
-                setChatId(response.chatId);
-                setChatCode(response.chatCode);
+                // const response = await sendMessage(resultString, null, null);
+                // setResponseMessage(response.response);
+                // setChatId(response.chatId);
+                // setChatCode(response.chatCode);
 
                 // Update conversation with the response
-                setConversation(prev => ({
-                    ...prev,
-                    messages: [
-                        ...prev.messages,
-                        {
-                            id: 2,
-                            content: handleResponse(response.response),
-                            sender: 'consultant',
-                            senderId: '675461fbf87f485f45b118a6',
-                            receiverId: userId,
-                            time: new Date().toLocaleTimeString([], {
-                                hour: '2-digit',
-                                minute: '2-digit',
-                            }),
-                        }
-                    ]
-                }));
+                // setConversation(prev => ({
+                //     ...prev,
+                //     messages: [
+                //         ...prev.messages,
+                //         {
+                //             id: 2,
+                //             // content: handleResponse(response.response),
+                //             content: "123",
+                //             sender: 'consultant',
+                //             senderId: '675461fbf87f485f45b118a6',
+                //             receiverId: userId,
+                //             time: new Date().toLocaleTimeString([], {
+                //                 hour: '2-digit',
+                //                 minute: '2-digit',
+                //             }),
+                //         }
+                //     ]
+                // }));
             } catch (error) {
                 console.error('Error initializing chat:', error);
                 alert('Có lỗi xảy ra khi khởi tạo cuộc trò chuyện. Vui lòng thử lại.');
@@ -102,8 +136,10 @@ const UserChat = () => {
 
         if (resultString) {
             initializeChat();
+            initializeConsultantResponse(); // Call the new function here
         }
     }, [resultString]);
+
 
     // Initialize conversation with just the user's message first
     const [conversation, setConversation] = useState<Conversation>({

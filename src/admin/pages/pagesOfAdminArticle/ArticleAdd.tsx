@@ -28,19 +28,23 @@ const ArticleAdd: React.FC = () => {
     setError(null);
   
     // Kiểm tra nếu các trường bắt buộc không được điền và không hợp lệ
-    if (!formData.title || !formData.content || !formData.author || !formData.imageFile) {
+    if (!formData.title || !formData.content || !formData.author) {
       setError("Vui lòng điền đầy đủ các trường bắt buộc.");
       setLoading(false);
       return;
     }
   
-    // Kiểm tra độ dài của trường 'Author' và 'Content'
     if (formData.author.length < 3 || formData.author.length > 100) {
       setError("Tên tác giả phải từ 3 đến 100 ký tự.");
       setLoading(false);
       return;
     }
   
+    if (formData.title.length < 5 || formData.title.length > 100){
+      setError("Tiêu đề phải từ 5 đến 100 ký tự.");
+      setLoading(false);
+      return;
+    }
     if (formData.content.length < 50) {
       setError("Nội dung phải có ít nhất 50 ký tự.");
       setLoading(false);
@@ -76,7 +80,13 @@ const ArticleAdd: React.FC = () => {
     }
   };
   
-  
+  // Xử lý khi nhấn nút Quay lại
+  const handleBack = () => {
+    const isConfirmed = window.confirm('Bạn có chắc muốn quay lại? Các thay đổi sẽ không được lưu!');
+    if (isConfirmed) {
+      navigate('/admin/what-to-study');
+    }
+  };
 
   // Xử lý thay đổi trong các trường nhập liệu
   const handleChange = (field: string, value: any) => {
@@ -88,10 +98,11 @@ const ArticleAdd: React.FC = () => {
 
   return (
     <div className="p-5 border-2 border-gray-400 rounded-lg shadow-lg bg-white">
-      <h1 className="text-2xl font-bold">Thêm bài viết mới</h1>
+      <h1 className="text-2xl font-bold font-roboto">Thêm bài viết mới</h1>
       {error && <div className="text-red-500 mb-4">{error}</div>}
+      <br />
       <form onSubmit={handleSubmit}>
-        <div className="mb-4">
+        <div className="mb-4 font-roboto">
           <label className="text-xl font-bold mb-2">Tiêu đề</label>
           <input
             type="text"
@@ -101,7 +112,7 @@ const ArticleAdd: React.FC = () => {
             required
           />
         </div>
-        <div className="mb-4">
+        <div className="mb-4 font-roboto">
           <label className="text-xl font-bold mb-2">Tác giả</label>
           <input
             type="text"
@@ -112,7 +123,7 @@ const ArticleAdd: React.FC = () => {
           />
         </div>
         <div className="mb-4">
-          <h2 className="text-xl font-bold mb-2">Nội dung</h2>
+          <h2 className="text-xl font-bold mb-2 font-roboto">Nội dung</h2>
           <Editor
             apiKey="qtng98b7gdl3y5notdw50gnwtrrpjazmqeojga1dq6w76tce"
             value={formData.content}
@@ -121,35 +132,35 @@ const ArticleAdd: React.FC = () => {
               menubar: false,
               plugins: ['lists', 'link', 'image', 'table', 'emoticons', 'code'],
               toolbar: 'undo redo | bold italic | link image | alignleft aligncenter alignright | numlist bullist | code',
-              content_style: 'body { font-family:Arial, sans-serif; font-size:14px; line-height:1.6 }',
+              content_style: 'body { font-family:Roboto, sans-serif; font-size:16px; line-height:1.8 }',
               entity_encoding: 'raw',
             }}
             onEditorChange={handleEditorChange}  // Cập nhật giá trị khi thay đổi nội dung
           />
         </div>
-        <div className="mb-4">
-          <label className="block">Chọn ảnh</label>
+        <label className="block mt-4 font-roboto">Chọn ảnh mới (không bắt buộc)</label>
           <input
             type="file"
             accept="image/*"
             onChange={(e) => handleChange("imageFile", e.target.files?.[0])}
-            className="mt-2"
+            className="mt-2 font-roboto"
           />
+        <div className="flex justify-between items-center">
+          <button
+            type="submit"
+            disabled={loading}
+            className={`mt-4 ${loading ? "bg-gray-400" : "bg-green-500 hover:bg-green-600"} text-white font-bold py-2 px-4 rounded`}
+          >
+            {loading ? "Đang thêm..." : "Save"}
+          </button>
+          <button
+            type="button"
+            onClick={handleBack}
+            className="mt-4 bg-gray-500 text-white py-2 px-4 rounded hover:bg-gray-600"
+          >
+            Quay lại
+          </button>
         </div>
-        <button
-          type="submit"
-          disabled={loading}
-          className={`mt-4 ${loading ? "bg-gray-400" : "bg-green-500 hover:bg-green-600"} text-white font-bold py-2 px-4 rounded`}
-        >
-          {loading ? "Đang thêm..." : "Save"}
-        </button>
-        <button
-        type="button"
-        onClick={() => navigate('/admin/what-to-study')}
-        className="mt-4 bg-gray-500 text-white py-2 px-4 rounded hover:bg-gray-600"
-      >
-        Quay lại
-      </button>
       </form>
      
     </div>
