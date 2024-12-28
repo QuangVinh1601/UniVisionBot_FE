@@ -8,69 +8,45 @@ const FacultyEdit: React.FC = () => {
   const [facultyName, setFacultyName] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  // Fetch the faculty details for editing
-//   useEffect(() => {
-//     const fetchFacultyDetails = async () => {
-//       setLoading(true);
-//       setError(null);
-
-//       try {
-//         const response = await fetch(
-//           `https://localhost:7230/api/universities/${universityId}/faculties/${facultyId}`,
-//           {
-//             method: 'GET',
-//             headers: { 'Content-Type': 'application/json' },
-//           }
-//         );
-
-//         if (!response.ok) {
-//           throw new Error('Không thể tải thông tin khoa');
-//         }
-
-//         const data = await response.json();
-//         setFacultyName(data.name); // Pre-fill the input with the current faculty name
-//       } catch (err: any) {
-//         setError(err.message || 'Đã xảy ra lỗi khi tải thông tin khoa');
-//       } finally {
-//         setLoading(false);
-//       }
-//     };
-
-//     if (universityId && facultyId) {
-//       fetchFacultyDetails();
-//     }
-//   }, [universityId, facultyId]);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   // Handle form submission
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
-
+  
+    // Kiểm tra nếu tên khoa trống
+    if (!facultyName.trim()) {
+      setError('Tên khoa không được để trống.');
+      return;
+    }
+  
     setLoading(true);
     setError(null);
-
+  
     try {
       const response = await fetch(
         `https://localhost:7230/api/universities/${universityId}/faculties/${facultyId}`,
         {
-          method: 'PUT', // Update faculty
+          method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ name: facultyName }),
         }
       );
-
+  
       if (!response.ok) {
         throw new Error('Cập nhật khoa thất bại');
       }
-
-      alert('Cập nhật thành công');
-      navigate(`/admin/careers/university/${universityId}`); // Navigate back to the details page
+  
+      setSuccessMessage('Faculty name updated successfully.');
+      setFacultyName(''); // Reset lại tên khoa sau khi lưu thành công
+      const timer = setTimeout(() => setSuccessMessage(null), 3000);
+      return () => clearTimeout(timer);
     } catch (err: any) {
       setError(err.message || 'Đã xảy ra lỗi khi cập nhật khoa');
     } finally {
       setLoading(false);
     }
-  };
+  };  
 
   return (
     <div className="p-5 border-2 border-gray-400 rounded-lg shadow-lg bg-white">
@@ -79,21 +55,23 @@ const FacultyEdit: React.FC = () => {
       {loading && <p>Đang tải...</p>}
       {error && <p className="text-red-500">{error}</p>}
 
+      {/* Thông báo thành công */}
+      {successMessage && <p className="text-green-500 mb-4">{successMessage}</p>}
+
       <form onSubmit={handleSave}>
-        <div className="mb-4">
-          <label htmlFor="facultyName" className="block mb-2 font-bold">
-            Tên Khoa
-          </label>
-          <input
-            id="facultyName"
-            type="text"
-            value={facultyName}
-            onChange={(e) => setFacultyName(e.target.value)}
-            className="w-full px-3 py-2 border rounded"
-            placeholder="Nhập tên khoa"
-            required
-          />
-        </div>
+      <div className="mb-4">
+        <label htmlFor="facultyName" className="block mb-2 font-bold">
+          Tên Khoa
+        </label>
+        <input
+          id="facultyName"
+          type="text"
+          value={facultyName}
+          onChange={(e) => setFacultyName(e.target.value)}
+          className={`w-full px-3 py-2 border rounded ${error ? 'border-red-500' : ''}`}
+          placeholder="Nhập tên khoa"
+        />
+      </div>
 
         <div className="flex gap-4">
           <button
@@ -105,7 +83,7 @@ const FacultyEdit: React.FC = () => {
           </button>
           <button
             type="button"
-            onClick={() => navigate(-1)}
+            onClick={() => navigate(`/admin/careers/university/${universityId}`)}
             className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-700"
           >
             Quay lại

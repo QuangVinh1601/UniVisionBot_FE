@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 interface University {
   id: number;
@@ -14,8 +14,19 @@ const AdminCareers: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [hasNextPage, setHasNextPage] = useState(true);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    // Handle success message from UniversityAdd
+    if (location.state?.successMessage) {
+      setSuccessMessage(location.state.successMessage);
+      const timer = setTimeout(() => setSuccessMessage(null), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [location.state]);
 
   const fetchUniversities = async (page: number) => {
     setLoading(true);
@@ -56,44 +67,43 @@ const AdminCareers: React.FC = () => {
   };
 
   const handleUniversityClick = (id: number) => {
-    // Điều hướng đến trang chi tiết trường
     navigate(`/admin/careers/university/${id}`);
   };
 
   const handleAdd = () => {
-    // console.log('đang tới trang add');
-    navigate('/admin/careers/add');
+    const universityCodes = universities.map((uni) => uni.universityCode); // Lấy danh sách mã trường
+    navigate('/admin/careers/add', { state: { universityCodes } }); // Truyền qua state
   };
 
   const handleEdit = (id: number) => {
-    // Điều hướng đến trang chỉnh sửa
-    navigate(`/admin/careers/edit/${id}`);
+    const universityCodes = universities.map((uni) => uni.universityCode); // Lấy danh sách mã trường
+    navigate(`/admin/careers/edit/${id}`, { state: { universityCodes } }); // Truyền qua state
   };
-  
+
   const handleDelete = async (id: number) => {
     if (window.confirm('Bạn có chắc chắn muốn xóa trường này?')) {
       try {
         const response = await fetch(`https://localhost:7230/api/University/id?id=${id}`, {
           method: 'DELETE',
         });
-  
+
         if (!response.ok) {
           throw new Error('Không thể xóa trường đại học này');
         }
-  
-        // Cập nhật danh sách sau khi xóa
+
         setUniversities((prev) => prev.filter((uni) => uni.id !== id));
         alert('Xóa trường đại học thành công');
       } catch (err: any) {
         alert(err.message || 'Đã xảy ra lỗi');
       }
     }
-  };  
+  };
 
   return (
     <div className="p-5 border-2 border-gray-400 rounded-lg shadow-lg bg-white">
       <h1 className="text-lg font-bold mb-4">Danh sách trường đại học</h1>
 
+      {successMessage && <p className="text-green-500 mb-4">{successMessage}</p>}
       {loading && <p>Đang tải dữ liệu...</p>}
       {error && <p className="text-red-500">{error}</p>}
 
@@ -122,7 +132,6 @@ const AdminCareers: React.FC = () => {
                   <td className="border p-2">{university.universityCode}</td>
                   <td className="border p-2">{university.location}</td>
                   <td className="border">
-                    {/* Thêm 2 nút Edit và Delete */}
                     <button
                       onClick={() => handleEdit(university.id)}
                       className="px-3 py-1 bg-yellow-500 text-white rounded mx-2 hover:bg-yellow-700"
@@ -142,20 +151,20 @@ const AdminCareers: React.FC = () => {
           </table>
 
           <div className="flex justify-between items-center mt-4">
-            <div className="flex gap-4 items-center">
-              <button onClick={handleAdd}
-                className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-700"
-              >
-                Add
-              </button>
-            </div>
-
+            <button
+              onClick={handleAdd}
+              className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-700"
+            >
+              Add
+            </button>
             <div className="flex gap-4 items-center">
               <button
                 onClick={handlePrevPage}
                 disabled={currentPage === 1}
                 className={`px-4 py-2 rounded ${
-                  currentPage === 1 ? 'bg-gray-300 text-gray-600 cursor-not-allowed' : 'bg-blue-500 text-white hover:bg-blue-700'
+                  currentPage === 1
+                    ? 'bg-gray-300 text-gray-600 cursor-not-allowed'
+                    : 'bg-blue-500 text-white hover:bg-blue-700'
                 }`}
               >
                 Trang trước
@@ -165,7 +174,9 @@ const AdminCareers: React.FC = () => {
                 onClick={handleNextPage}
                 disabled={!hasNextPage}
                 className={`px-4 py-2 rounded ${
-                  !hasNextPage ? 'bg-gray-300 text-gray-600 cursor-not-allowed' : 'bg-blue-500 text-white hover:bg-blue-700'
+                  !hasNextPage
+                    ? 'bg-gray-300 text-gray-600 cursor-not-allowed'
+                    : 'bg-blue-500 text-white hover:bg-blue-700'
                 }`}
               >
                 Trang sau

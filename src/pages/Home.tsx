@@ -4,7 +4,7 @@ import image1 from '../images/image1.jpg';
 import image2 from '../images/image2.jpg';
 import aboutHomeImage from '../images/about_home.png';
 import article1 from '../images/article1.jpg';
-import image5 from '../images/image5.jpg';
+import post2 from '../images/post2.jpg';
 import image6 from '../images/image6.png';
 const Home: React.FC = () => {
   const location = useLocation();
@@ -13,6 +13,7 @@ const Home: React.FC = () => {
     <div className="relative">
       <img src={image1} alt="Background" className="w-full h-full object-cover mb-4" />
       <h1 className="text-4xl font-semibold text-black text-center my-4">GIỚI THIỆU UNI VISION BOT</h1>
+      <h2 className="text-xl text-black text-center">Uni Vision Bot là nền tảng tư vấn hướng nghiệp thông minh, giúp học sinh, sinh viên định hướng tương lai một cách dễ dàng và chính xác. Với sự tích hợp của chatbot hiện đại, Uni Vision Bot phân tích kết quả bài trắc nghiệm và đưa ra những gợi ý ngành nghề phù hợp. Ngoài ra, đội ngũ tư vấn viên chuyên nghiệp (Consultant) luôn sẵn sàng hỗ trợ để mang đến sự tư vấn chi tiết, cá nhân hóa, giúp bạn tự tin trên hành trình chinh phục ước mơ. Hãy để Uni Vision Bot đồng hành cùng bạn xây dựng tương lai vững chắc!</h2>
       <img src={image2} alt="Image2" className="w-full h-full object-cover my-4"/>
       {/* Replacing image3 with the formatted HTML content */}
       <div className="container mx-auto my-8 px-4">
@@ -73,7 +74,7 @@ const Home: React.FC = () => {
       </div>
 
       {/* Articles section */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-3">
         {/* Thẻ bài viết 1 */}
         <div className="bg-white shadow-lg rounded-lg overflow-hidden flex flex-col">
           <img
@@ -98,7 +99,7 @@ const Home: React.FC = () => {
         {/* Thẻ bài viết 2 */}
         <div className="bg-white shadow-lg rounded-lg overflow-hidden flex flex-col">
           <img
-            src={image5}
+            src={post2}
             alt="Article 2"
             className="w-full h-48 object-cover"
           />
@@ -128,7 +129,12 @@ const Home: React.FC = () => {
             <p className="text-gray-700 mb-4">
               Học nghề có lương tới 1000 Euro/tháng, nhận học bổng 63 triệu và việc làm tại Đức...
             </p>
-            <button className="bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600 mt-auto">Xem</button>
+            <a
+              href='https://vnexpress.net/thaco-se-to-chuc-2-500-khoa-hoc-cho-nhan-su-toan-he-thong-4753992.html'
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600 mt-auto text-center">Xem
+            </a>
           </div>
         </div>
       </div>

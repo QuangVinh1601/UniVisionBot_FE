@@ -94,7 +94,13 @@ const UniversityDetails: React.FC = () => {
   const handleAdd = () => {
     console.log(id)
     // console.log('đang tới trang add');
-    navigate('faculties/add');
+    const facultyNames = faculties.map((faculty) => faculty.name);
+    navigate('faculties/add', { state: { facultyNames } });
+  };
+
+  const handleEdit = (facultyId: string) => {
+    const facultyNames = faculties.map((faculty) => faculty.name); // Lấy danh sách tên khoa
+    navigate(`faculties/edit/${facultyId}`, { state: { facultyNames } }); // Truyền qua state
   };
 
   // Handle page navigation
@@ -138,7 +144,7 @@ const UniversityDetails: React.FC = () => {
                 </td>
                 <td className="border p-2">
                   <button
-                    onClick={() => navigate(`faculties/edit/${faculty.id}`)}
+                    onClick={() => handleEdit(faculty.id)}
                     className="px-3 py-1 bg-yellow-500 text-white rounded mx-2 hover:bg-yellow-700"
                   >
                     Edit

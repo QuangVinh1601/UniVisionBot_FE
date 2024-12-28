@@ -18,7 +18,10 @@ const AddMajor: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-
+  const [fieldErrors, setFieldErrors] = useState({
+    name: "",
+    majorCode: "",
+  });
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
@@ -26,66 +29,79 @@ const AddMajor: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setFieldErrors({ name: "", majorCode: "" }); // Reset field errors
+    setError(null); // Reset general error
+  
+    // Kiểm tra các trường bắt buộc
+    let hasError = false;
+  
+    if (!formData.name.trim()) {
+      setFieldErrors((prev) => ({ ...prev, name: "Tên ngành không được để trống." }));
+      hasError = true;
+    }
+    if (!formData.majorCode.trim()) {
+      setFieldErrors((prev) => ({ ...prev, majorCode: "Mã ngành không được để trống." }));
+      hasError = true;
+    }
+  
+    if (hasError) {
+      return; // Ngừng xử lý nếu có lỗi
+    }
+  
     setLoading(true);
-    setError(null);
-
-  // Parse subject combinations và entry scores
-const parsedSubjectCombinations = formData.subjectCombinations
-.split(",")
-.map((item) => item.trim());
-
-// Chuyển key thành số nguyên (int) và giữ giá trị là chuỗi (string)
-const parsedEntryScoreExam = Object.fromEntries(
-formData.entryScoreExam
-  .split(",")
-  .map((item) => {
-    const [key, value] = item.split(":").map((val) => val.trim());
-    return [parseInt(key, 10), value]; // Key là số nguyên, Value là chuỗi
-  })
-);
-
-const parsedEntryScoreRecord = Object.fromEntries(
-formData.entryScoreRecord
-  .split(",")
-  .map((item) => {
-    const [key, value] = item.split(":").map((val) => val.trim());
-    return [parseInt(key, 10), value]; // Key là số nguyên, Value là chuỗi
-  })
-);
-
-  try {
-    const response = await fetch(
-      `https://localhost:7230/api/faculties/${facultyId}/major`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          facultyId,
-          name: formData.name,
-          description: formData.description || "",
-          level: formData.level,
-          duration: formData.duration,
-          majorCode: formData.majorCode,
-          subjectCombinations: parsedSubjectCombinations,
-          entryScoreExam: parsedEntryScoreExam, // Gửi dưới dạng Dictionary<string, string>
-          entryScoreRecord: parsedEntryScoreRecord, // Gửi dưới dạng Dictionary<string, string>
-          tuitionFee: formData.tuitionFee,
-          notes: formData.notes || "",
-        }),
-      }
+  
+    // Parse subject combinations và entry scores
+    const parsedSubjectCombinations = formData.subjectCombinations
+      .split(",")
+      .map((item) => item.trim());
+  
+    const parsedEntryScoreExam = Object.fromEntries(
+      formData.entryScoreExam.split(",").map((item) => {
+        const [key, value] = item.split(":").map((val) => val.trim());
+        return [parseInt(key, 10), value];
+      })
     );
-
+  
+    const parsedEntryScoreRecord = Object.fromEntries(
+      formData.entryScoreRecord.split(",").map((item) => {
+        const [key, value] = item.split(":").map((val) => val.trim());
+        return [parseInt(key, 10), value];
+      })
+    );
+  
+    try {
+      const response = await fetch(
+        `https://localhost:7230/api/faculties/${facultyId}/major`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            facultyId,
+            name: formData.name,
+            description: formData.description || "",
+            level: formData.level,
+            duration: formData.duration,
+            majorCode: formData.majorCode,
+            subjectCombinations: parsedSubjectCombinations,
+            entryScoreExam: parsedEntryScoreExam,
+            entryScoreRecord: parsedEntryScoreRecord,
+            tuitionFee: formData.tuitionFee,
+            notes: formData.notes || "",
+          }),
+        }
+      );
+  
       if (!response.ok) {
         throw new Error("Thêm ngành thất bại. Vui lòng kiểm tra thông tin.");
       }
-
+  
       navigate(`/admin/careers/university/${universityId}/faculties/${facultyId}/majors`);
     } catch (err: any) {
       setError(err.message || "Đã xảy ra lỗi trong quá trình thêm ngành.");
     } finally {
       setLoading(false);
     }
-  };
+  };  
 
   return (
     <div className="p-5 border-2 border-gray-400 rounded-lg shadow-lg bg-white">
@@ -93,15 +109,15 @@ formData.entryScoreRecord
       {error && <p className="text-red-500">{error}</p>}
       <form onSubmit={handleSubmit}>
         <div className="mb-4">
-          <label className="block font-bold mb-2">Tên ngành:</label>
+          <label className="block font-bold mb-2">Tên ngành: <span className="text-red-500">*</span></label>
           <input
             type="text"
             name="name"
             value={formData.name}
             onChange={handleInputChange}
-            className="w-full p-2 border rounded"
-            required
+            className={`w-full p-2 border rounded ${fieldErrors.name ? "border-red-500" : ""}`}
           />
+          {fieldErrors.name && <p className="text-red-500 mt-2">{fieldErrors.name}</p>}
         </div>
         <div className="mb-4">
           <label className="block font-bold mb-2">Cấp độ:</label>
@@ -126,15 +142,15 @@ formData.entryScoreRecord
           />
         </div>
         <div className="mb-4">
-          <label className="block font-bold mb-2">Mã ngành:</label>
+          <label className="block font-bold mb-2">Mã ngành: <span className="text-red-500">*</span></label>
           <input
             type="text"
             name="majorCode"
             value={formData.majorCode}
             onChange={handleInputChange}
-            className="w-full p-2 border rounded"
-            required
+            className={`w-full p-2 border rounded ${fieldErrors.majorCode ? "border-red-500" : ""}`}
           />
+          {fieldErrors.majorCode && <p className="text-red-500 mt-2">{fieldErrors.majorCode}</p>}
         </div>
         <div className="mb-4">
           <label className="block font-bold mb-2">Tổ hợp môn:</label>

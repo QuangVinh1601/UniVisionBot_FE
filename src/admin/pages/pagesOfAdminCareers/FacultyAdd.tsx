@@ -5,6 +5,7 @@ const FacultyAdd: React.FC = () => {
   const [facultyName, setFacultyName] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const navigate = useNavigate();
   const { universityId } = useParams<{ universityId: string }>(); // Lấy universityId từ URL
@@ -34,8 +35,10 @@ const FacultyAdd: React.FC = () => {
       if (!response.ok) {
         throw new Error('Không thể thêm Khoa');
       }
-      alert('Thêm Khoa thành công!');
-      navigate(-1); // Quay lại trang trước
+      setSuccessMessage('Faculty added successfully.'); // Hiển thị thông báo thành công
+      setFacultyName(''); // Reset lại tên khoa sau khi lưu thành công
+      const timer = setTimeout(() => setSuccessMessage(null), 3000);
+      return () => clearTimeout(timer);
     } catch (err: any) {
       setError(err.message || 'Đã xảy ra lỗi');
     } finally {
@@ -44,7 +47,7 @@ const FacultyAdd: React.FC = () => {
   };
 
   const handleGoBack = () => {
-    navigate(-1); // Quay lại trang trước
+    navigate(`/admin/careers/university/${universityId}`); // Quay lại trang trước
   };
 
   return (
@@ -52,6 +55,9 @@ const FacultyAdd: React.FC = () => {
       <h1 className="text-lg font-bold mb-4">Thêm Khoa Mới</h1>
       
       {error && <p className="text-red-500 mb-4">{error}</p>}
+
+      {/* Thông báo thành công */}
+      {successMessage && <p className="text-green-500 mb-4">{successMessage}</p>}
 
       <div className="mb-4">
         <label className="block text-sm font-medium mb-2" htmlFor="facultyName">
@@ -67,13 +73,7 @@ const FacultyAdd: React.FC = () => {
         />
       </div>
 
-      <div className="flex justify-end gap-4">
-        <button
-          onClick={handleGoBack}
-          className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-700"
-        >
-          Quay lại
-        </button>
+      <div className="flex justify-start gap-4">
         <button
           onClick={handleSave}
           disabled={loading}
@@ -82,6 +82,12 @@ const FacultyAdd: React.FC = () => {
           }`}
         >
           {loading ? 'Đang lưu...' : 'Lưu'}
+        </button>
+        <button
+          onClick={handleGoBack}
+          className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-700"
+        >
+          Quay lại
         </button>
       </div>
     </div>
