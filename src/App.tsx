@@ -8,7 +8,8 @@ import Home from './pages/Home';
 import Careers from './pages/Careers';
 import CareerGuidanceTest from './pages/CareerGuidanceTest/CareerGuidanceTest';
 import ChatBotMess from './components/ChatBotMess';
-import WhatToStudy from './pages/WhatToStudy';
+import WhatToStudy from './pages/WhatToStudy/WhatToStudy';
+import ArticleDetail from './pages/WhatToStudy/ArticleDetail';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import ForgotPassword from './pages/ForgotPassword';
@@ -51,7 +52,8 @@ function App() {
     location.pathname === '/' ||
     location.pathname === '/careers' ||
     location.pathname === '/career-guidance-test' ||
-    location.pathname === '/what-to-study';
+    location.pathname === '/what-to-study' ||
+    location.pathname.startsWith('/what-to-study/articleDetails');
 
   const handleAdClick = async () => {
     try {
@@ -84,13 +86,14 @@ function App() {
     location.pathname === '/admin/dashboard' ||
     location.pathname === '/admin/careers' ||
     location.pathname === '/admin/what-to-study' ||
+    location.pathname.startsWith('/admin/what-to-study/edit') ||
+    location.pathname === '/admin/what-to-study/add' ||
     location.pathname === '/admin/account' ||
     location.pathname === '/admin/careers/add' ||
     location.pathname.startsWith('/admin/careers/university') ||
     location.pathname.startsWith('/admin/careers/edit') ||
     location.pathname === '/consultant-chat' ||
     location.pathname === '/UserChat'
-
   const is404 = location.pathname === '/404';
   const isUser = role === 'USER';
 
@@ -98,7 +101,7 @@ function App() {
     <FeedbackProvider>
       <div className="flex flex-col min-h-screen">
         {!isPageAdmin && !isAdminOrConsultant && !is404 && (
-          <div className="fixed top-0 left-0 right-0 z-50">
+          <div className= "fixed top-0 left-0 right-0 z-50">
             <Header />
             <hr className="border-t border-gray-300" />
           </div>
@@ -130,6 +133,7 @@ function App() {
               <Route path="/careers" element={<Careers />} />
               <Route path="/career-guidance-test" element={<CareerGuidanceTest />} />
               <Route path="/what-to-study" element={<WhatToStudy />} />
+              <Route path="/what-to-study/articleDetails/:id" element={<ArticleDetail />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
