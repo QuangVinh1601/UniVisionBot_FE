@@ -61,7 +61,7 @@ const Chatbot: React.FC<ChatbotProps> = () => {
   const [isReconnecting, setIsReconnecting] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const currentUserId = localStorage.getItem('UserId');
-  const consultantId = "675461fbf87f485f45b118a6";
+  const consultantId = "676ab34f2f2100f40b7a28d2";
   const [notifyNewMessage, setNotifyNewMessage] = useState(false);
   let audio = new Audio('/Messenger Notification Sound Effect.mp3')
 
@@ -192,7 +192,7 @@ const Chatbot: React.FC<ChatbotProps> = () => {
       newConnection.on("ReceiveMessage", (message: MessageResponse) => {
         var currentMessage = deserialize(message)
 
-        if(currentMessage.receiverId != '675461fbf87f485f45b118a6') {
+        if(currentMessage.receiverId != '676ab34f2f2100f40b7a28d2') {
           audio.play();
         }
         setMessages(prev => 

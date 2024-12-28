@@ -8,7 +8,8 @@ import Home from './pages/Home';
 import Careers from './pages/Careers';
 import CareerGuidanceTest from './pages/CareerGuidanceTest/CareerGuidanceTest';
 import ChatBotMess from './components/ChatBotMess';
-import WhatToStudy from './pages/WhatToStudy';
+import WhatToStudy from './pages/WhatToStudy/WhatToStudy';
+import ArticleDetail from './pages/WhatToStudy/ArticleDetail';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import ForgotPassword from './pages/ForgotPassword';
@@ -17,8 +18,7 @@ import AdminLayout from './admin/components/AdminLayout';
 import AdminDashboardHeader from './admin/components/AdminDashboardHeader';
 import AdminDashboard from './admin/pages/AdminDashboard';
 import AdminCareers from './admin/pages/AdminCareers';
-import AdminAccount from './admin/pages/AdminAccount';
-import AdminWhatToStudy from './admin/pages/AdminWhatToStudy';
+import AdminWhatToStudy from './admin/pages/pagesOfAdminArticle/AdminWhatToStudy';
 import UniversityDetails from './admin/pages/pagesOfAdminCareers/UniversityDetails'; // Import trang chi tiết trường đại học
 import UniversityEdit from './admin/pages/pagesOfAdminCareers/UniversityEdit';
 import UniversityAdd from './admin/pages/pagesOfAdminCareers/UniversityAdd';
@@ -27,6 +27,8 @@ import FacultyEdit from './admin/pages/pagesOfAdminCareers/FacultyEdit';
 import FacultyMajors from './admin/pages/pagesOfAdminCareers/FacultyMajors';
 import AddMajor from './admin/pages/pagesOfAdminCareers/MajorAdd';
 import EditMajor from './admin/pages/pagesOfAdminCareers/EditMajor';
+import ArticleEditor from './admin/pages/pagesOfAdminArticle/ArticleEditor';
+import ArticleAdd from './admin/pages/pagesOfAdminArticle/ArticleAdd';
 import ChatWindow from './components/ChatWindow'; // Import ChatWindow component
 import { PrivateRoute } from './components/PrivateRoute';
 import UserChat from './pages/UserChat';
@@ -36,18 +38,32 @@ import AdminFeedback from './admin/pages/AdminFeedback';
 import VisitorCounter from './components/VisitorCounter'; // Import useVisitorCounter hook
 import NotFoundPage from './pages/NotFoundPage';
 import { Navigate } from 'react-router-dom';
+import { User } from 'lucide-react';
+import UserManagement from './admin/pages/pagesOfAdminUser/User';
+import EditUser from './admin/pages/pagesOfAdminUser/EditUser';
+import { AD_Click } from './api/authApi';
+
 
 function App() {
   const location = useLocation();
   const visitorCount = VisitorCounter();
   const role = localStorage.getItem('role');
-  const isHaveBanner = 
+  const isHaveBanner =
     location.pathname === '/' ||
     location.pathname === '/careers' ||
     location.pathname === '/career-guidance-test' ||
-    location.pathname === '/what-to-study';
-  
-  
+    location.pathname === '/what-to-study' ||
+    location.pathname.startsWith('/what-to-study/articleDetails');
+
+  const handleAdClick = async () => {
+    try {
+      await AD_Click();
+      console.log('Ad click recorded');
+    } catch (error) {
+      console.error('Error recording ad click', error);
+    }
+  };
+
   const isPageAdmin =
     location.pathname === '/admin' ||
     location.pathname === '/admin/dashboard' ||
@@ -70,13 +86,14 @@ function App() {
     location.pathname === '/admin/dashboard' ||
     location.pathname === '/admin/careers' ||
     location.pathname === '/admin/what-to-study' ||
+    location.pathname.startsWith('/admin/what-to-study/edit') ||
+    location.pathname === '/admin/what-to-study/add' ||
     location.pathname === '/admin/account' ||
     location.pathname === '/admin/careers/add' ||
     location.pathname.startsWith('/admin/careers/university') ||
     location.pathname.startsWith('/admin/careers/edit') ||
     location.pathname === '/consultant-chat' ||
     location.pathname === '/UserChat'
-
   const is404 = location.pathname === '/404';
   const isUser = role === 'USER';
 
@@ -84,18 +101,18 @@ function App() {
     <FeedbackProvider>
       <div className="flex flex-col min-h-screen">
         {!isPageAdmin && !isAdminOrConsultant && !is404 && (
-          <div className="fixed top-0 left-0 right-0 z-50">
+          <div className= "fixed top-0 left-0 right-0 z-50">
             <Header />
             <hr className="border-t border-gray-300" />
           </div>
         )}
         <div
-          className={`flex flex-1 ${isAuthPage ? 'justify-center' : ''} ${isHaveBanner ?'mt-16' : ''
+          className={`flex flex-1 ${isAuthPage ? 'justify-center' : ''} ${isHaveBanner ? 'mt-16' : ''
             }`}
         >
           {isHaveBanner && (
             <>
-              <AdBanner position="left" />
+              <AdBanner position="left" onClick={handleAdClick} />
               <hr className="border-l border-gray-300" />
             </>
           )}
@@ -116,6 +133,7 @@ function App() {
               <Route path="/careers" element={<Careers />} />
               <Route path="/career-guidance-test" element={<CareerGuidanceTest />} />
               <Route path="/what-to-study" element={<WhatToStudy />} />
+              <Route path="/what-to-study/articleDetails/:id" element={<ArticleDetail />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
@@ -143,7 +161,10 @@ function App() {
                 <Route path="/admin/careers/university/:universityId/faculties/:facultyId/majors/add" element={<AddMajor />} />
                 <Route path="/admin/careers/university/:universityId/faculties/:facultyId/majors/edit/:majorId" element={<EditMajor />} />
                 <Route path="what-to-study" element={<AdminWhatToStudy />} />
-                <Route path="account" element={<AdminAccount />} />
+                <Route path="what-to-study/edit/:id" element={<ArticleEditor />} />
+                <Route path="account" element={<UserManagement />} />
+                <Route path="account/:id" element={<EditUser />} />
+                <Route path="what-to-study/add" element={< ArticleAdd/>} />
                 <Route path="feedback" element={<AdminFeedback />} />
               </Route>
               {/* ChatBotMess for USER */}
@@ -159,14 +180,14 @@ function App() {
                 <PrivateRoute role="USER">
                   <UserChat />
                 </PrivateRoute>
-                } 
+              }
               />
             </Routes>
           </main>
           {isHaveBanner && (
             <>
               <hr className="border-r border-gray-300" />
-              <AdBanner position="right" />
+              <AdBanner position="right" onClick={handleAdClick} />
             </>
           )}
         </div>

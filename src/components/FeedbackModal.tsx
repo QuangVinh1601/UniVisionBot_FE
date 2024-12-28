@@ -24,7 +24,7 @@ interface Ratings {
 }
 
 interface FeedbackRequest {
-  overallFeedback: string;
+  overallFeedback?: string;
   userId: string;
   instance: Ratings;
 }
@@ -73,27 +73,29 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({ onClose }) => {
     onClose?.();
   };
 
+  const hasAnyRating = (): boolean => {
+    const { userInterface, functionality, performance, usefulness } = formData;
+    return userInterface > 0 || functionality > 0 || performance > 0 || usefulness > 0;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError(null);
 
-    // Client-side validation
-    if (!formData.comment || formData.comment.length > 500) {
-      setError('Feedback không được để trống và không được vượt quá 500 ký tự');
+    // Kiểm tra xem có ít nhất 1 đánh giá nào được chọn không
+    if (!hasAnyRating()) {
+      setError('Vui lòng chọn ít nhất một tiêu chí đánh giá!');
       setIsLoading(false);
       return;
     }
 
+    // Client-side validation
+    
+
     // Validate all ratings are between 1-5
     const ratings = [formData.userInterface, formData.functionality, 
                     formData.performance, formData.usefulness];
-    
-    if (ratings.some(rating => rating < 1 || rating > 5)) {
-      setError('Tất cả đánh giá phải từ 1 đến 5 sao');
-      setIsLoading(false);
-      return;
-    }
 
     try {
       const requestBody: FeedbackRequest = {
@@ -171,6 +173,13 @@ export const FeedbackModal: React.FC<FeedbackModalProps> = ({ onClose }) => {
               placeholder="Chia sẻ thêm ý kiến của bạn..."
             />
           </div>
+
+          {/* Add error display */}
+          {error && (
+            <div className="mt-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+              <p className="text-sm font-medium">{error}</p>
+            </div>
+          )}
 
           <div className="flex justify-end gap-3 pt-4">
             <button
